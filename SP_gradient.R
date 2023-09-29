@@ -53,10 +53,10 @@ data_summary <- function(data, varname, groupnames){
 
 #.----
 # UCI STAY analyses ----
+
 # Multiple lineal regressions ----
 library(car)
 library(MASS)
-
 
 # > Respiration ----
 scatterplotMatrix(~AI+Soil_Temp+MAP+MAT+Water_activity+Water_content+SOM+pH+TOC+TC+TN+C_N+Clay+Sand+Silt, data=my_data)
@@ -283,37 +283,42 @@ adonis2(per.dist ~ Site, data = perma_data2_trans, permutations = 10000, method=
 
 
 
+
+## SHIT THAT DIDNT WORK OUT:
+
 # # DAY 1
 # # https://www.youtube.com/watch?v=1ETBgbXl-BM&ab_channel=RiffomonasProject
-# 
-# # CAN NOT DO BRAY CURTIS BECAUSE OF THE NEGATIVE DATA
+# # # CAN NOT DO BRAY CURTIS BECAUSE OF THE NEGATIVE DATA
 # per.dist <- vegdist(perma_data, method="bray")
-# 
-# per.div <- adonis2(perma_data ~ ., data = perma_data2, permutations = 999, method="bray")
-# 
-# 
+# # per.div <- adonis2(perma_data ~ ., data = perma_data2, permutations = 999, method="bray")
+# # 
 # # DAY 2
 # # https://www.youtube.com/watch?v=xyufizOpc5I&ab_channel=RiffomonasProject
 # # library(tidyverse)
-# # 
-# # shared <- as.matrix(perma_data)
+# # # # shared <- as.matrix(perma_data)
 # # class(shared)
-# # 
-# # library(vegan)
-# # 
-# # set.seed(19760620)
+# # # # library(vegan)
+# # # # set.seed(19760620)
 # # CAN NOT DO BRAY CURTIS BECAUSE OF THE NEGATIVE DATA
 # # dist <- vegdist(shared, method = "bray")
 # # nmds <- metaMDS(dist)
-# # 
-# # nmds <- metaMDS(shared, autotransform=FALSE)
+# # # # nmds <- metaMDS(shared, autotransform=FALSE)
 # # scores(nmds) %>% 
 # #   as_tibble(rownames="Site") %>% 
 # #   ggplot(aes(x=NMDS1, y= NMDS2)) +
 # #   geom_point()
 
 
-# Hola Anna
+# . ----
+# PCA with all explanatory variables ----
+
+#Selecting variables:
+pca_data <- my_data[,c(2,21:23,35:38,40:64,74)]
+
+
+
+
+
 
 
 # _______________________________________ ----
