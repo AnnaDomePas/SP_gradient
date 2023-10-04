@@ -1,5 +1,4 @@
-## SP gradient-----------Xingguo Han---25.01.2023
-## EDITED by: Anna Doménech-Pascual ---01.03.2023
+## SP gradient-----------
 rm(list = ls())
 
 # LOAD LIBRARY ----
@@ -52,8 +51,228 @@ data_summary <- function(data, varname, groupnames){
 
 
 #.----
-# UCI STAY analyses ----
 
+# UCI STAY ANALYSES ----
+
+
+# One-way MANOVA ----
+
+#Condition for MANOVA: the dataset must have more
+# observations (rows) per group in the independent
+# variable than a number of the dependent variables.
+
+manova_data <- my_data[,c(2,35,37,38,40:64)]
+
+# 1rst we separate the dependent variables from the other ones:
+dependent_vars <- as.matrix(manova_data[,-c(1)])
+# dependent variables needs to be entered as a matrix, not a dataframe
+independent_var <- as.factor(manova_data[,c(1)])
+# independent variable needs to be a factor (with different levels)
+
+manova_model <- manova(dependent_vars ~ independent_var, data = manova_data)
+summary(manova_model)
+
+# By default, MANOVA in R uses Pillai’s Trace test statistic.
+# The P-value is practically zero, which means we can safely
+# reject the null hypothesis in the favor of the alternative one:
+# at least one group mean vector differs from the rest.
+
+
+# we could also measure the effect size. 
+# One metric often used with MANOVA is Partial Eta Squared.
+# It measures the effect the independent variable has on the
+#dependent variables. If the value is 0.14 or greater, we can
+# say the effect size is large.
+
+library(effectsize)
+
+eta_squared(manova_model)
+
+# The value is 0.83, which means the effect size is large.
+# It’s a great way to double-check the summary results of a MANOVA test.
+
+
+
+# Post hoc test: Linear Discriminant Analysis (LDA)
+# It finds a linear combination of features that best separates two
+# or more groups.
+
+library(MASS)
+
+manova_lda <- lda(independent_var ~ dependent_vars, CV = F)
+manova_lda
+
+
+# The snippet below uses the predict() function to get the linear
+# discriminants and combines them with our independent variable:
+lda_df <- data.frame(
+  sites = manova_data[, "Site"],
+  lda = predict(manova_lda)$x
+)
+lda_df
+
+
+# The final step in this post-hoc test is to visualize the above
+#  lda_df as a scatter plot. Ideally, we should see one or multiple
+#  groups stand out:
+
+
+lda_df$sites <- factor(lda_df$sites, levels = c("SP08", "SP01", "SP02",
+                                                "SP07","SP06","SP03",
+                                                "SP12", "SP11", "SP04",
+                                                "SP09", "SP10","SP05"))
+
+mycolors2<-c("#10449F","#51B7DF","#00FFFF","#00A01D","#064700",
+             "#7A7615", "#583200", "#C24A0A", "#F5C92D","#FA0C00",
+             "#7D1809", "#290500")
+
+ggplot(lda_df) +
+  geom_point(aes(x = lda.LD1, y = lda.LD2, fill=sites), colour= "black", pch=21, size = 5) +
+  theme_classic()+
+  scale_fill_manual(values = mycolors2)
+
+
+
+
+
+library(rstatix)
+pwc <- manova_data %>%
+  gather(key = "variables", value = "value", CO2_dark,CH4_ave,N2O,BB,FB,chla,chlb,carotene,
+         EPS, alpha, beta, xyl, cbh, gla, fos, leu, phe,
+         X16S, ITS2, mcrA, pmoA, nifH, AOA, AOB, qnorB,
+         nosZ, phoD, Respiration) %>%
+  group_by(variables) %>%
+  games_howell_test(value ~ Site) %>%
+  select(-estimate, -conf.low, -conf.high) # Remove details
+pwc
+
+
+
+
+
+# https://www.r-bloggers.com/2022/01/manova-in-r-how-to-implement-and-interpret-one-way-manova/
+#  EXEMPLE WITH IRIS DATA:
+# data("iris")
+# dependent_vars <- cbind(iris$Sepal.Length, iris$Sepal.Width, iris$Petal.Length, iris$Petal.Width)
+# independent_var <- iris$Species
+# manova_model <- manova(dependent_vars ~ independent_var, data = iris)
+# summary(manova_model)
+# eta_squared(manova_model)
+# iris_lda <- lda(independent_var ~ dependent_vars, CV = F)
+# iris_lda
+# lda_df <- data.frame(
+#   species = iris[, "Species"],
+#   lda = predict(iris_lda)$x)
+# lda_df
+# ggplot(lda_df) +
+#   geom_point(aes(x = lda.LD1, y = lda.LD2, color = species), size = 4) +
+#   theme_classic()
+
+
+
+# > MANOVA assumptions ----
+#DO WE FOLLOW ALL THE ASSUMPTIONS FOR MANOVA?
+
+#https://www.datanovia.com/en/lessons/one-way-manova-in-r/#data-preparation
+
+# 1. Extreme outliers:
+# (trying for CO2_dark)
+library(rstatix)
+a <- manova_data %>%
+  group_by(Site) %>%
+  identify_outliers(CO2_dark)
+# THERE ARE SOME EXTREME OUTLIERS!!
+# Note that, in the situation where you have extreme outliers,
+# this can be due to: 1) data entry errors, measurement errors or unusual values.
+# You can include the outlier in the analysis anyway if you do not believe the result
+# will be substantially affected. This can be evaluated by comparing the result
+# of the MANOVA with and without the outlier.
+# Remember to report in your written results section any decisions
+# you make regarding any outliers you find.
+
+
+# 2.Multivariate outliers
+manova_data %>%
+  group_by(Site) %>%
+  mahalanobis_distance(-id) %>%
+  filter(is.outlier == TRUE) %>%
+  as.data.frame()
+# Does not work
+
+
+manova_data %>%
+  group_by(Site) %>%
+  shapiro_test(CO2_dark) %>%
+  arrange(variable)
+# 1 site (SP11) does not have normality
+# for the CO2_dark
+
+apply(dependent_vars,2,shapiro.test)
+# Any variable has normality?
+
+# WE SHOULD TRANSFORM VARIABLES
+
+
+# 3. Seeing if there is multicollineality:
+# pvalue > 0.05 --> there is collineality
+manova_data %>% cor_test(CO2_dark,CH4_ave,N2O,BB,FB,chla,chlb,carotene,
+                         EPS, alpha, beta, xyl, cbh, gla, fos, leu, phe,
+                         X16S, ITS2, mcrA, pmoA, nifH, AOA, AOB, qnorB,
+                         nosZ, phoD, Respiration)
+
+# In the situation, where you have multicollinearity, you could consider
+# removing one of the outcome variables that is highly correlated.
+
+
+
+# 4. Lineality assumption
+library(GGally)
+results <- manova_data %>%
+  select(CO2_dark,CH4_ave,N2O,BB,FB,chla,chlb,carotene,
+         EPS, alpha, beta, xyl, cbh, gla, fos, leu, phe,
+         X16S, ITS2, mcrA, pmoA, nifH, AOA, AOB, qnorB,
+         nosZ, phoD, Respiration, Site) %>%
+  group_by(Site) %>%
+  doo(~ggpairs(.) + theme_bw(), result = "plots")
+results$plots
+
+
+# 5. Homogenity of covariances:
+box_m(manova_data[, c("CO2_dark", "CH4_ave")], manova_data$Site)
+
+# Note that, if you have balanced design (i.e., groups with similar sizes),
+# you don’t need to worry too much about violation of the homogeneity
+# of variances-covariance matrices and you can continue your analysis.
+# However, having an unbalanced design is problematic.
+# Possible solutions include:
+# 1) transforming the dependent variables;
+# 2) running the test anyway, but using Pillai’s multivariate
+# statistic instead of Wilks’ statistic.
+
+
+# 6. Homogenity of variance:
+manova_data %>% 
+  gather(key = "variable", value = "value", CO2_dark,CH4_ave,N2O,BB,FB,chla,chlb,carotene,
+         EPS, alpha, beta, xyl, cbh, gla, fos, leu, phe,
+         X16S, ITS2, mcrA, pmoA, nifH, AOA, AOB, qnorB,
+         nosZ, phoD, Respiration) %>%
+  group_by(variable) %>%
+  levene_test(value ~ Site)
+
+
+#  Note that, if you do not have homogeneity of variances,
+#  you can try to transform the outcome (dependent) variable
+# to correct for the unequal variances.
+
+# Alternatively, you can continue, but accept a lower level of
+# statistical significance (alpha level) for your MANOVA result.
+# Additionally, any follow-up univariate ANOVAs will need to be corrected
+# for this violation (i.e., you will need to use different post-hoc tests).
+
+
+
+
+#.----
 # Multiple lineal regressions ----
 library(car)
 library(MASS)
@@ -314,6 +533,52 @@ adonis2(per.dist ~ Site, data = perma_data2_trans, permutations = 10000, method=
 
 #Selecting variables:
 pca_data <- my_data[,c(2,21:23,35:38,40:64,74)]
+
+pca_data <- pca_data %>%
+  group_by(Site) %>%
+  summarise_all("mean")
+
+site_order <- my_data[,c(2,7)] 
+site_order <- site_order[!duplicated(site_order), ] #Erase duplicated lines from dataframe
+pca_data <- pca_data[order(site_order$AI, decreasing = T),]
+pca_data$Site <- factor(pca_data$Site, levels = pca_data$Site[order(site_order$AI)])
+
+pcr2 <- pca_data[,c(-1)]
+
+
+#Select column with levels (Site)
+site <- factor(pca_data$Site, levels = pca_data$Site)
+site
+
+pc <- prcomp(na.omit(pcr2), center = TRUE,
+             scale. = TRUE) 
+
+plot(pc, type = "l")
+plot(pc)
+summary(pc)
+
+mycolors2<-c("#10449F","#51B7DF","#00FFFF","#00A01D","#064700",
+             "#7A7615", "#583200", "#C24A0A", "#F5C92D","#FA0C00",
+             "#7D1809", "#290500")
+
+library(ggfortify)
+library(ggplot2)
+autoplot(pc, data=pca_data, 
+         loadings = TRUE, loadings.colour = 'brown',
+         loadings.label.colour='brown', loadings.label = TRUE,
+         loadings.label.size = 7,
+         loadings.label.repel=TRUE)+
+  theme_classic()+
+  geom_point(aes(fill=site), colour= "black", pch=21, size = 5)+
+  scale_fill_manual(values = mycolors2)+
+  ggtitle("All response variables")+
+  theme(legend.title = element_blank(),
+        legend.text=element_text(size = 12),
+        title = element_text(size = 15,face="bold"),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=15, face="plain"))
+
+# ggsave(path = "Figures","PCA_response_means.png", width = 10, height = 8, dpi = 300)
 
 
 

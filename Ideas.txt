@@ -1,0 +1,19 @@
+Drivers of soil microbial activities and greenhouse gas fluxes along an altitudinal gradient
+
+1. Little is known on the causal link between environmental drivers, microbial functions, and fluxes of greenhouse gases (GHGs; carbon dioxide ([CO2]), methane ([CH4)] and nitrous oxide [(N2O]) in soils of different elevation
+2. Links between fluxes through multiple linear regression. enzymes were also control by different variables found by multiple linear regression.
+3. CO2 measured under dark conditions is more meaninful.
+4. Structural modeling + Hierachical partioning + Random Forest regression
+
+My idea:
+
+MAIN QUESTION. How do soil functions change along a climate gradient and what factors control these changes?
+
+
+1. Are soil functions different along the climate gradient?
+
+b) Permanova for to see how the groups differ. (sites soil functions (enzymes, respiration, gases, genes, microbial biomass)). Look for other distance metric (euclidean)
+
+2. What are the best predictors for soil functions along the climate gradient?
+
+a) For the factors: multiple linear regression (to reduce dimensions) and hierachical partioning (work on the simpler model to determine which variables are more important). We could think about structural modeling to nested correlations among variables.
