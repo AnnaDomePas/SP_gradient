@@ -49,12 +49,265 @@ data_summary <- function(data, varname, groupnames){
 }
 
 
-
+# _______________________________________ ----
+# UCI STAY ANALYSES **** ----
 #.----
 
-# UCI STAY ANALYSES ----
+# Figure 1. Physicochemical plots ----
+
+New_data <- my_data[,c(2,7,8,10,12:13,17:23,27:30)]
+
+New_data <- setNames(New_data, c("Site","AI","Soiltemp","WaterContent","SOM","pH",
+                                 "TOC", "TC", "TN",
+                                 "CN","NH4","PO43","SO42",
+                                 "Sand","Silt","Clay","Litter"))
+New_data1 <- New_data %>%
+  gather(Physio, values, c(3:6))
+New_data2 <- New_data %>%
+  gather(Physio, values, c(7:10))
+New_data3 <- New_data %>%
+  gather(Physio, values, c(11:13))
+New_data4 <- New_data %>%
+  gather(Physio, values, c(14:17))
 
 
+New_data1 <- data_summary(New_data1, varname="values", 
+                         groupnames=c("Site","AI","Physio"))
+New_data2 <- data_summary(New_data2, varname="values", 
+                          groupnames=c("Site","AI","Physio"))
+New_data3 <- data_summary(New_data3, varname="values", 
+                          groupnames=c("Site","AI","Physio"))
+New_data4 <- data_summary(New_data4, varname="values", 
+                          groupnames=c("Site","AI","Physio"))
+
+New_data1$AI = as.numeric(New_data1$AI)
+New_data2$AI = as.numeric(New_data2$AI)
+New_data3$AI = as.numeric(New_data3$AI)
+New_data4$AI = as.numeric(New_data4$AI)
+
+New_data1$Site <- factor(New_data1$Site, levels = c("SP08", "SP01", "SP02",
+                                                "SP07","SP06","SP03",
+                                                "SP12", "SP11", "SP04",
+                                                "SP09", "SP10","SP05"))
+New_data2$Site <- factor(New_data2$Site, levels = c("SP08", "SP01", "SP02",
+                                                    "SP07","SP06","SP03",
+                                                    "SP12", "SP11", "SP04",
+                                                    "SP09", "SP10","SP05"))
+New_data3$Site <- factor(New_data3$Site, levels = c("SP08", "SP01", "SP02",
+                                                    "SP07","SP06","SP03",
+                                                    "SP12", "SP11", "SP04",
+                                                    "SP09", "SP10","SP05"))
+New_data4$Site <- factor(New_data4$Site, levels = c("SP08", "SP01", "SP02",
+                                                    "SP07","SP06","SP03",
+                                                    "SP12", "SP11", "SP04",
+                                                    "SP09", "SP10","SP05"))
+
+mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
+             "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
+             "#7D1809", "#290500")
+
+
+p1 <- ggplot(New_data1, aes(x=AI, y=values, color = Site)) +
+  geom_point(size= 5, shape=16) +
+  geom_pointrange(data = New_data1, aes(ymin=values-sd, ymax=values+sd), 
+                  color = "black", stroke = 1, size = 1, shape = 1) +
+  xlab("Aridity Index") +
+  scale_color_manual(values = mycolors2)+
+  theme(axis.title.y=element_blank()) +
+  theme(axis.title.x = element_text(size = 20, colour = "black")) +
+  facet_wrap(.~ Physio , nrow = 1, scales = "free_y",
+             labeller = labeller(Physio = c("pH" = "pH", 
+                                            "Soiltemp" = "Soil Temp.",
+                                            "SOM" = "SOM",
+                                            "WaterContent" = "Water content"))) +
+  theme(strip.background =element_rect(fill="light grey")) +
+  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0)) +
+  theme(panel.background = element_blank()) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+  theme(axis.text.x = element_text(size = 18, angle = 0, color = "black"))+
+  theme(axis.text.y = element_text(size = 18, color = "black"))+
+  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+  # theme(legend.position = "none")+
+  coord_cartesian(xlim = c(0.10,1.4))+
+  scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
+                     labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
+
+p1
+
+ggsave(path = "Figures/1 GRADIENT","SP_fig1_1.png", width = 20, height = 5, dpi = 300)
+
+
+p2 <- ggplot(New_data2, aes(x=AI, y=values, color = Site)) +
+  geom_point(size= 5, shape=16) +
+  geom_pointrange(data = New_data2, aes(ymin=values-sd, ymax=values+sd), 
+                  color = "black", stroke = 1, size = 1, shape = 1) +
+  xlab("Aridity Index") +
+  scale_color_manual(values = mycolors2)+
+  theme(axis.title.y=element_blank()) +
+  theme(axis.title.x = element_text(size = 20, colour = "black")) +
+  facet_wrap(.~ Physio , nrow = 1, scales = "free_y",
+             labeller = labeller(Physio = c("CN" = "C/N", 
+                                            "TC" = "TC",
+                                            "TN" = "TN",
+                                            "TOC" = "TOC"))) +
+  theme(strip.background =element_rect(fill="light grey")) +
+  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0)) +
+  theme(panel.background = element_blank()) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+  theme(axis.text.x = element_text(size = 18, angle = 0, color = "black"))+
+  theme(axis.text.y = element_text(size = 18, color = "black"))+
+  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+  # theme(legend.position = "none")+
+  coord_cartesian(xlim = c(0.10,1.4))+
+  scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
+                     labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
+p2
+ggsave(path = "Figures/1 GRADIENT","SP_fig1_2.png", width = 20, height = 5, dpi = 300)
+
+
+p3 <- ggplot(New_data3, aes(x=AI, y=values, color = Site)) +
+  geom_point(size= 5, shape=16) +
+  geom_pointrange(data = New_data3, aes(ymin=values-sd, ymax=values+sd), 
+                  color = "black", stroke = 1, size = 1, shape = 1) +
+  xlab("Aridity Index") +
+  scale_color_manual(values = mycolors2)+
+  theme(axis.title.y=element_blank()) +
+  theme(axis.title.x = element_text(size = 20, colour = "black")) +
+  facet_wrap(.~ Physio , nrow = 1, scales = "free_y") +
+  theme(strip.background =element_rect(fill="light grey")) +
+  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0)) +
+  theme(panel.background = element_blank()) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+  theme(axis.text.x = element_text(size = 18, angle = 0, color = "black"))+
+  theme(axis.text.y = element_text(size = 18, color = "black"))+
+  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+  # theme(legend.position = "none")+
+  coord_cartesian(xlim = c(0.10,1.4))+
+  scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
+                     labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
+p3
+ggsave(path = "Figures/1 GRADIENT","SP_fig1_3.png", width = 20, height = 5, dpi = 300)
+
+
+
+p4 <- ggplot(New_data4, aes(x=AI, y=values, color = Site)) +
+  geom_point(size= 5, shape=16) +
+  geom_pointrange(data = New_data4, aes(ymin=values-sd, ymax=values+sd), 
+                  color = "black", stroke = 1, size = 1, shape = 1) +
+  xlab("Aridity Index") +
+  scale_color_manual(values = mycolors2)+
+  theme(axis.title.y=element_blank()) +
+  theme(axis.title.x = element_text(size = 20, colour = "black")) +
+  facet_wrap(.~ Physio , nrow = 1, scales = "free_y")+
+  theme(strip.background =element_rect(fill="light grey")) +
+  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0)) +
+  theme(panel.background = element_blank()) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+  theme(axis.text.x = element_text(size = 18, angle = 0, color = "black"))+
+  theme(axis.text.y = element_text(size = 18, color = "black"))+
+  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+  # theme(legend.position = "none")+
+  coord_cartesian(xlim = c(0.10,1.4))+
+  scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
+                     labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
+p4
+ggsave(path = "Figures/1 GRADIENT","SP_fig1_4.png", width = 20, height = 5, dpi = 300)
+
+
+# **************************************************************************************
+
+# Figure 2. Physicochemical PCA (without AI) ----
+
+data <- my_data[,c(2,8:10,12,13,17:23,27:30)]
+for (i in which(sapply(data, is.numeric))) {
+  for (j in which(is.na(data[, i]))) {
+    data[j, i] <- mean(data[data[, "Site"] == data[j, "Site"], i],  na.rm = TRUE)
+  }
+}
+library(dplyr)
+data <- rename(data,
+                  Temperature = Soil_Temp,
+                  WA = Water_activity,
+                  WC = Water_content,
+                  CN = C_N)
+
+data2 <- data[,c(-1)]
+
+#By means:
+data_mit <- data %>% 
+  group_by(Site) %>%
+  summarise_all("mean")
+data_mit2 <- data_mit[,c(-1)]
+site <- data_mit[,1]
+site <- site$Site
+site <- factor(site, levels = site)
+all <- prcomp(na.omit(data_mit2), center = TRUE,
+              scale. = TRUE) 
+plot(all, type = "l")
+plot(all)
+summary(all)
+mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
+             "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
+             "#7D1809", "#290500")
+all_plot <- ggbiplot(all, obs.scale = 1, var.scale = 1, 
+                     ellipse = FALSE, fill=site,
+                     varname.size = 5,
+                     circle = TRUE, alpha=0) +
+  theme_classic()+
+  scale_fill_manual(values = mycolors2,
+                    breaks=c('SP08', 'SP01', 'SP02','SP07',
+                             'SP06', 'SP03','SP12','SP11',
+                             'SP04','SP09','SP10','SP05'))+
+  geom_point(aes(fill=site), colour= "black", pch=21, size = 6)+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=15))+
+  ggtitle("Physicochemical variables")+
+  theme(plot.title = element_text(color="black", size=17, face="bold.italic"))+
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(legend.title=element_blank())+
+  theme(legend.text = element_text(size=15))
+all_plot
+ggsave(path = "Figures/1 GRADIENT","SP_fig2_1.png", width = 7, height = 6, dpi = 300)
+
+#By replicates:
+site <- data[, 1]
+data2 <- data[,-1]
+pc <- prcomp(na.omit(data2), center = TRUE,
+             scale. = TRUE) 
+plot(pc, type = "l")
+plot(pc)
+summary(pc)
+mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
+             "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
+             "#7D1809", "#290500")
+all <- ggbiplot(pc, var.scale = 1,varname.size = 5,
+                obs.scale = 1,
+                ellipse = FALSE, fill=site,
+                circle = TRUE, alpha=0) +
+  theme_classic()+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=15))+
+  ggtitle("Physicochemical variables")+
+  theme(plot.title = element_text(color="black", size=17, face="bold.italic"))+
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(legend.title=element_blank())+
+  theme(legend.text = element_text(size=15))+
+  scale_fill_manual(values = mycolors2,
+                    breaks=c('SP08', 'SP01', 'SP02','SP07',
+                             'SP06', 'SP03','SP12','SP11',
+                             'SP04','SP09','SP10','SP05'))+
+  geom_point(aes(fill=site), colour= "black", pch=21, size = 6)
+all
+ggsave(path = "Figures/1 GRADIENT","SP_fig2_2.png", width = 7, height = 6, dpi = 300)
+
+
+
+
+
+
+
+
+#.----
 # One-way MANOVA ----
 
 #Condition for MANOVA: the dataset must have more
@@ -2315,3 +2568,121 @@ enzyme
 # save the plot
 ggsave(path = "Figures/1 GRADIENT", "ALL_enzymes_loess.png", width = 16, height = 8, dpi = 300)
  
+#__________________ -----
+# SHIT .-----
+
+# New_data <- my_data[,c(2,7,8,10,12:13,17:23,27:30)]
+# 
+# New_data <- setNames(New_data, c("Site","AI","Soil temp.","Water Content","SOM","pH",
+#                                  "TOC", "TC", "TN",
+#                                  "C/N","NH4","PO43","SO42",
+#                                  "Sand","Silt","Clay","Litter"))
+# New_data1 <- New_data %>% 
+#   gather(Physio, values, c(3:6))
+# New_data2 <- New_data %>% 
+#   gather(Physio, values, c(7:10))
+# New_data3 <- New_data %>% 
+#   gather(Physio, values, c(11:13))
+# New_data4 <- New_data %>% 
+#   gather(Physio, values, c(14:17))
+# 
+# 
+# library(formattable)
+# New_data1$AI <-formattable(New_data1$AI ,format="f",digits=2)
+# New_data2$AI <-formattable(New_data2$AI ,format="f",digits=2)
+# New_data3$AI <-formattable(New_data3$AI ,format="f",digits=2)
+# New_data4$AI <-formattable(New_data4$AI ,format="f",digits=2)
+# 
+# New_data1$AI <- as.factor(New_data1$AI)
+# New_data2$AI <- as.factor(New_data2$AI)
+# New_data3$AI <- as.factor(New_data3$AI)
+# New_data4$AI <- as.factor(New_data4$AI)
+# 
+# 
+# New_data1$Site <- factor(New_data1$Site, levels = c("SP08", "SP01", "SP02",
+#                                                     "SP07","SP06","SP03",
+#                                                     "SP12", "SP11", "SP04",
+#                                                     "SP09", "SP10","SP05"))
+# New_data2$Site <- factor(New_data2$Site, levels = c("SP08", "SP01", "SP02",
+#                                                     "SP07","SP06","SP03",
+#                                                     "SP12", "SP11", "SP04",
+#                                                     "SP09", "SP10","SP05"))
+# New_data3$Site <- factor(New_data3$Site, levels = c("SP08", "SP01", "SP02",
+#                                                     "SP07","SP06","SP03",
+#                                                     "SP12", "SP11", "SP04",
+#                                                     "SP09", "SP10","SP05"))
+# New_data4$Site <- factor(New_data4$Site, levels = c("SP08", "SP01", "SP02",
+#                                                     "SP07","SP06","SP03",
+#                                                     "SP12", "SP11", "SP04",
+#                                                     "SP09", "SP10","SP05"))
+# 
+# mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
+#              "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
+#              "#7D1809", "#290500")
+# 
+# 
+# 
+# p1 <- ggplot(New_data1, aes(x=AI, y=values, fill=Site))+
+#   scale_fill_manual(values = mycolors2)+
+#   geom_boxplot(width = 0.1)+
+#   facet_wrap(.~Physio, scales = "free", nrow = 2)+
+#   xlab("Aridity Index")+
+#   theme(axis.title.y=element_blank(),
+#         strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold"),
+#         panel.background = element_blank(),
+#         panel.border = element_rect(color = "darkgrey", fill = NA, linewidth = 1),
+#         axis.text.x = element_text(angle= 45, hjust = 1, size = 18, color = "black"),
+#         axis.text.y = element_text(size = 18, color = "black"))+
+#   coord_cartesian(xlim = c(0,1.4))+
+#   scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
+#                      labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
+# p1
+# 
+# 
+# 
+# 
+# 
+# New_data <- my_data[,c(2,7,8,10,12:13,17:23,27:30)]
+# 
+# New_data <- setNames(New_data, c("Site","AI","Soil temp.","Water Content","SOM","pH",
+#                                  "TOC", "TC", "TN",
+#                                  "C/N","NH4","PO43","SO42",
+#                                  "Sand","Silt","Clay","Litter"))
+# 
+# New_data <- New_data %>%
+#   gather(Physio, values, c(3:17))
+# 
+# 
+# New_data$AI <- as.factor(New_data$AI)
+# # New_data$AI = as.numeric(New_data$AI)
+# 
+# New_data$Site <- factor(New_data$Site, levels = c("SP08", "SP01", "SP02",
+#                                                   "SP07","SP06","SP03",
+#                                                   "SP12", "SP11", "SP04",
+#                                                   "SP09", "SP10","SP05"))
+# 
+# 
+mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
+             "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
+             "#7D1809", "#290500")
+# 
+# 
+# 
+# ggplot(New_data, aes(x=AI, y=values, fill=Site))+
+#   scale_fill_manual(values = mycolors2)+
+#   geom_boxplot()+
+#   facet_wrap(.~Physio, scales = "free")+
+#   xlab("Aridity Index")+
+#   theme(axis.title.y=element_blank(),
+#         strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold"),
+#         panel.background = element_blank(),
+#         panel.border = element_rect(color = "darkgrey", fill = NA, linewidth = 1),
+#         axis.text.x = element_text(angle= 45, hjust = 1, size = 18, color = "black"),
+#         axis.text.y = element_text(size = 18, color = "black"))+
+#   scale_x_discrete(breaks = c(0, 0.5, 1, 1.5))
+# 
+# 
+# 
+# # save the plot
+# # ggsave(path = "Figures/1 GRADIENT","SP_physio2_AI.png", width = 20, height = 10, dpi = 300)
+
