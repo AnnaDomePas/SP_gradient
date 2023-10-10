@@ -245,18 +245,31 @@ ggboxplot(my_data, x = "Site", y = "Respiration",
 
 # Linear model between soil aridity and physicochemical variables ####
 
-model_1 = lm(1/(AI)~Water_content,data=my_data)
+model_1 = lm(AI~Water_content,data=my_data)
 model_2 = lm(AI~Water_content+Soil_Temp,data=my_data) 
 model_3 = lm(AI~Water_content+Soil_Temp+SOM_perc,data=my_data)
 model_4 = lm(AI~Water_content+Soil_Temp+SOM_perc+pH,data=my_data)
 model_5 = lm(AI~Water_content+Soil_Temp+SOM_perc+pH+Litter,data=my_data)
+model_6 = lm(AI~Water_content+Soil_Temp+SOM_perc+pH+Litter+PO43,data=my_data)
+model_7 = lm(AI~Water_content+SOM_perc+pH+PO43,data=my_data)
 
-anova(model_1,model_2,model_3,model_4,model_5)
-AIC(model_1,model_2,model_3,model_4,model_5)
+anova(model_1,model_2,model_3,model_4,model_5,model_6,model_7)
+AIC(model_1,model_2,model_3,model_4,model_5,model_6,model_7)
 
-shapiro.test(model_5$residuals)
-plot(model_5, which = 1)
-plot(model_5, which = 2)
-summary(model_5)
+shapiro.test(model_7$residuals)
+plot(model_7, which = 1)
+plot(model_7, which = 2)
+summary(model_7)
 
+# PCA ####
 
+results          = prcomp(my_data[,c(8,9,10,11,13,14,16,20,21,22,23,24,25,26,30,31,32)],
+                  scale = TRUE)
+results$rotation = -1*results$rotation
+results$rotation
+biplot(results, scale = 0)
+
+results$x        = -1*results$x
+results$x
+
+results$sdev^2 / sum(results$sdev^2)
