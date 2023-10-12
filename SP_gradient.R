@@ -66,9 +66,9 @@ New_data1 <- New_data %>%
 New_data2 <- New_data %>%
   gather(Physio, values, c(7:10))
 New_data3 <- New_data %>%
-  gather(Physio, values, c(11:13))
-New_data4 <- New_data %>%
-  gather(Physio, values, c(14:17))
+  gather(Physio, values, c(11:13,17))
+# New_data4 <- New_data %>%
+#   gather(Physio, values, c(14:17))
 
 
 New_data1 <- data_summary(New_data1, varname="values", 
@@ -77,13 +77,13 @@ New_data2 <- data_summary(New_data2, varname="values",
                           groupnames=c("Site","AI","Physio"))
 New_data3 <- data_summary(New_data3, varname="values", 
                           groupnames=c("Site","AI","Physio"))
-New_data4 <- data_summary(New_data4, varname="values", 
-                          groupnames=c("Site","AI","Physio"))
+# New_data4 <- data_summary(New_data4, varname="values", 
+                          # groupnames=c("Site","AI","Physio"))
 
 New_data1$AI = as.numeric(New_data1$AI)
 New_data2$AI = as.numeric(New_data2$AI)
 New_data3$AI = as.numeric(New_data3$AI)
-New_data4$AI = as.numeric(New_data4$AI)
+# New_data4$AI = as.numeric(New_data4$AI)
 
 New_data1$Site <- factor(New_data1$Site, levels = c("SP08", "SP01", "SP02",
                                                 "SP07","SP06","SP03",
@@ -97,10 +97,10 @@ New_data3$Site <- factor(New_data3$Site, levels = c("SP08", "SP01", "SP02",
                                                     "SP07","SP06","SP03",
                                                     "SP12", "SP11", "SP04",
                                                     "SP09", "SP10","SP05"))
-New_data4$Site <- factor(New_data4$Site, levels = c("SP08", "SP01", "SP02",
-                                                    "SP07","SP06","SP03",
-                                                    "SP12", "SP11", "SP04",
-                                                    "SP09", "SP10","SP05"))
+# New_data4$Site <- factor(New_data4$Site, levels = c("SP08", "SP01", "SP02",
+#                                                     "SP07","SP06","SP03",
+#                                                     "SP12", "SP11", "SP04",
+#                                                     "SP09", "SP10","SP05"))
 
 mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
              "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
@@ -190,35 +190,35 @@ ggsave(path = "Figures/1 GRADIENT","SP_fig1_3.png", width = 20, height = 5, dpi 
 
 
 
-p4 <- ggplot(New_data4, aes(x=AI, y=values, color = Site)) +
-  geom_point(size= 5, shape=16) +
-  geom_pointrange(data = New_data4, aes(ymin=values-sd, ymax=values+sd), 
-                  color = "black", stroke = 1, size = 1, shape = 1) +
-  xlab("Aridity Index") +
-  scale_color_manual(values = mycolors2)+
-  theme(axis.title.y=element_blank()) +
-  theme(axis.title.x = element_text(size = 20, colour = "black")) +
-  facet_wrap(.~ Physio , nrow = 1, scales = "free_y")+
-  theme(strip.background =element_rect(fill="light grey")) +
-  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0)) +
-  theme(panel.background = element_blank()) +
-  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
-  theme(axis.text.x = element_text(size = 18, angle = 0, color = "black"))+
-  theme(axis.text.y = element_text(size = 18, color = "black"))+
-  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
-  # theme(legend.position = "none")+
-  coord_cartesian(xlim = c(0.10,1.4))+
-  scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
-                     labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
-p4
-ggsave(path = "Figures/1 GRADIENT","SP_fig1_4.png", width = 20, height = 5, dpi = 300)
+# p4 <- ggplot(New_data4, aes(x=AI, y=values, color = Site)) +
+#   geom_point(size= 5, shape=16) +
+#   geom_pointrange(data = New_data4, aes(ymin=values-sd, ymax=values+sd), 
+#                   color = "black", stroke = 1, size = 1, shape = 1) +
+#   xlab("Aridity Index") +
+#   scale_color_manual(values = mycolors2)+
+#   theme(axis.title.y=element_blank()) +
+#   theme(axis.title.x = element_text(size = 20, colour = "black")) +
+#   facet_wrap(.~ Physio , nrow = 1, scales = "free_y")+
+#   theme(strip.background =element_rect(fill="light grey")) +
+#   theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0)) +
+#   theme(panel.background = element_blank()) +
+#   theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+#   theme(axis.text.x = element_text(size = 18, angle = 0, color = "black"))+
+#   theme(axis.text.y = element_text(size = 18, color = "black"))+
+#   theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+#   # theme(legend.position = "none")+
+#   coord_cartesian(xlim = c(0.10,1.4))+
+#   scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
+#                      labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
+# p4
+# ggsave(path = "Figures/1 GRADIENT","SP_fig1_4.png", width = 20, height = 5, dpi = 300)
 
 
 # **************************************************************************************
 
 # Figure 2. Physicochemical PCA (without AI) ----
 
-data <- my_data[,c(2,8:10,12,13,17:23,27:30)]
+data <- my_data[,c(2,8,10,12,13,17:23,27:30)]
 for (i in which(sapply(data, is.numeric))) {
   for (j in which(is.na(data[, i]))) {
     data[j, i] <- mean(data[data[, "Site"] == data[j, "Site"], i],  na.rm = TRUE)
@@ -227,7 +227,6 @@ for (i in which(sapply(data, is.numeric))) {
 library(dplyr)
 data <- rename(data,
                   Temperature = Soil_Temp,
-                  WA = Water_activity,
                   WC = Water_content,
                   CN = C_N)
 
@@ -249,10 +248,12 @@ summary(all)
 mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
              "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
              "#7D1809", "#290500")
+library(ggbiplot)
 all_plot <- ggbiplot(all, obs.scale = 1, var.scale = 1, 
-                     ellipse = FALSE, fill=site,
-                     varname.size = 5,
-                     circle = TRUE, alpha=0) +
+                     ellipse = TRUE, fill=site,
+                     varname.adjust = 2.5,
+                     circle = TRUE, alpha=0,
+                     loadings.label.repel=TRUE) +
   theme_classic()+
   scale_fill_manual(values = mycolors2,
                     breaks=c('SP08', 'SP01', 'SP02','SP07',
@@ -267,41 +268,155 @@ all_plot <- ggbiplot(all, obs.scale = 1, var.scale = 1,
   theme(legend.title=element_blank())+
   theme(legend.text = element_text(size=15))
 all_plot
+
+#Place the arrows in the forefront of the points
+all_plot$layers <- c(all_plot$layers, all_plot$layers[[2]])
+
+#The options for styling the plot within the function itself are somewhat limited, but since it produces a 
+#ggplot object, we can re-specify the necessary layers. The following code should work on any object 
+#output from ggbiplot. First we find the geom segment and geom text layers:
+
+seg <- which(sapply(all_plot$layers, function(x) class(x$geom)[1] == 'GeomSegment'))
+txt <- which(sapply(all_plot$layers, function(x) class(x$geom)[1] == 'GeomText'))
+
+#We can change the colour and width of the segments by doing
+all_plot$layers[[seg[1]]]$aes_params$colour <- 'darkred' 
+all_plot$layers[[seg[2]]]$aes_params$colour <- 'darkred'
+
+#Labels
+# Extract loadings of the variables
+PCAloadings <- data.frame(Variables = rownames(all$rotation), all$rotation)
+
+#To change the labels to have a gray background, we need to overwrite the geom_text layer with a geom_label layer:
+all_plot$layers[[txt]] <- geom_label(aes(x = xvar, y = yvar, label = PCAloadings$Variables,
+                                         angle = 0.45, hjust = 0.5, fontface = "bold"), 
+                                     label.size = NA,
+                                     color= 'darkred',
+                                     data = all_plot$layers[[txt]]$data,
+                                     fill = '#dddddd80')
+all_plot
+
+
 ggsave(path = "Figures/1 GRADIENT","SP_fig2_1.png", width = 7, height = 6, dpi = 300)
 
 #By replicates:
-site <- data[, 1]
-data2 <- data[,-1]
-pc <- prcomp(na.omit(data2), center = TRUE,
-             scale. = TRUE) 
-plot(pc, type = "l")
-plot(pc)
-summary(pc)
-mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
-             "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
-             "#7D1809", "#290500")
-all <- ggbiplot(pc, var.scale = 1,varname.size = 5,
-                obs.scale = 1,
-                ellipse = FALSE, fill=site,
-                circle = TRUE, alpha=0) +
-  theme_classic()+
-  theme(axis.text=element_text(size=12),
-        axis.title=element_text(size=15))+
-  ggtitle("Physicochemical variables")+
-  theme(plot.title = element_text(color="black", size=17, face="bold.italic"))+
-  theme(plot.title = element_text(hjust = 0.5))+
-  theme(legend.title=element_blank())+
-  theme(legend.text = element_text(size=15))+
-  scale_fill_manual(values = mycolors2,
-                    breaks=c('SP08', 'SP01', 'SP02','SP07',
-                             'SP06', 'SP03','SP12','SP11',
-                             'SP04','SP09','SP10','SP05'))+
-  geom_point(aes(fill=site), colour= "black", pch=21, size = 6)
-all
-ggsave(path = "Figures/1 GRADIENT","SP_fig2_2.png", width = 7, height = 6, dpi = 300)
+# site <- data[, 1]
+# data2 <- data[,-1]
+# pc <- prcomp(na.omit(data2), center = TRUE,
+#              scale. = TRUE) 
+# plot(pc, type = "l")
+# plot(pc)
+# summary(pc)
+# mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
+#              "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
+#              "#7D1809", "#290500")
+# all <- ggbiplot(pc, var.scale = 1,varname.size = 5,
+#                 obs.scale = 1,
+#                 ellipse = FALSE, fill=site,
+#                 circle = TRUE, alpha=0) +
+#   theme_classic()+
+#   theme(axis.text=element_text(size=12),
+#         axis.title=element_text(size=15))+
+#   ggtitle("Physicochemical variables")+
+#   theme(plot.title = element_text(color="black", size=17, face="bold.italic"))+
+#   theme(plot.title = element_text(hjust = 0.5))+
+#   theme(legend.title=element_blank())+
+#   theme(legend.text = element_text(size=15))+
+#   scale_fill_manual(values = mycolors2,
+#                     breaks=c('SP08', 'SP01', 'SP02','SP07',
+#                              'SP06', 'SP03','SP12','SP11',
+#                              'SP04','SP09','SP10','SP05'))+
+#   geom_point(aes(fill=site), colour= "black", pch=21, size = 6)
+# all
+# ggsave(path = "Figures/1 GRADIENT","SP_fig2_2.png", width = 7, height = 6, dpi = 300)
 
 
+# Figure 3. Enzymes by bars ----
+data <- my_data[,c(2,7,46:53)]
 
+data_summary2 <- function(data, varname, groupnames){
+  require(plyr)
+  summary_func <- function(x, col){
+    c(mean = mean(x[[col]], na.rm=TRUE),
+      sd = sd(x[[col]], na.rm=TRUE),
+      sem = sd(x[[col]], na.rm=TRUE)/sqrt(length(x[[col]])))
+  }
+  data_sum<-ddply(data, groupnames, .fun=summary_func,
+                  varname)
+  data_sum <- rename(data_sum, c("mean" = varname))
+  return(data_sum)
+}
+
+alpha <- data_summary2(data, varname="alpha", 
+                    groupnames=c("Site", "AI"))
+beta <- data_summary2(data, varname="beta", 
+                     groupnames=c("Site", "AI"))
+xyl <- data_summary2(data, varname="xyl", 
+                    groupnames=c("Site", "AI"))
+cbh <- data_summary2(data, varname="cbh", 
+                    groupnames=c("Site", "AI"))
+gla <- data_summary2(data, varname="gla", 
+                    groupnames=c("Site", "AI"))
+fos <- data_summary2(data, varname="fos", 
+                    groupnames=c("Site", "AI"))
+leu <- data_summary2(data, varname="leu", 
+                    groupnames=c("Site", "AI"))
+phe <- data_summary2(data, varname="phe", 
+                    groupnames=c("Site", "AI"))
+
+alpha$Site <- factor(alpha$Site, levels = c("SP08", "SP01", "SP02",
+                                                    "SP07","SP06","SP03",
+                                                    "SP12", "SP11", "SP04",
+                                                    "SP09", "SP10","SP05"))
+beta$Site <- factor(beta$Site, levels = c("SP08", "SP01", "SP02",
+                                            "SP07","SP06","SP03",
+                                            "SP12", "SP11", "SP04",
+                                            "SP09", "SP10","SP05"))
+xyl$Site <- factor(xyl$Site, levels = c("SP08", "SP01", "SP02",
+                                            "SP07","SP06","SP03",
+                                            "SP12", "SP11", "SP04",
+                                            "SP09", "SP10","SP05"))
+cbh$Site <- factor(cbh$Site, levels = c("SP08", "SP01", "SP02",
+                                            "SP07","SP06","SP03",
+                                            "SP12", "SP11", "SP04",
+                                            "SP09", "SP10","SP05"))
+fos$Site <- factor(fos$Site, levels = c("SP08", "SP01", "SP02",
+                                            "SP07","SP06","SP03",
+                                            "SP12", "SP11", "SP04",
+                                            "SP09", "SP10","SP05"))
+gla$Site <- factor(gla$Site, levels = c("SP08", "SP01", "SP02",
+                                            "SP07","SP06","SP03",
+                                            "SP12", "SP11", "SP04",
+                                            "SP09", "SP10","SP05"))
+leu$Site <- factor(leu$Site, levels = c("SP08", "SP01", "SP02",
+                                            "SP07","SP06","SP03",
+                                            "SP12", "SP11", "SP04",
+                                            "SP09", "SP10","SP05"))
+phe$Site <- factor(phe$Site, levels = c("SP08", "SP01", "SP02",
+                                            "SP07","SP06","SP03",
+                                            "SP12", "SP11", "SP04",
+                                            "SP09", "SP10","SP05"))
+                         
+
+library(ggplot2)
+plot.theme1 <- theme_classic() +
+  theme(axis.title.y = element_blank(),
+        text=element_text(size=15),
+        axis.title.x = element_text(size = rel(1.2), angle = 00, margin = margin(t=8)),
+        plot.title = element_text(size=22),
+        legend.title = element_text(size = 18),
+        legend.text = element_text(size = 15),
+        axis.text.x = element_text(size=15),
+        plot.margin = unit(c(1.3,0,0.5,0.4), "cm"))
+
+
+palpha <-ggplot(alpha, aes(x=Site, y=alpha, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=alpha-sd, ymax=alpha+sd), width=.2)+
+  ggtitle("alpha") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")
+palpha
 
 
 
