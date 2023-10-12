@@ -273,3 +273,14 @@ results$x        = -1*results$x
 results$x
 
 results$sdev^2 / sum(results$sdev^2)
+
+# Manova test
+
+y_variables = as.data.frame((my_data[,c(35,42:53,56:64)]))
+corre       = as.data.frame(cor(y_variables))
+mod         = manova(as.matrix(y_variables) ~ as.factor(my_data$AI))
+summary(mod,summary=TRUE)
+summary.aov(mod)
+
+mod         = manova(as.matrix(y_variables) ~ as.factor(my_data$AI),
+                     subset(as.factor(my_data$AI) %in% c(1,2)))
