@@ -214,6 +214,43 @@ ggsave(path = "Figures/1 GRADIENT","SP_fig1_3.png", width = 20, height = 5, dpi 
 # ggsave(path = "Figures/1 GRADIENT","SP_fig1_4.png", width = 20, height = 5, dpi = 300)
 
 
+# Granulometry data:
+granu <- my_data[,c(2,24:26)]
+
+colnames(granu) <- c('Site','Sand','Silt','Clay')
+
+granu <- granu %>% 
+  gather(key="Granulometry", value="Percentage", 2:4) %>% 
+  unique()
+
+granu$Site <- factor(granu$Site, levels = c("SP05", "SP10", "SP09",
+                                            "SP04","SP11","SP12",
+                                            "SP03", "SP06", "SP07",
+                                            "SP02", "SP01","SP08"))
+
+plot.theme2 <- theme_classic() +
+  theme(text=element_text(size=15),
+        axis.title.x = element_text(size = rel(1.2), angle = 00, margin = margin(t=8)),
+        axis.title.y = element_text(size = rel(1.2), angle = 90, margin = margin(t=8)),
+        plot.title = element_text(size=22),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 15),
+        axis.text.x = element_text(size=15),
+        axis.text.y = element_text(size=15))
+
+ggplot(granu, aes(x = granu$Site, y = granu$Percentage, fill=granu$Granulometry)) + 
+  coord_flip() + 
+  plot.theme2 +
+  geom_bar(stat = "identity") + 
+  labs(y = "Percentage", x = "Sites")+
+  scale_fill_manual(values = c("Silt" = "#fec44f",
+                               "Sand" = "#ec7014",
+                               "Clay"="#993404"))
+
+ggsave(path = "Figures/1 GRADIENT","fig1_5.png",
+       width = 7, height = 6, dpi = 300)
+
+
 # **************************************************************************************
 
 # Figure 2. Physicochemical PCA (without AI) ----
@@ -400,26 +437,109 @@ phe$Site <- factor(phe$Site, levels = c("SP08", "SP01", "SP02",
 
 library(ggplot2)
 plot.theme1 <- theme_classic() +
-  theme(axis.title.y = element_blank(),
-        text=element_text(size=15),
+  theme(text=element_text(size=15),
         axis.title.x = element_text(size = rel(1.2), angle = 00, margin = margin(t=8)),
+        axis.title.y = element_text(size = rel(1.2), angle = 90, margin = margin(t=8)),
         plot.title = element_text(size=22),
+        legend.position = "none",
         legend.title = element_text(size = 18),
         legend.text = element_text(size = 15),
         axis.text.x = element_text(size=15),
-        plot.margin = unit(c(1.3,0,0.5,0.4), "cm"))
-
+        axis.text.y = element_text(size=15))
 
 palpha <-ggplot(alpha, aes(x=Site, y=alpha, fill=AI)) + 
   geom_bar(stat="identity", color="black", position=position_dodge())+
-  geom_errorbar(aes(ymin=alpha-sd, ymax=alpha+sd), width=.2)+
+  geom_errorbar(aes(ymin=alpha-sem, ymax=alpha+sem), width=.2)+
   ggtitle("alpha") +
   plot.theme1+
-  scale_fill_AI(discrete = FALSE, palette = "Sites")
-palpha
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  theme(axis.title.x = element_blank())+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
 
+pbeta <-ggplot(beta, aes(x=Site, y=beta, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=beta-sem, ymax=beta+sem), width=.2)+
+  ggtitle("beta") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  theme(axis.title.x = element_blank())+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
 
+pxyl <-ggplot(xyl, aes(x=Site, y=xyl, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=xyl-sem, ymax=xyl+sem), width=.2)+
+  ggtitle("xyl") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  theme(axis.title.x = element_blank())+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
 
+pcbh <-ggplot(cbh, aes(x=Site, y=cbh, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=cbh-sem, ymax=cbh+sem), width=.2)+
+  ggtitle("cbh") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  theme(axis.title.x = element_blank())+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
+
+pgla <-ggplot(gla, aes(x=Site, y=gla, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=gla-sem, ymax=gla+sem), width=.2)+
+  ggtitle("gla") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  theme(axis.title.x = element_blank())+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
+
+pfos <-ggplot(fos, aes(x=Site, y=fos, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=fos-sem, ymax=fos+sem), width=.2)+
+  ggtitle("fos") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  theme(axis.title.x = element_blank())+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
+
+pleu <-ggplot(leu, aes(x=Site, y=leu, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=leu-sem, ymax=leu+sem), width=.2)+
+  ggtitle("leu") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol AMC·" ~  g ~ DW^-1,"·" ~ h^-1)))
+
+pphe <-ggplot(phe, aes(x=Site, y=phe, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=phe-sem, ymax=phe+sem), width=.2)+
+  ggtitle("phe") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol DIQC·" ~  g ~ DW^-1,"·" ~ h^-1)))
+
+# all <- ggarrange(palpha, pbeta, pxyl, pcbh, pfos, pgla, pleu, pphe,
+#                   nrow = 8, ncol = 1,
+#                   common.legend = TRUE,
+#                   legend = "right")
+# 
+# ggsave(path = "Figures/1 GRADIENT","enzymes.png",
+#        width = 10, height = 30, dpi = 300)
+
+all <- ggarrange(palpha, pbeta, pxyl, pcbh, pfos, pgla, pleu, pphe,
+                 nrow = 4, ncol = 2,
+                 common.legend = TRUE,
+                 legend = "right")
+
+ggsave(path = "Figures/1 GRADIENT","enzymes2.png",
+       width = 30, height = 20, dpi = 300)
 
 
 #.----
