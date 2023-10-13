@@ -1,0 +1,88 @@
+********* STATISTICAL ANALYSES ***************************************
+
+x = independientes (Dummies + Water content, pH....)
+y = dependientes (EEA, GHG,...)
+
+*** PARA LAS DEPENDENT VARIABLES *******************
+Step 1. MANOVA con las Dummies (AI, MAT, MAP, GRANULOMETRY... sin variabilidad) ~ con las variables dependentes (EEA, GHG...)
+Luciana ha hecho con solo AI ~ var dependents.
+Ver que se cumplan supuestos con las dependents (si no se cumplen seguimos peró hacemos Kruskal-Wallis en el Step 2)
+
+Step 2. Si variables cambian con la AI, hacer ANOVA* + Posthoc para ver si los sites se cambian*
+	Una ANOVA* para cada una de las variables (AI ~ alpha)
+* Kruskal-Wallis si no cumple los supósitos
+
+
+*** PARA LAS INDEPENDENT VARIABLES ****************
+Step 3. Reducción de variables (SIEMPRE EXCLUYENDO LAS DUMMIES; para ver que vars. dependientes explican las funciones):
+3.1 Multicolinealidad: eliminar vars. independenties con correlación >0.9
+3.2 VIF: elimina las que >5 de la vars. independientes (colinealidad)
+
+Step 4. Que peso tiene cada independent variable a cada una de nuestras variables dependentes? (SIN LAS VARIABLES DESCARTADAS POR EL STEP 3)
+Hacer PLSR
+Questions:
+--> I NEED TO SEARCH HOW TO STANDARIZE THE COEFICIENTS (which stablish the weight of each variable to another)?
+--> HOW DO WE INTERPRET THE R2 
+4.2. Plotear con barplots similar al paper de altitud (Figure 5, Cao et al. 2023)
+
+
+Step 5.
+5.1 Probar RDA: dos matrices (dependent. vs independts)
+5.2 Probar PCA
+
+Ver qué queda mejor
+
+
+
+
+********* PLOTS *****************************************************
+
+*** DESCRIPCIÓN DE LOS SITES: **********************
+FIGURA 1. Variables fisicoquímcas: (pregunta: siguen un gradiente?) - DONE
+> Fig 1.1 Scatter plot con las variables independientes (fisicoquímicas) con variabilidad - DONE
+> Fig 1.2 Stacked barplot con la granulometria - DONE
+
+FIGURA 2. PCA con todas las variables fisicoquímicas (con variancia + granulometria; sin algunas redundantes como Water Activity + sin las dummies como el MAP, MAT, AI) - DONE
+
+
+FIGURA 3. Extracellular enzyme activities (EEA) by site(AI)
+> 8 barplots (uno por EEA), cada uno con 12 barras (una por site en gradiente de aridez) - DONE
+??? Añadir Tukey results (from ANOVA) con letras para marcar si hay diferencias (see Step 2. Statistical Analyses section) ???
+
+
+
+*** COMMUNITY COMPOSITION: *************************
+FIGURA 4. Community composition vs AI (sites as puntitos*) (PERMANOVA)
+*provar tambien con gradiente de color en continuo
+
+Para ver cómo cambia la composición microbiana con la aridez. Como mas cercanas en el gradiente de aridez más similares deberian ser.
+
+Notas:
+	Permanova (adonis2): con la matriz de distancia de SP, phyRelSP.dist
+	Repetir lo que ha hecho JD con todos los gradients pero con solo SP
+
+
+*** PLOTS A AÑADIR ****
+(Ver statistical analyses section)
+
+
+
+
+*******************************************************************************************************************
+LUCIANA TO-DO LIST:
+
+- MANOVA
+Poner AI como factor = usar Site
+> Aún transformando no se soluciona de todas las variables
+
+- LINEAL REGRESSIONS + HIERARCHICAL PARTIONING + SEM
+
+- Drivers de microbial composition (variables que explican las distintas microbial composition)
+
+*******************************************************************************************************************
+
+
+
+
+
+
