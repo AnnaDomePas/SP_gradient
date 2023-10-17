@@ -53,6 +53,200 @@ data_summary <- function(data, varname, groupnames){
 # UCI STAY ANALYSES **** ----
 #.----
 
+# STATISTICAL TESTS ----
+# 1. MANOVA for dependent variables ----
+dummy_variables = as.data.frame((my_data[,c(2,5:7,27:29,76)]))
+dummy_y <- my_data[,c(2,5:7,27:29,76, 35:38,40:64,74)]
+y_variables <- my_data[,c(2,35:38,40:64,74)]
+
+# 1.1 MANOVA assumptions ----
+library(rstatix)
+library(broom)
+
+# > Outliers ####
+out = as.data.frame(y_variables %>% group_by(Site) %>% identify_outliers("CO2_dark"))
+out
+# There are outliers but we are keeping them for the analysis
+
+# > Multivariate outliers ####
+# Absence of multivariate outliers is checked by
+# assessing Mahalanobis Distances among the dependent vars.
+y_variables_2       = scale(y_variables[,-c(1)],center = FALSE)
+mahal               = mahalanobis(y_variables_2, colMeans(y_variables_2), cov(y_variables_2))
+p_val               = pchisq(mahal, df=3, lower.tail=FALSE)
+y_variables_2       = as.data.frame(cbind(y_variables_2,mahal,p_val))
+# There are outliers (see p-values) but we are keeping them for the analysis
+
+
+# > Normality ####
+y_variables_2      = as.data.frame(cbind(y_variables$Site,y_variables_2))
+
+ggqqplot(y_variables_2, "CO2_dark", facet.by = "y_variables$Site",
+         ylab = "CO2_dark", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "CO2_light", facet.by = "y_variables$Site",
+         ylab = "CO2_light", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "CH4_ave", facet.by = "y_variables$Site",
+         ylab = "CH4_ave", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "N2O", facet.by = "y_variables$Site",
+         ylab = "N2O", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "BB", facet.by = "y_variables$Site",
+         ylab = "BB", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "FB", facet.by = "y_variables$Site",
+         ylab = "FB", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "chla", facet.by = "y_variables$Site",
+         ylab = "chla", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "chlb", facet.by = "y_variables$Site",
+         ylab = "chlb", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "carotene", facet.by = "y_variables$Site",
+         ylab = "carotene", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "EPS", facet.by = "y_variables$Site",
+         ylab = "EPS", ggtheme = theme_bw())
+ggqqplot(y_variables, "alpha", facet.by = "Site",
+         ylab = "alpha", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "beta", facet.by = "y_variables$Site",
+         ylab = "beta", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "xyl", facet.by = "y_variables$Site",
+         ylab = "xyl", ggtheme = theme_bw())
+ggqqplot(y_variables, "cbh", facet.by = "Site",
+         ylab = "cbh", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "gla", facet.by = "y_variables$Site",
+         ylab = "gla", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "fos", facet.by = "y_variables$Site",
+         ylab = "fos", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "leu", facet.by = "y_variables$Site",
+         ylab = "leu", ggtheme = theme_bw())
+ggqqplot(y_variables, "phe", facet.by = "Site",
+         ylab = "phe", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "X16S", facet.by = "y_variables$Site",
+         ylab = "X16S", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "ITS2", facet.by = "y_variables$Site",
+         ylab = "ITS2", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "mcrA", facet.by = "y_variables$Site",
+         ylab = "mcrA", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "pmoA", facet.by = "y_variables$Site",
+         ylab = "pmoA", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "nifH", facet.by = "y_variables$Site",
+         ylab = "nifH", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "AOA", facet.by = "y_variables$Site",
+         ylab = "AOA", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "AOB", facet.by = "y_variables$Site",
+         ylab = "AOB", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "qnorB", facet.by = "y_variables$Site",
+         ylab = "qnorB", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "nosZ", facet.by = "y_variables$Site",
+         ylab = "nosZ", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "phoD", facet.by = "y_variables$Site",
+         ylab = "phoD", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "Respiration", facet.by = "y_variables$Site",
+         ylab = "Respiration", ggtheme = theme_bw())
+ggqqplot(y_variables_2, "ShannonEEA", facet.by = "y_variables$Site",
+         ylab = "ShannonEEA", ggtheme = theme_bw())
+# Most of the variables seem normally distributed and MANOVA is robust with
+# slightly violations of normality. 
+
+
+# > Multivariate normality ####
+mshapiro_test((y_variables_2[,2:31]))
+# Not normal
+
+
+# > Multicollinearity ####
+cor.mat <- y_variables[,2:31] %>% cor_mat()
+cor.mat %>% cor_reorder() %>% pull_lower_triangle() %>% cor_plot(label = FALSE)
+cor.mat %>% cor_reorder() %>% pull_lower_triangle() %>% cor_plot(label = TRUE)
+#  A cross at each matrix position where the correlation coefficient is not significant.
+# If i put TRUE on label the p-values will appear.
+
+# New selected variables
+# Deleted variables:
+# alpha, CO2_light, chla, carotene, X16S, nosZ, nifH, qnorB, ShannonEEA
+y_variables_3 = as.data.frame((y_variables[,-c(12, 3, 8,10, 20, 24, 28, 27, 31)]))
+cor.mat <- y_variables_3[,2:22] %>% cor_mat()
+cor.mat %>% cor_reorder() %>% pull_lower_triangle() %>% cor_plot(label = FALSE)
+cor.mat %>% cor_reorder() %>% pull_lower_triangle() %>% cor_plot(label = TRUE)
+# No more dependent variables correlated >80%
+
+
+# > Linearity assumption ####
+library(GGally)
+linear_ass <- y_variables_3 %>% group_by(Site) %>% doo(~ggpairs(.) + theme_bw(), result = "plots")
+linear_ass$plots
+
+# > Homogeneity of covariances ####
+# Balance design and we could continue with the analysis. We will use the 
+# Pillai’s multivariate statistic as a more robust metric
+
+# > Homogeneity of variance assumption ####
+a = as.data.frame(colnames(y_variables_3))
+y_variables_3 %>% gather(key = "variable", value = "value", a[2:22,]) %>%
+  group_by(variable) %>% levene_test(sqrt(value) ~ as.factor(Site))
+# Squaring the variables solves almost completely the homogeneity of variances
+
+
+# Manova test ####
+mod <- manova(as.matrix(y_variables_3[,2:22]) ~ (my_data$AI))
+summary(mod,summary=TRUE)
+
+y_variables_3$CO2_dark <- as.integer(y_variables_3$CO2_dark)
+y_variables_3$CH4_ave <- as.integer(y_variables_3$CH4_ave)
+y_variables_3$N2O <- as.integer(y_variables_3$N2O)
+y_variables_3$BB <- as.integer(y_variables_3$BB)
+y_variables_3$FB <- as.integer(y_variables_3$FB)
+y_variables_3$chlb <- as.integer(y_variables_3$chlb)
+y_variables_3$EPS <- as.integer(y_variables_3$EPS)
+y_variables_3$beta <- as.integer(y_variables_3$beta)
+y_variables_3$xyl <- as.integer(y_variables_3$xyl)
+y_variables_3$cbh <- as.integer(y_variables_3$cbh)
+y_variables_3$gla <- as.integer(y_variables_3$gla)
+y_variables_3$fos <- as.integer(y_variables_3$fos)
+y_variables_3$leu <- as.integer(y_variables_3$leu)
+y_variables_3$phe <- as.integer(y_variables_3$phe)
+y_variables_3$ITS2 <- as.integer(y_variables_3$ITS2)
+y_variables_3$mcrA <- as.integer(y_variables_3$mcrA)
+y_variables_3$pmoA <- as.integer(y_variables_3$pmoA)
+y_variables_3$AOA <- as.integer(y_variables_3$AOA)
+y_variables_3$AOB <- as.integer(y_variables_3$AOB)
+y_variables_3$phoD <- as.integer(y_variables_3$phoD)
+y_variables_3$Respiration <- as.integer(y_variables_3$Respiration)
+
+DV <- cbind(y_variables_3$CO2_dark, y_variables_3$CH4_ave, y_variables_3$N2O,
+            y_variables_3$BB, y_variables_3$FB, y_variables_3$chlb,
+            y_variables_3$EPS, y_variables_3$beta, y_variables_3$xyl,
+            y_variables_3$cbh, y_variables_3$gla, y_variables_3$fos,
+            y_variables_3$leu, y_variables_3$phe, y_variables_3$ITS2,
+            y_variables_3$mcrA, y_variables_3$pmoA, y_variables_3$AOA,
+            y_variables_3$AOB, y_variables_3$phoD, y_variables_3$Respiration)
+
+DV <- na.exclude(DV)
+
+dummy_y$Site <- as.character(dummy_y$Site)
+dummy_y$MAP <- as.character(dummy_y$MAP)
+dummy_y$MAT <- as.character(dummy_y$MAT)
+dummy_y$AI <- as.character(dummy_y$AI)
+dummy_y$Sand <- as.character(dummy_y$Sand)
+dummy_y$Clay <- as.character(dummy_y$Clay)
+dummy_y$Silt <- as.character(dummy_y$Silt)
+dummy_y$altitude <- as.character(dummy_y$altitude)
+
+
+output = lm(DV ~ Site*MAP*MAT*AI*Sand*Clay*Silt*altitude, data = dummy_y,
+            contrast=list(Site=contr.sum, MAP=contr.sum, MAT=contr.sum,
+                          AI=contr.sum, Sand=contr.sum, Clay=contr.sum,
+                          Silt=contr.sum, altitude=contr.sum))
+
+summary(output)
+library(car)
+manova_out <- Manova(output, type ="III")
+
+mod <- manova(as.matrix(y_variables_3[,2:22]) ~ 
+
+
+
+
+
+
+# .----
+# FIGURES ----
 # Figure 1. Physicochemical plots ----
 
 New_data <- my_data[,c(2,7,8,10,12:13,17:23,27:30)]
