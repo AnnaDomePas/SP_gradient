@@ -183,62 +183,161 @@ y_variables_3 %>% gather(key = "variable", value = "value", a[2:22,]) %>%
 # Squaring the variables solves almost completely the homogeneity of variances
 
 
-# Manova test ####
+# 1.2 MANOVA test ####
 mod <- manova(as.matrix(y_variables_3[,2:22]) ~ (my_data$AI))
 summary(mod,summary=TRUE)
 
-y_variables_3$CO2_dark <- as.integer(y_variables_3$CO2_dark)
-y_variables_3$CH4_ave <- as.integer(y_variables_3$CH4_ave)
-y_variables_3$N2O <- as.integer(y_variables_3$N2O)
-y_variables_3$BB <- as.integer(y_variables_3$BB)
-y_variables_3$FB <- as.integer(y_variables_3$FB)
-y_variables_3$chlb <- as.integer(y_variables_3$chlb)
-y_variables_3$EPS <- as.integer(y_variables_3$EPS)
-y_variables_3$beta <- as.integer(y_variables_3$beta)
-y_variables_3$xyl <- as.integer(y_variables_3$xyl)
-y_variables_3$cbh <- as.integer(y_variables_3$cbh)
-y_variables_3$gla <- as.integer(y_variables_3$gla)
-y_variables_3$fos <- as.integer(y_variables_3$fos)
-y_variables_3$leu <- as.integer(y_variables_3$leu)
-y_variables_3$phe <- as.integer(y_variables_3$phe)
-y_variables_3$ITS2 <- as.integer(y_variables_3$ITS2)
-y_variables_3$mcrA <- as.integer(y_variables_3$mcrA)
-y_variables_3$pmoA <- as.integer(y_variables_3$pmoA)
-y_variables_3$AOA <- as.integer(y_variables_3$AOA)
-y_variables_3$AOB <- as.integer(y_variables_3$AOB)
-y_variables_3$phoD <- as.integer(y_variables_3$phoD)
-y_variables_3$Respiration <- as.integer(y_variables_3$Respiration)
+data <- cbind(dummy_variables,y_variables_3[,-c(1)])
 
-DV <- cbind(y_variables_3$CO2_dark, y_variables_3$CH4_ave, y_variables_3$N2O,
-            y_variables_3$BB, y_variables_3$FB, y_variables_3$chlb,
-            y_variables_3$EPS, y_variables_3$beta, y_variables_3$xyl,
-            y_variables_3$cbh, y_variables_3$gla, y_variables_3$fos,
-            y_variables_3$leu, y_variables_3$phe, y_variables_3$ITS2,
-            y_variables_3$mcrA, y_variables_3$pmoA, y_variables_3$AOA,
-            y_variables_3$AOB, y_variables_3$phoD, y_variables_3$Respiration)
+attach(data)
+mod <- manova(as.matrix(y_variables_3[,2:22]) ~ AI+Site)
+summary(mod,summary=TRUE)
+detach(data)
 
-DV <- na.exclude(DV)
+str(data)
+data$Site <- factor(data$Site)
+data$MAP <- factor(data$MAP)
+data$MAT <- factor(data$MAT)
+data$AI <- factor(data$AI)
+data$Sand <- factor(data$Sand)
+data$Silt <- factor(data$Silt)
+data$Clay <- factor(data$Clay)
+data$altitude <- factor(data$altitude)
+str(data)
 
-dummy_y$Site <- as.character(dummy_y$Site)
-dummy_y$MAP <- as.character(dummy_y$MAP)
-dummy_y$MAT <- as.character(dummy_y$MAT)
-dummy_y$AI <- as.character(dummy_y$AI)
-dummy_y$Sand <- as.character(dummy_y$Sand)
-dummy_y$Clay <- as.character(dummy_y$Clay)
-dummy_y$Silt <- as.character(dummy_y$Silt)
-dummy_y$altitude <- as.character(dummy_y$altitude)
+mod <- manova(as.matrix(y_variables_3[,2:22]) ~ data$Site)
+summary(mod,summary=TRUE)
+
+mod <- manova(as.matrix(y_variables_3[,2:22]) ~ data$Clay + data$Silt + data$altitude)
+summary(mod,summary=TRUE)
+
+mod <- manova(as.matrix(y_variables_3[,2:22]) ~ data$AI + data$Site + data$Sand + data$Clay + data$Silt + data$altitude)
+summary(mod,summary=TRUE)
 
 
-output = lm(DV ~ Site*MAP*MAT*AI*Sand*Clay*Silt*altitude, data = dummy_y,
-            contrast=list(Site=contr.sum, MAP=contr.sum, MAT=contr.sum,
-                          AI=contr.sum, Sand=contr.sum, Clay=contr.sum,
-                          Silt=contr.sum, altitude=contr.sum))
 
-summary(output)
-library(car)
-manova_out <- Manova(output, type ="III")
 
-mod <- manova(as.matrix(y_variables_3[,2:22]) ~ 
+
+# 
+# #packages
+# library("car")
+# library("MASS")
+# #
+# data <- cbind(dummy_variables,y_variables_3[,-c(1)])
+# 
+# str(data)
+# data$Site <- factor(data$Site)
+# data$MAP <- factor(data$MAP)
+# data$MAT <- factor(data$MAT)
+# data$AI <- factor(data$AI)
+# data$Sand <- factor(data$Sand)
+# data$Silt <- factor(data$Silt)
+# data$Clay <- factor(data$Clay)
+# data$altitude <- factor(data$altitude)
+# str(data)
+# 
+# #
+# attach(data)
+# mod1 <- lm(cbind(CO2_dark, CH4_ave, N2O,BB, FB, chlb, EPS, beta, xyl, cbh, gla, fos, leu, phe,
+#            ITS2, mcrA, pmoA, AOA, AOB, phoD, Respiration) ~ Site+MAP+MAT+AI+altitude+Clay+Sand+Silt)
+# 
+# summary(mod1)
+# 
+# Manova(mod1, multivariate = T, type=c("III"), test=("Wilks"))
+# 
+# 
+# 
+# 
+# 
+# 
+# mod1 <- lm(cbind(CO2_dark, CH4_ave, N2O,BB, FB, chlb, EPS, beta, xyl, cbh, gla, fos, leu, phe,
+#                  ITS2, mcrA, pmoA, AOA, AOB, phoD, Respiration) ~ Site)
+# 
+# summary(mod1)
+# 
+# Manova(mod1, multivariate = T, type=c("III"), test=("Wilks"))
+# 
+# detach(data)
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# #
+# DV <- cbind(y_variables_3$CO2_dark, y_variables_3$CH4_ave, y_variables_3$N2O,
+#             y_variables_3$BB, y_variables_3$FB, y_variables_3$chlb,
+#             y_variables_3$EPS, y_variables_3$beta, y_variables_3$xyl,
+#             y_variables_3$cbh, y_variables_3$gla, y_variables_3$fos,
+#             y_variables_3$leu, y_variables_3$phe, y_variables_3$ITS2,
+#             y_variables_3$mcrA, y_variables_3$pmoA, y_variables_3$AOA,
+#             y_variables_3$AOB, y_variables_3$phoD, y_variables_3$Respiration)
+# 
+# # DV <- na.exclude(DV)
+# 
+# dummy_y$Site <- as.factor(dummy_y$Site)
+# dummy_y$MAP <- as.factor(dummy_y$MAP)
+# dummy_y$MAT <- as.factor(dummy_y$MAT)
+# dummy_y$AI <- as.factor(dummy_y$AI)
+# dummy_y$Sand <- as.factor(dummy_y$Sand)
+# dummy_y$Clay <- as.factor(dummy_y$Clay)
+# dummy_y$Silt <- as.factor(dummy_y$Silt)
+# dummy_y$altitude <- as.factor(dummy_y$altitude)
+# 
+# 
+# # output = lm(DV ~ Site*MAP*MAT*AI*Sand*Clay*Silt*altitude, data = dummy_y,
+# #             contrast=list(Site=contr.sum, MAP=contr.sum, MAT=contr.sum,
+# #                           AI=contr.sum, Sand=contr.sum, Clay=contr.sum,
+# #                           Silt=contr.sum, altitude=contr.sum))
+# 
+# output = lm(DV ~ Site+MAP+MAT+AI+Sand+Clay+Silt+altitude, data = dummy_y,
+#             contrast=list(Site=contr.sum, MAP=contr.sum, MAT=contr.sum,
+#                           AI=contr.sum, Sand=contr.sum, Clay=contr.sum,
+#                           Silt=contr.sum, altitude=contr.sum))
+# 
+# summary(output)
+# library(car)
+# manova_out <- Manova(output, type ="III")
+
+# .----
+
+# 2. Kruskal-Wallis (AI (Site) vs dependent vars.) ----
+library(FSA)
+library(rcompanion)
+
+dummy_variables = as.data.frame((my_data[,c(2,5:7,27:29,76)]))
+dummy_y <- my_data[,c(2,5:7,27:29,76, 35:38,40:64,74)]
+y_variables <- my_data[,c(2,35:38,40:64,74)]
+
+dummy_y$Site <- factor(dummy_y$Site)
+
+#alpha
+m1 <- kruskal.test(alpha ~ Site, dummy_y)
+m1
+post1 = dunnTest(alpha ~ Site,
+              data=dummy_y,
+              method="bh")
+post1
+ph1 <- cldList(P.adj ~ Comparison,
+          data = post1$res,
+          threshold = 0.05,
+          remove.zero = FALSE)
+ph1
+
+palpha <-ggplot(alpha, aes(x=Site, y=alpha, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=alpha-sem, ymax=alpha+sem), width=.2)+
+  ggtitle("alpha") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  theme(axis.title.x = element_blank())+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
+
+
+
+
 
 
 
@@ -747,7 +846,7 @@ manova_data <- my_data[,c(2,35,37,38,40:64)]
 
 # 1rst we separate the dependent variables from the other ones:
 dependent_vars <- as.matrix(manova_data[,-c(1)])
-# dependent variables needs to be entered as a matrix, not a dataframe
+# dependent variables needs to be entered as a matrix, not as a dataframe
 independent_var <- as.factor(manova_data[,c(1)])
 # independent variable needs to be a factor (with different levels)
 

@@ -9,6 +9,11 @@ Step 1. MANOVA con las Dummies (AI, MAT, MAP, GRANULOMETRY... sin variabilidad) 
 Luciana ha hecho con solo AI ~ var dependents.
 Ver que se cumplan supuestos con las dependents (si no se cumplen seguimos peró hacemos Kruskal-Wallis en el Step 2)
 
+!!!! NO SE PUEDE HACER MANOVA CON MAS DE 2 DUMMIES EN R
+!!!! PROVAR CON SPSS --> NO FUNCIONA CON NUESTRO DATASET, SI CON EL DEL PAPER DE REFERENCIA
+!!!! MIRAR SI DATASET PAPER REF. CUMPLE ASSUMPTIONS Y VER SI EL NUESTRO NO FUNCIONA PQ NO LOS CUMPLE
+
+
 Step 2. Para ver si las variables cambian con la AI, hacer ANOVA* + Posthoc para ver si los sites se cambian
 	Una ANOVA* para cada una de las variables (AI ~ alpha)
 * Kruskal-Wallis si no cumple los supósitos
