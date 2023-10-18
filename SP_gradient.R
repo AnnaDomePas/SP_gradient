@@ -15,6 +15,8 @@ library(devtools)
 # install_github("vqv/ggbiplot")
 library(ggbiplot)
 library(vegan)
+library(FSA)
+library(rcompanion)
 
 
 ## Working directory
@@ -303,27 +305,94 @@ summary(mod,summary=TRUE)
 # .----
 
 # 2. Kruskal-Wallis (AI (Site) vs dependent vars.) ----
-library(FSA)
-library(rcompanion)
-
+# 2.1  Figure 3. Enzyme by bars and post-hoc letters ----
 dummy_variables = as.data.frame((my_data[,c(2,5:7,27:29,76)]))
 dummy_y <- my_data[,c(2,5:7,27:29,76, 35:38,40:64,74)]
 y_variables <- my_data[,c(2,35:38,40:64,74)]
 
 dummy_y$Site <- factor(dummy_y$Site)
 
+
+require(agricolae)
+
+library(tidyverse)
+
+data <- my_data[,c(2,7,46:53)]
+
+data_summary2 <- function(data, varname, groupnames){
+  require(plyr)
+  summary_func <- function(x, col){
+    c(mean = mean(x[[col]], na.rm=TRUE),
+      sd = sd(x[[col]], na.rm=TRUE),
+      sem = sd(x[[col]], na.rm=TRUE)/sqrt(length(x[[col]])))
+  }
+  data_sum<-ddply(data, groupnames, .fun=summary_func,
+                  varname)
+  data_sum <- rename(data_sum, c("mean" = varname))
+  return(data_sum)
+}
+
+alpha <- data_summary2(data, varname="alpha", 
+                       groupnames=c("Site", "AI"))
+beta <- data_summary2(data, varname="beta", 
+                      groupnames=c("Site", "AI"))
+xyl <- data_summary2(data, varname="xyl", 
+                     groupnames=c("Site", "AI"))
+cbh <- data_summary2(data, varname="cbh", 
+                     groupnames=c("Site", "AI"))
+gla <- data_summary2(data, varname="gla", 
+                     groupnames=c("Site", "AI"))
+fos <- data_summary2(data, varname="fos", 
+                     groupnames=c("Site", "AI"))
+leu <- data_summary2(data, varname="leu", 
+                     groupnames=c("Site", "AI"))
+phe <- data_summary2(data, varname="phe", 
+                     groupnames=c("Site", "AI"))
+
+alpha$Site <- factor(alpha$Site, levels = c("SP08", "SP01", "SP02",
+                                            "SP07","SP06","SP03",
+                                            "SP12", "SP11", "SP04",
+                                            "SP09", "SP10","SP05"))
+beta$Site <- factor(beta$Site, levels = c("SP08", "SP01", "SP02",
+                                          "SP07","SP06","SP03",
+                                          "SP12", "SP11", "SP04",
+                                          "SP09", "SP10","SP05"))
+xyl$Site <- factor(xyl$Site, levels = c("SP08", "SP01", "SP02",
+                                        "SP07","SP06","SP03",
+                                        "SP12", "SP11", "SP04",
+                                        "SP09", "SP10","SP05"))
+cbh$Site <- factor(cbh$Site, levels = c("SP08", "SP01", "SP02",
+                                        "SP07","SP06","SP03",
+                                        "SP12", "SP11", "SP04",
+                                        "SP09", "SP10","SP05"))
+fos$Site <- factor(fos$Site, levels = c("SP08", "SP01", "SP02",
+                                        "SP07","SP06","SP03",
+                                        "SP12", "SP11", "SP04",
+                                        "SP09", "SP10","SP05"))
+gla$Site <- factor(gla$Site, levels = c("SP08", "SP01", "SP02",
+                                        "SP07","SP06","SP03",
+                                        "SP12", "SP11", "SP04",
+                                        "SP09", "SP10","SP05"))
+leu$Site <- factor(leu$Site, levels = c("SP08", "SP01", "SP02",
+                                        "SP07","SP06","SP03",
+                                        "SP12", "SP11", "SP04",
+                                        "SP09", "SP10","SP05"))
+phe$Site <- factor(phe$Site, levels = c("SP08", "SP01", "SP02",
+                                        "SP07","SP06","SP03",
+                                        "SP12", "SP11", "SP04",
+                                        "SP09", "SP10","SP05"))
+
+
 #alpha
-m1 <- kruskal.test(alpha ~ Site, dummy_y)
-m1
-post1 = dunnTest(alpha ~ Site,
-              data=dummy_y,
-              method="bh")
-post1
-ph1 <- cldList(P.adj ~ Comparison,
-          data = post1$res,
-          threshold = 0.05,
-          remove.zero = FALSE)
-ph1
+k <- kruskal(dummy_y$alpha, dummy_y$Site, console = TRUE,
+             p.adj=c("bonferroni"))
+#p.adj = "none" is t-student
+(t_comp <- k$means %>% 
+    rownames_to_column(var = "Site") %>%
+    rename(alpha = dummy_y.alpha) %>%
+    as_tibble() %>% 
+    left_join(as_tibble(k$groups), by = c("rank" = "dummy_y$alpha")))
+alpha <- merge(alpha, t_comp[,c(1,3,11)], by = "Site")
 
 palpha <-ggplot(alpha, aes(x=Site, y=alpha, fill=AI)) + 
   geom_bar(stat="identity", color="black", position=position_dodge())+
@@ -333,15 +402,185 @@ palpha <-ggplot(alpha, aes(x=Site, y=alpha, fill=AI)) +
   scale_fill_AI(discrete = FALSE, palette = "Sites")+
   theme(axis.title.x = element_blank())+
   scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
-  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
+  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1))) +
+  geom_text(data = alpha, aes(x = Site, y = alpha+sem+0.001, label = groups), size = 6, color = "red")
+palpha
+
+
+#beta
+k <- kruskal(dummy_y$beta, dummy_y$Site, console = TRUE,
+             p.adj=c("bonferroni"))
+#p.adj = "none" is t-student
+(t_comp <- k$means %>% 
+    rownames_to_column(var = "Site") %>%
+    rename(beta = dummy_y.beta) %>%
+    as_tibble() %>% 
+    left_join(as_tibble(k$groups), by = c("rank" = "dummy_y$beta")))
+beta <- merge(beta, t_comp[,c(1,3,11)], by = "Site")
+
+pbeta <-ggplot(beta, aes(x=Site, y=beta, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=beta-sem, ymax=beta+sem), width=.2)+
+  ggtitle("beta") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  theme(axis.title.x = element_blank())+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))+
+  geom_text(data = beta, aes(x = Site, y = beta+sem+0.007, label = groups), size = 6, color = "red")
+pbeta
+
+
+#cbh
+k <- kruskal(dummy_y$cbh, dummy_y$Site, console = TRUE,
+             p.adj=c("bonferroni"))
+#p.adj = "none" is t-student
+(t_comp <- k$means %>% 
+    rownames_to_column(var = "Site") %>%
+    rename(cbh = dummy_y.cbh) %>%
+    as_tibble() %>% 
+    left_join(as_tibble(k$groups), by = c("rank" = "dummy_y$cbh")))
+cbh <- merge(cbh, t_comp[,c(1,3,11)], by = "Site")
+
+pcbh <-ggplot(cbh, aes(x=Site, y=cbh, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=cbh-sem, ymax=cbh+sem), width=.2)+
+  ggtitle("cbh") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  theme(axis.title.x = element_blank())+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))+
+  geom_text(data = cbh, aes(x = Site, y = cbh+sem+0.0005, label = groups), size = 6, color = "red")
+pcbh
 
 
 
+#xyl
+k <- kruskal(dummy_y$xyl, dummy_y$Site, console = TRUE,
+             p.adj=c("bonferroni"))
+#p.adj = "none" is t-student
+(t_comp <- k$means %>% 
+    rownames_to_column(var = "Site") %>%
+    rename(xyl = dummy_y.xyl) %>%
+    as_tibble() %>% 
+    left_join(as_tibble(k$groups), by = c("rank" = "dummy_y$xyl")))
+xyl <- merge(xyl, t_comp[,c(1,3,11)], by = "Site")
+
+pxyl <-ggplot(xyl, aes(x=Site, y=xyl, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=xyl-sem, ymax=xyl+sem), width=.2)+
+  ggtitle("xyl") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  theme(axis.title.x = element_blank())+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))+
+  geom_text(data = xyl, aes(x = Site, y = xyl+sem+0.0014, label = groups), size = 6, color = "red")
+pxyl
 
 
 
+#gla
+k <- kruskal(dummy_y$gla, dummy_y$Site, console = TRUE,
+             p.adj=c("bonferroni"))
+#p.adj = "none" is t-student
+(t_comp <- k$means %>% 
+    rownames_to_column(var = "Site") %>%
+    rename(gla = dummy_y.gla) %>%
+    as_tibble() %>% 
+    left_join(as_tibble(k$groups), by = c("rank" = "dummy_y$gla")))
+gla <- merge(gla, t_comp[,c(1,3,11)], by = "Site")
+
+pgla <-ggplot(gla, aes(x=Site, y=gla, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=gla-sem, ymax=gla+sem), width=.2)+
+  ggtitle("gla") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  theme(axis.title.x = element_blank())+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))+
+  geom_text(data = gla, aes(x = Site, y = gla+sem+0.008, label = groups), size = 6, color = "red")
+pgla
 
 
+#fos
+k <- kruskal(dummy_y$fos, dummy_y$Site, console = TRUE,
+             p.adj=c("bonferroni"))
+#p.adj = "none" is t-student
+(t_comp <- k$means %>% 
+    rownames_to_column(var = "Site") %>%
+    rename(fos = dummy_y.fos) %>%
+    as_tibble() %>% 
+    left_join(as_tibble(k$groups), by = c("rank" = "dummy_y$fos")))
+fos <- merge(fos, t_comp[,c(1,3,11)], by = "Site")
+
+pfos <-ggplot(fos, aes(x=Site, y=fos, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=fos-sem, ymax=fos+sem), width=.2)+
+  ggtitle("fos") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  theme(axis.title.x = element_blank())+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))+
+  geom_text(data = fos, aes(x = Site, y = fos+sem+0.04, label = groups), size = 6, color = "red")
+pfos
+
+#leu
+k <- kruskal(dummy_y$leu, dummy_y$Site, console = TRUE,
+             p.adj=c("bonferroni"))
+#p.adj = "none" is t-student
+(t_comp <- k$means %>% 
+    rownames_to_column(var = "Site") %>%
+    rename(leu = dummy_y.leu) %>%
+    as_tibble() %>% 
+    left_join(as_tibble(k$groups), by = c("rank" = "dummy_y$leu")))
+leu <- merge(leu, t_comp[,c(1,3,11)], by = "Site")
+
+pleu <-ggplot(leu, aes(x=Site, y=leu, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=leu-sem, ymax=leu+sem), width=.2)+
+  ggtitle("leu") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol AMC·" ~  g ~ DW^-1,"·" ~ h^-1)))+
+  geom_text(data = leu, aes(x = Site, y = leu+sem+0.01, label = groups), size = 6, color = "red")
+pleu
+
+
+#phe
+k <- kruskal(dummy_y$phe, dummy_y$Site, console = TRUE,
+             p.adj=c("bonferroni"))
+#p.adj = "none" is t-student
+(t_comp <- k$means %>% 
+    rownames_to_column(var = "Site") %>%
+    rename(phe = dummy_y.phe) %>%
+    as_tibble() %>% 
+    left_join(as_tibble(k$groups), by = c("rank" = "dummy_y$phe")))
+phe <- merge(phe, t_comp[,c(1,3,11)], by = "Site")
+
+pphe <-ggplot(phe, aes(x=Site, y=phe, fill=AI)) + 
+  geom_bar(stat="identity", color="black", position=position_dodge())+
+  geom_errorbar(aes(ymin=phe-sem, ymax=phe+sem), width=.2)+
+  ggtitle("phe") +
+  plot.theme1+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+  labs(y = expression(paste("μmol DIQC·" ~  g ~ DW^-1,"·" ~ h^-1)))+
+  geom_text(data = phe, aes(x = Site, y = phe+sem+0.2, label = groups), size = 6, color = "red")
+pphe
+
+
+all <- ggarrange(palpha, pbeta, pxyl, pcbh, pfos, pgla, pleu, pphe,
+                 nrow = 4, ncol = 2,
+                 common.legend = TRUE,
+                 legend = "right")
+
+ggsave(path = "Figures/1 GRADIENT","enzymes2.png",
+       width = 30, height = 20, dpi = 300)
 
 
 # .----
@@ -661,7 +900,7 @@ ggsave(path = "Figures/1 GRADIENT","SP_fig2_1.png", width = 7, height = 6, dpi =
 # ggsave(path = "Figures/1 GRADIENT","SP_fig2_2.png", width = 7, height = 6, dpi = 300)
 
 
-# Figure 3. Enzymes by bars ----
+# (Figure 3. See 2.1 statistical tests) ----
 data <- my_data[,c(2,7,46:53)]
 
 data_summary2 <- function(data, varname, groupnames){
