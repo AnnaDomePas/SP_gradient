@@ -305,20 +305,18 @@ summary(mod,summary=TRUE)
 # .----
 
 # 2. Kruskal-Wallis (AI (Site) vs dependent vars.) ----
-# 2.1  Figure 3. Enzyme by bars and post-hoc letters ----
+# > Enzymes ----
+# >> Figure 3. Enzyme by bars and post-hoc letters ----
 dummy_variables = as.data.frame((my_data[,c(2,5:7,27:29,76)]))
 dummy_y <- my_data[,c(2,5:7,27:29,76, 35:38,40:64,74)]
 y_variables <- my_data[,c(2,35:38,40:64,74)]
 
 dummy_y$Site <- factor(dummy_y$Site)
 
-
 require(agricolae)
-
 library(tidyverse)
 
 data <- my_data[,c(2,7,46:53)]
-
 data_summary2 <- function(data, varname, groupnames){
   require(plyr)
   summary_func <- function(x, col){
@@ -331,7 +329,6 @@ data_summary2 <- function(data, varname, groupnames){
   data_sum <- rename(data_sum, c("mean" = varname))
   return(data_sum)
 }
-
 alpha <- data_summary2(data, varname="alpha", 
                        groupnames=c("Site", "AI"))
 beta <- data_summary2(data, varname="beta", 
@@ -348,7 +345,6 @@ leu <- data_summary2(data, varname="leu",
                      groupnames=c("Site", "AI"))
 phe <- data_summary2(data, varname="phe", 
                      groupnames=c("Site", "AI"))
-
 alpha$Site <- factor(alpha$Site, levels = c("SP08", "SP01", "SP02",
                                             "SP07","SP06","SP03",
                                             "SP12", "SP11", "SP04",
@@ -381,7 +377,17 @@ phe$Site <- factor(phe$Site, levels = c("SP08", "SP01", "SP02",
                                         "SP07","SP06","SP03",
                                         "SP12", "SP11", "SP04",
                                         "SP09", "SP10","SP05"))
-
+library(ggplot2)
+plot.theme1 <- theme_classic() +
+  theme(text=element_text(size=15),
+        axis.title.x = element_text(size = rel(1.2), angle = 00, margin = margin(t=8)),
+        axis.title.y = element_text(size = rel(1.2), angle = 90, margin = margin(t=8)),
+        plot.title = element_text(size=22),
+        legend.position = "none",
+        legend.title = element_text(size = 18),
+        legend.text = element_text(size = 15),
+        axis.text.x = element_text(size=15),
+        axis.text.y = element_text(size=15))
 
 #alpha
 k <- kruskal(dummy_y$alpha, dummy_y$Site, console = TRUE,
@@ -547,7 +553,7 @@ pleu <-ggplot(leu, aes(x=Site, y=leu, fill=AI)) +
   scale_fill_AI(discrete = FALSE, palette = "Sites")+
   scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
   labs(y = expression(paste("μmol AMC·" ~  g ~ DW^-1,"·" ~ h^-1)))+
-  geom_text(data = leu, aes(x = Site, y = leu+sem+0.01, label = groups), size = 6, color = "red")
+  geom_text(data = leu, aes(x = Site, y = leu+sem+0.012, label = groups), size = 6, color = "red")
 pleu
 
 
@@ -578,9 +584,61 @@ all <- ggarrange(palpha, pbeta, pxyl, pcbh, pfos, pgla, pleu, pphe,
                  nrow = 4, ncol = 2,
                  common.legend = TRUE,
                  legend = "right")
-
-ggsave(path = "Figures/1 GRADIENT","enzymes2.png",
+all
+ggsave(path = "Figures/1 GRADIENT","enzymes3.png",
        width = 30, height = 20, dpi = 300)
+
+
+# . ----
+# IV REDUCTION & PLSR ----
+# What variables to use in the MANOVA as covariables
+x_variables = as.data.frame((my_data[,c(2,5:8,10,12:13,17:23,27:30)]))
+
+cor.mat <- x_variables[,2:19] %>% cor_mat()
+cor.mat %>% cor_reorder() %>% pull_lower_triangle() %>% cor_plot(label = TRUE)
+
+# < 0.8 criteria
+# New selected variables:
+x_variables_1 = as.data.frame((x_variables[,-c(2,3,6,8,9,10,11,16)]))
+# Removed variables: MAP, pH, TOC, TC, TN, MAT, Water content
+cor.mat <- x_variables_1[,2:11] %>% cor_mat()
+cor.mat %>% cor_reorder() %>% pull_lower_triangle() %>% cor_plot(label = TRUE)
+
+
+# < 0.70 criteria
+# New selected variables:
+x_variables_1 = as.data.frame((x_variables[,-c(2:3,5,6,7,8,9,10,11,16)]))
+# Removed variables: MAP, MAT, Soil temp, pH,SOM, Water content, TOC, TC, TN, Sand
+cor.mat <- x_variables_1[,2:9] %>% cor_mat()
+cor.mat %>% cor_reorder() %>% pull_lower_triangle() %>% cor_plot(label = TRUE)
+
+
+# VIF ####
+# < 0.8 criteria
+library(car)
+cor.mat <- x_variables_1[,2:11] %>% cor_mat()
+model <- lm(cbind(y_variables_3$CO2_dark+y_variables_3$chla+y_variables_3$carotene+
+                    y_variables_3$EPS) 
+            ~ x_variables_1$AI+x_variables_1$Soil_Temp+x_variables_1$SOM+
+              x_variables_1$C_N+x_variables_1$NH4+x_variables_1$PO43+x_variables_1$SO42+x_variables_1$Silt+
+              x_variables_1$Clay+x_variables_1$Litter)
+car::vif(model)
+
+library(pls)
+model <- plsr(y_variables_3$CO2_dark~x_variables_1$Soil_Temp+
+                x_variables_1$Water_content+x_variables_1$SOM_perc+x_variables_1$TC_perc+
+                x_variables_1$C_N+x_variables_1$NH4+x_variables_1$PO43+x_variables_1$SO42+
+                x_variables_1$Litter+x_variables_1$L_TC_perc+x_variables_1$L_TN_perc, scale=TRUE, validation="CV")
+summary(model)
+coefficients = coef(model)
+
+cv = RMSEP(model)
+best.dims = which.min(cv$val[estimate = "adjCV", , ]) - 1
+R2(model)
+
+
+
+
 
 
 # .----
@@ -900,178 +958,178 @@ ggsave(path = "Figures/1 GRADIENT","SP_fig2_1.png", width = 7, height = 6, dpi =
 # ggsave(path = "Figures/1 GRADIENT","SP_fig2_2.png", width = 7, height = 6, dpi = 300)
 
 
-# (Figure 3. See 2.1 statistical tests) ----
-data <- my_data[,c(2,7,46:53)]
-
-data_summary2 <- function(data, varname, groupnames){
-  require(plyr)
-  summary_func <- function(x, col){
-    c(mean = mean(x[[col]], na.rm=TRUE),
-      sd = sd(x[[col]], na.rm=TRUE),
-      sem = sd(x[[col]], na.rm=TRUE)/sqrt(length(x[[col]])))
-  }
-  data_sum<-ddply(data, groupnames, .fun=summary_func,
-                  varname)
-  data_sum <- rename(data_sum, c("mean" = varname))
-  return(data_sum)
-}
-
-alpha <- data_summary2(data, varname="alpha", 
-                    groupnames=c("Site", "AI"))
-beta <- data_summary2(data, varname="beta", 
-                     groupnames=c("Site", "AI"))
-xyl <- data_summary2(data, varname="xyl", 
-                    groupnames=c("Site", "AI"))
-cbh <- data_summary2(data, varname="cbh", 
-                    groupnames=c("Site", "AI"))
-gla <- data_summary2(data, varname="gla", 
-                    groupnames=c("Site", "AI"))
-fos <- data_summary2(data, varname="fos", 
-                    groupnames=c("Site", "AI"))
-leu <- data_summary2(data, varname="leu", 
-                    groupnames=c("Site", "AI"))
-phe <- data_summary2(data, varname="phe", 
-                    groupnames=c("Site", "AI"))
-
-alpha$Site <- factor(alpha$Site, levels = c("SP08", "SP01", "SP02",
-                                                    "SP07","SP06","SP03",
-                                                    "SP12", "SP11", "SP04",
-                                                    "SP09", "SP10","SP05"))
-beta$Site <- factor(beta$Site, levels = c("SP08", "SP01", "SP02",
-                                            "SP07","SP06","SP03",
-                                            "SP12", "SP11", "SP04",
-                                            "SP09", "SP10","SP05"))
-xyl$Site <- factor(xyl$Site, levels = c("SP08", "SP01", "SP02",
-                                            "SP07","SP06","SP03",
-                                            "SP12", "SP11", "SP04",
-                                            "SP09", "SP10","SP05"))
-cbh$Site <- factor(cbh$Site, levels = c("SP08", "SP01", "SP02",
-                                            "SP07","SP06","SP03",
-                                            "SP12", "SP11", "SP04",
-                                            "SP09", "SP10","SP05"))
-fos$Site <- factor(fos$Site, levels = c("SP08", "SP01", "SP02",
-                                            "SP07","SP06","SP03",
-                                            "SP12", "SP11", "SP04",
-                                            "SP09", "SP10","SP05"))
-gla$Site <- factor(gla$Site, levels = c("SP08", "SP01", "SP02",
-                                            "SP07","SP06","SP03",
-                                            "SP12", "SP11", "SP04",
-                                            "SP09", "SP10","SP05"))
-leu$Site <- factor(leu$Site, levels = c("SP08", "SP01", "SP02",
-                                            "SP07","SP06","SP03",
-                                            "SP12", "SP11", "SP04",
-                                            "SP09", "SP10","SP05"))
-phe$Site <- factor(phe$Site, levels = c("SP08", "SP01", "SP02",
-                                            "SP07","SP06","SP03",
-                                            "SP12", "SP11", "SP04",
-                                            "SP09", "SP10","SP05"))
-                         
-
-library(ggplot2)
-plot.theme1 <- theme_classic() +
-  theme(text=element_text(size=15),
-        axis.title.x = element_text(size = rel(1.2), angle = 00, margin = margin(t=8)),
-        axis.title.y = element_text(size = rel(1.2), angle = 90, margin = margin(t=8)),
-        plot.title = element_text(size=22),
-        legend.position = "none",
-        legend.title = element_text(size = 18),
-        legend.text = element_text(size = 15),
-        axis.text.x = element_text(size=15),
-        axis.text.y = element_text(size=15))
-
-palpha <-ggplot(alpha, aes(x=Site, y=alpha, fill=AI)) + 
-  geom_bar(stat="identity", color="black", position=position_dodge())+
-  geom_errorbar(aes(ymin=alpha-sem, ymax=alpha+sem), width=.2)+
-  ggtitle("alpha") +
-  plot.theme1+
-  scale_fill_AI(discrete = FALSE, palette = "Sites")+
-  theme(axis.title.x = element_blank())+
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
-  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
-
-pbeta <-ggplot(beta, aes(x=Site, y=beta, fill=AI)) + 
-  geom_bar(stat="identity", color="black", position=position_dodge())+
-  geom_errorbar(aes(ymin=beta-sem, ymax=beta+sem), width=.2)+
-  ggtitle("beta") +
-  plot.theme1+
-  scale_fill_AI(discrete = FALSE, palette = "Sites")+
-  theme(axis.title.x = element_blank())+
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
-  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
-
-pxyl <-ggplot(xyl, aes(x=Site, y=xyl, fill=AI)) + 
-  geom_bar(stat="identity", color="black", position=position_dodge())+
-  geom_errorbar(aes(ymin=xyl-sem, ymax=xyl+sem), width=.2)+
-  ggtitle("xyl") +
-  plot.theme1+
-  scale_fill_AI(discrete = FALSE, palette = "Sites")+
-  theme(axis.title.x = element_blank())+
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
-  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
-
-pcbh <-ggplot(cbh, aes(x=Site, y=cbh, fill=AI)) + 
-  geom_bar(stat="identity", color="black", position=position_dodge())+
-  geom_errorbar(aes(ymin=cbh-sem, ymax=cbh+sem), width=.2)+
-  ggtitle("cbh") +
-  plot.theme1+
-  scale_fill_AI(discrete = FALSE, palette = "Sites")+
-  theme(axis.title.x = element_blank())+
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
-  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
-
-pgla <-ggplot(gla, aes(x=Site, y=gla, fill=AI)) + 
-  geom_bar(stat="identity", color="black", position=position_dodge())+
-  geom_errorbar(aes(ymin=gla-sem, ymax=gla+sem), width=.2)+
-  ggtitle("gla") +
-  plot.theme1+
-  scale_fill_AI(discrete = FALSE, palette = "Sites")+
-  theme(axis.title.x = element_blank())+
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
-  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
-
-pfos <-ggplot(fos, aes(x=Site, y=fos, fill=AI)) + 
-  geom_bar(stat="identity", color="black", position=position_dodge())+
-  geom_errorbar(aes(ymin=fos-sem, ymax=fos+sem), width=.2)+
-  ggtitle("fos") +
-  plot.theme1+
-  scale_fill_AI(discrete = FALSE, palette = "Sites")+
-  theme(axis.title.x = element_blank())+
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
-  labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
-
-pleu <-ggplot(leu, aes(x=Site, y=leu, fill=AI)) + 
-  geom_bar(stat="identity", color="black", position=position_dodge())+
-  geom_errorbar(aes(ymin=leu-sem, ymax=leu+sem), width=.2)+
-  ggtitle("leu") +
-  plot.theme1+
-  scale_fill_AI(discrete = FALSE, palette = "Sites")+
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
-  labs(y = expression(paste("μmol AMC·" ~  g ~ DW^-1,"·" ~ h^-1)))
-
-pphe <-ggplot(phe, aes(x=Site, y=phe, fill=AI)) + 
-  geom_bar(stat="identity", color="black", position=position_dodge())+
-  geom_errorbar(aes(ymin=phe-sem, ymax=phe+sem), width=.2)+
-  ggtitle("phe") +
-  plot.theme1+
-  scale_fill_AI(discrete = FALSE, palette = "Sites")+
-  scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
-  labs(y = expression(paste("μmol DIQC·" ~  g ~ DW^-1,"·" ~ h^-1)))
-
-# all <- ggarrange(palpha, pbeta, pxyl, pcbh, pfos, pgla, pleu, pphe,
-#                   nrow = 8, ncol = 1,
-#                   common.legend = TRUE,
-#                   legend = "right")
+# (Figure 3. See 2./Enzymes statistical tests) ----
+# data <- my_data[,c(2,7,46:53)]
 # 
-# ggsave(path = "Figures/1 GRADIENT","enzymes.png",
-#        width = 10, height = 30, dpi = 300)
-
-all <- ggarrange(palpha, pbeta, pxyl, pcbh, pfos, pgla, pleu, pphe,
-                 nrow = 4, ncol = 2,
-                 common.legend = TRUE,
-                 legend = "right")
-
-ggsave(path = "Figures/1 GRADIENT","enzymes2.png",
-       width = 30, height = 20, dpi = 300)
+# data_summary2 <- function(data, varname, groupnames){
+#   require(plyr)
+#   summary_func <- function(x, col){
+#     c(mean = mean(x[[col]], na.rm=TRUE),
+#       sd = sd(x[[col]], na.rm=TRUE),
+#       sem = sd(x[[col]], na.rm=TRUE)/sqrt(length(x[[col]])))
+#   }
+#   data_sum<-ddply(data, groupnames, .fun=summary_func,
+#                   varname)
+#   data_sum <- rename(data_sum, c("mean" = varname))
+#   return(data_sum)
+# }
+# 
+# alpha <- data_summary2(data, varname="alpha", 
+#                     groupnames=c("Site", "AI"))
+# beta <- data_summary2(data, varname="beta", 
+#                      groupnames=c("Site", "AI"))
+# xyl <- data_summary2(data, varname="xyl", 
+#                     groupnames=c("Site", "AI"))
+# cbh <- data_summary2(data, varname="cbh", 
+#                     groupnames=c("Site", "AI"))
+# gla <- data_summary2(data, varname="gla", 
+#                     groupnames=c("Site", "AI"))
+# fos <- data_summary2(data, varname="fos", 
+#                     groupnames=c("Site", "AI"))
+# leu <- data_summary2(data, varname="leu", 
+#                     groupnames=c("Site", "AI"))
+# phe <- data_summary2(data, varname="phe", 
+#                     groupnames=c("Site", "AI"))
+# 
+# alpha$Site <- factor(alpha$Site, levels = c("SP08", "SP01", "SP02",
+#                                                     "SP07","SP06","SP03",
+#                                                     "SP12", "SP11", "SP04",
+#                                                     "SP09", "SP10","SP05"))
+# beta$Site <- factor(beta$Site, levels = c("SP08", "SP01", "SP02",
+#                                             "SP07","SP06","SP03",
+#                                             "SP12", "SP11", "SP04",
+#                                             "SP09", "SP10","SP05"))
+# xyl$Site <- factor(xyl$Site, levels = c("SP08", "SP01", "SP02",
+#                                             "SP07","SP06","SP03",
+#                                             "SP12", "SP11", "SP04",
+#                                             "SP09", "SP10","SP05"))
+# cbh$Site <- factor(cbh$Site, levels = c("SP08", "SP01", "SP02",
+#                                             "SP07","SP06","SP03",
+#                                             "SP12", "SP11", "SP04",
+#                                             "SP09", "SP10","SP05"))
+# fos$Site <- factor(fos$Site, levels = c("SP08", "SP01", "SP02",
+#                                             "SP07","SP06","SP03",
+#                                             "SP12", "SP11", "SP04",
+#                                             "SP09", "SP10","SP05"))
+# gla$Site <- factor(gla$Site, levels = c("SP08", "SP01", "SP02",
+#                                             "SP07","SP06","SP03",
+#                                             "SP12", "SP11", "SP04",
+#                                             "SP09", "SP10","SP05"))
+# leu$Site <- factor(leu$Site, levels = c("SP08", "SP01", "SP02",
+#                                             "SP07","SP06","SP03",
+#                                             "SP12", "SP11", "SP04",
+#                                             "SP09", "SP10","SP05"))
+# phe$Site <- factor(phe$Site, levels = c("SP08", "SP01", "SP02",
+#                                             "SP07","SP06","SP03",
+#                                             "SP12", "SP11", "SP04",
+#                                             "SP09", "SP10","SP05"))
+#                          
+# 
+# library(ggplot2)
+# plot.theme1 <- theme_classic() +
+#   theme(text=element_text(size=15),
+#         axis.title.x = element_text(size = rel(1.2), angle = 00, margin = margin(t=8)),
+#         axis.title.y = element_text(size = rel(1.2), angle = 90, margin = margin(t=8)),
+#         plot.title = element_text(size=22),
+#         legend.position = "none",
+#         legend.title = element_text(size = 18),
+#         legend.text = element_text(size = 15),
+#         axis.text.x = element_text(size=15),
+#         axis.text.y = element_text(size=15))
+# 
+# palpha <-ggplot(alpha, aes(x=Site, y=alpha, fill=AI)) + 
+#   geom_bar(stat="identity", color="black", position=position_dodge())+
+#   geom_errorbar(aes(ymin=alpha-sem, ymax=alpha+sem), width=.2)+
+#   ggtitle("alpha") +
+#   plot.theme1+
+#   scale_fill_AI(discrete = FALSE, palette = "Sites")+
+#   theme(axis.title.x = element_blank())+
+#   scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+#   labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
+# 
+# pbeta <-ggplot(beta, aes(x=Site, y=beta, fill=AI)) + 
+#   geom_bar(stat="identity", color="black", position=position_dodge())+
+#   geom_errorbar(aes(ymin=beta-sem, ymax=beta+sem), width=.2)+
+#   ggtitle("beta") +
+#   plot.theme1+
+#   scale_fill_AI(discrete = FALSE, palette = "Sites")+
+#   theme(axis.title.x = element_blank())+
+#   scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+#   labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
+# 
+# pxyl <-ggplot(xyl, aes(x=Site, y=xyl, fill=AI)) + 
+#   geom_bar(stat="identity", color="black", position=position_dodge())+
+#   geom_errorbar(aes(ymin=xyl-sem, ymax=xyl+sem), width=.2)+
+#   ggtitle("xyl") +
+#   plot.theme1+
+#   scale_fill_AI(discrete = FALSE, palette = "Sites")+
+#   theme(axis.title.x = element_blank())+
+#   scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+#   labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
+# 
+# pcbh <-ggplot(cbh, aes(x=Site, y=cbh, fill=AI)) + 
+#   geom_bar(stat="identity", color="black", position=position_dodge())+
+#   geom_errorbar(aes(ymin=cbh-sem, ymax=cbh+sem), width=.2)+
+#   ggtitle("cbh") +
+#   plot.theme1+
+#   scale_fill_AI(discrete = FALSE, palette = "Sites")+
+#   theme(axis.title.x = element_blank())+
+#   scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+#   labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
+# 
+# pgla <-ggplot(gla, aes(x=Site, y=gla, fill=AI)) + 
+#   geom_bar(stat="identity", color="black", position=position_dodge())+
+#   geom_errorbar(aes(ymin=gla-sem, ymax=gla+sem), width=.2)+
+#   ggtitle("gla") +
+#   plot.theme1+
+#   scale_fill_AI(discrete = FALSE, palette = "Sites")+
+#   theme(axis.title.x = element_blank())+
+#   scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+#   labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
+# 
+# pfos <-ggplot(fos, aes(x=Site, y=fos, fill=AI)) + 
+#   geom_bar(stat="identity", color="black", position=position_dodge())+
+#   geom_errorbar(aes(ymin=fos-sem, ymax=fos+sem), width=.2)+
+#   ggtitle("fos") +
+#   plot.theme1+
+#   scale_fill_AI(discrete = FALSE, palette = "Sites")+
+#   theme(axis.title.x = element_blank())+
+#   scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+#   labs(y = expression(paste("μmol MUF·" ~  g ~ DW^-1,"·" ~ h^-1)))
+# 
+# pleu <-ggplot(leu, aes(x=Site, y=leu, fill=AI)) + 
+#   geom_bar(stat="identity", color="black", position=position_dodge())+
+#   geom_errorbar(aes(ymin=leu-sem, ymax=leu+sem), width=.2)+
+#   ggtitle("leu") +
+#   plot.theme1+
+#   scale_fill_AI(discrete = FALSE, palette = "Sites")+
+#   scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+#   labs(y = expression(paste("μmol AMC·" ~  g ~ DW^-1,"·" ~ h^-1)))
+# 
+# pphe <-ggplot(phe, aes(x=Site, y=phe, fill=AI)) + 
+#   geom_bar(stat="identity", color="black", position=position_dodge())+
+#   geom_errorbar(aes(ymin=phe-sem, ymax=phe+sem), width=.2)+
+#   ggtitle("phe") +
+#   plot.theme1+
+#   scale_fill_AI(discrete = FALSE, palette = "Sites")+
+#   scale_y_continuous(labels = scales::number_format(accuracy = 0.001))+
+#   labs(y = expression(paste("μmol DIQC·" ~  g ~ DW^-1,"·" ~ h^-1)))
+# 
+# # all <- ggarrange(palpha, pbeta, pxyl, pcbh, pfos, pgla, pleu, pphe,
+# #                   nrow = 8, ncol = 1,
+# #                   common.legend = TRUE,
+# #                   legend = "right")
+# # 
+# # ggsave(path = "Figures/1 GRADIENT","enzymes.png",
+# #        width = 10, height = 30, dpi = 300)
+# 
+# all <- ggarrange(palpha, pbeta, pxyl, pcbh, pfos, pgla, pleu, pphe,
+#                  nrow = 4, ncol = 2,
+#                  common.legend = TRUE,
+#                  legend = "right")
+# 
+# ggsave(path = "Figures/1 GRADIENT","enzymes2.png",
+#        width = 30, height = 20, dpi = 300)
 
 
 #.----
