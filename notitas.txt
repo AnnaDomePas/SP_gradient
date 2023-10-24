@@ -3,6 +3,46 @@
 x = independientes (Dummies + Water content, pH....)
 y = dependientes (EEA, GHG,...)
 
+*** ACTUALIZADO 24/10/2023 ***
+
+- Probar PCA fisicoquímico con el AI MAT MAP
+
+- Mirar el PCA (cada uno de los ejes) que variables explican mas. A partir de ahí hacer los RLM. Esto con el PCA con dummies y sin dummies.
+
+- Agrupacion de variables dep. como las enzymas del C, N...
+!!! Preguntar índices de multifuncionalidad a JP
+
+- PCA: OX PC1, OY vars agrupadas y sin agrupar.
+
+- Volver a ver los ejes del PCA y ver que variables tienen mas peso. Para hacer luego la RLM.
+
+> Respiración, enzimas, biomasas
+> 16S i ITS2
+
+
+- Hacer plots de ITS2
+- Leer bibliography de 16S barplots
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*** OLD IDEAS ***
 
 *** PARA LAS DEPENDENT VARIABLES *******************
 Step 1. MANOVA con las Dummies (AI, MAT, MAP, GRANULOMETRY... sin variabilidad) ~ con las variables dependentes (EEA, GHG...)
