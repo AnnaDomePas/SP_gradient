@@ -51,6 +51,20 @@ data_summary <- function(data, varname, groupnames){
 }
 
 
+data_summary2 <- function(data, varname, groupnames){
+  require(plyr)
+  summary_func <- function(x, col){
+    c(mean = mean(x[[col]], na.rm=TRUE),
+      sd = sd(x[[col]], na.rm=TRUE),
+      sem = sd(x[[col]], na.rm=TRUE)/sqrt(length(x[[col]])))
+  }
+  data_sum<-ddply(data, groupnames, .fun=summary_func,
+                  varname)
+  data_sum <- rename(data_sum, c("mean" = varname))
+  return(data_sum)
+}
+
+
 # _______________________________________ ----
 # UCI STAY ANALYSES **** ----
 #.----
@@ -317,18 +331,9 @@ require(agricolae)
 library(tidyverse)
 
 data <- my_data[,c(2,7,46:53)]
-data_summary2 <- function(data, varname, groupnames){
-  require(plyr)
-  summary_func <- function(x, col){
-    c(mean = mean(x[[col]], na.rm=TRUE),
-      sd = sd(x[[col]], na.rm=TRUE),
-      sem = sd(x[[col]], na.rm=TRUE)/sqrt(length(x[[col]])))
-  }
-  data_sum<-ddply(data, groupnames, .fun=summary_func,
-                  varname)
-  data_sum <- rename(data_sum, c("mean" = varname))
-  return(data_sum)
-}
+
+#IMPORT FUNCTION DATA SUMMARY 2
+
 alpha <- data_summary2(data, varname="alpha", 
                        groupnames=c("Site", "AI"))
 beta <- data_summary2(data, varname="beta", 
@@ -2115,14 +2120,15 @@ New_data$enzyme <- factor(New_data$enzyme, levels = c("alpha", "beta",
                                                       "leu","phe" ))
 # IMPORT FUNCTION DATA_SUMMARY !!!
 
-New_data <- data_summary(New_data, varname="values", 
-                         groupnames=c("Site","AI", "enzyme"))
+# New_data <- data_summary(New_data, varname="values", 
+#                          groupnames=c("Site","AI", "enzyme"))
+New_data <- data_summary2(New_data, varname="values", 
+                          groupnames=c("Site","AI", "enzyme"))
 # make a plot
 New_data$values = as.numeric(New_data$values)
-enzyme <- ggplot(New_data, aes(x=AI, y=values, color = enzyme, 
-                               fill = enzyme)) +
-  geom_point(size= 3, color ="grey") +
-  geom_pointrange(data=subset(New_data, Site != "SP06"), aes(ymin=values-sd, ymax=values+sd),
+enzyme <- ggplot(New_data, aes(x=AI, y=values, color = AI)) +
+  geom_point(size= 3, shape = 15) +
+  geom_pointrange(data=subset(New_data), aes(ymin=values-sem, ymax=values+sem),
                   color = "black", stroke = 1, size = 0.6, shape = 0) +
     xlab("Aridity Index") +
   theme(axis.title.y=element_blank()) +
@@ -2135,19 +2141,20 @@ enzyme <- ggplot(New_data, aes(x=AI, y=values, color = enzyme,
   theme(axis.text.x = element_text(size = 18, angle = 0, color = "black", face = "bold"))+
   theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
   theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
-  theme(legend.position = "none")+
+  theme(legend.position = "right")+
   coord_cartesian(xlim = c(0,1.4))+
   scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
-                     labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4)) +
-  geom_smooth(method = "lm", color = "blue", fill = "grey") +
-  stat_cor(label.x = 0.6, label.y.npc="top",
-           aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
-           p.accuracy = 0.001, r.accuracy = 0.01,
-           color = "blue", size = 4.5)
+                     labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))+
+  scale_color_AI(discrete = FALSE, palette = "Sites")
+  # geom_smooth(method = "lm", color = "blue", fill = "grey") +
+  # stat_cor(label.x = 0.6, label.y.npc="top",
+  #          aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+  #          p.accuracy = 0.001, r.accuracy = 0.01,
+  #          color = "blue", size = 4.5)
 enzyme
 
 # save the plot
-# ggsave(path = "Figures/1 GRADIENT", "SP_enzymes_AI_sd.png", width = 16, height = 8, dpi = 300)
+# ggsave(path = "Figures/1 GRADIENT", "SP_enzymes_AI_se.png", width = 16, height = 8, dpi = 300)
 # ggsave(path = "Figures/1 GRADIENT", "SP_enzymes_AI_noSP6_sd.png", width = 16, height = 8, dpi = 300)
 
 
