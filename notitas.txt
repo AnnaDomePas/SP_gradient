@@ -20,7 +20,7 @@ y = dependientes (EEA, GHG,...)
 > 16S i ITS2
 
 
-- Hacer plots de ITS2
+- Hacer plots de ITS2 (DONE)
 - Leer bibliography de 16S barplots
 
 
