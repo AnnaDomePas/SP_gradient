@@ -877,6 +877,37 @@ all <- prcomp(na.omit(data_mit2), center = TRUE,
 plot(all, type = "l")
 plot(all)
 summary(all)
+
+
+library(factoextra)
+# Eigenvalues
+eig.val <- get_eigenvalue(all)
+eig.val
+
+# Results for Variables
+res.var <- get_pca_var(all)
+res.var$coord          # Coordinates
+res.var$contrib # Contributions to the PCs
+# # To add a dataframe with a table of OTU
+contributions <- res.var$contrib[,1:2]
+contributionsdf = as.data.frame(contributions[,1:2])
+write.csv(contributionsdf, "Figures/1 GRADIENT/PCA_fsca_contributions.csv", row.names=TRUE)
+
+res.var$cos2           # Quality of representation 
+
+# Results for individuals
+res.ind <- get_pca_ind(all)
+res.ind$coord          # Coordinates
+res.ind$contrib        # Contributions to the PCs
+res.ind$cos2           # Quality of representation 
+
+a <- fviz_contrib(all, choice = "var", axes = 1, top = 10)
+b <- fviz_contrib(all, choice = "var", axes = 2, top = 10)
+ggarrange(a,b, ncol=2) + theme_classic()
+
+ggsave(path = "Figures/1 GRADIENT","PCA_fsca_contributions.png", width = 10, height = 6, dpi = 300)
+
+
 mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
              "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
              "#7D1809", "#290500")
@@ -929,38 +960,18 @@ all_plot$layers[[txt]] <- geom_label(aes(x = xvar, y = yvar, label = PCAloadings
 all_plot
 
 
-ggsave(path = "Figures/1 GRADIENT","SP_fig2_1.png", width = 7, height = 6, dpi = 300)
+# ggsave(path = "Figures/1 GRADIENT","SP_fig2_1.png", width = 7, height = 6, dpi = 300)
 
-#By replicates:
-# site <- data[, 1]
-# data2 <- data[,-1]
-# pc <- prcomp(na.omit(data2), center = TRUE,
-#              scale. = TRUE) 
-# plot(pc, type = "l")
-# plot(pc)
-# summary(pc)
-# mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
-#              "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
-#              "#7D1809", "#290500")
-# all <- ggbiplot(pc, var.scale = 1,varname.size = 5,
-#                 obs.scale = 1,
-#                 ellipse = FALSE, fill=site,
-#                 circle = TRUE, alpha=0) +
-#   theme_classic()+
-#   theme(axis.text=element_text(size=12),
-#         axis.title=element_text(size=15))+
-#   ggtitle("Physicochemical variables")+
-#   theme(plot.title = element_text(color="black", size=17, face="bold.italic"))+
-#   theme(plot.title = element_text(hjust = 0.5))+
-#   theme(legend.title=element_blank())+
-#   theme(legend.text = element_text(size=15))+
-#   scale_fill_manual(values = mycolors2,
-#                     breaks=c('SP08', 'SP01', 'SP02','SP07',
-#                              'SP06', 'SP03','SP12','SP11',
-#                              'SP04','SP09','SP10','SP05'))+
-#   geom_point(aes(fill=site), colour= "black", pch=21, size = 6)
-# all
-# ggsave(path = "Figures/1 GRADIENT","SP_fig2_2.png", width = 7, height = 6, dpi = 300)
+
+
+#Obtain scores:
+scores <- as.data.frame(all$x[,1:2])
+scores$Site <- unique(data[,1])
+scores <- scores[,c(3,1,2)] #Reorder to have Site as the first column
+
+
+
+
 
 
 # (Figure 3. See 2./Enzymes statistical tests) ----
