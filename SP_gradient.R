@@ -593,6 +593,116 @@ all
 ggsave(path = "Figures/1 GRADIENT","enzymes3.png",
        width = 30, height = 20, dpi = 300)
 
+#. ----
+# Feature Selection (CARET PACKAGE) ----
+# https://machinelearningmastery.com/feature-selection-with-the-caret-r-package/
+# https://bookdown.org/rehk/stm1001_dsm_t1_introduction_to_machine_learning_in_r/machine-learning-in-r-using-the-caret-package.html
+
+# load the library
+library(mlbench)
+library(caret)
+
+# > Remove Redundant Features ----
+
+#WITH DEPENDENT AND INDEPENDENT VARIABLES ALTOGETHER ***********
+# ensure the results are repeatable
+set.seed(7)
+
+data <- my_data[,c(5:10,12:13,17:23,27:30,33:35,37:38,40:64,76)]
+
+#1. Remove zero- and near zero-variance predictors
+nearZeroVar(data, saveMetrics = TRUE)
+# There are none in data so it returns an empty vector (integer(0)).
+# # nzv <- nearZeroVar(data)
+# # data_filtered <- data[,nzv] #not needed because there is no variables near 0 var.
+
+#2. Remove linear dependencies
+comboInfo <- findLinearCombos(data) #THERE ARE NOT LINEAL DEPENDENCIES
+#  data[,-comboInfo$remove]
+
+#3.Remove correlated predictors
+data_cor <- cor(data)
+data_highlyCor <- findCorrelation(data_cor, cutoff = 0.75)
+print(data_highlyCor)
+#It gives back the number of the columns from the 
+# database USED FOR THE CORRELATION (data_cor)
+# that should be removed, as they are highly correlated with other variables
+# CHECK THAT CUTOFF LEVEL IS ARBITRARY!
+
+# Remember to check that you are removing the correct columns.
+# findCorrelation gives the columns to be removed from the dataset used
+# on the correlation (data_cor), not the original dataset (data)
+clean_data <- data[,-c(2,39,46,6,9,11,7,4,42,5,43,47,25,3,1,10,26,27,29,16,31)]
+
+clean_my_data <- clean_data
+clean_my_data$Site <- my_data$Site
+clean_my_data <- clean_my_data[ , c("Site",  
+                         names(clean_my_data)[names(clean_my_data) != "Site"])] 
+
+
+# > Rank Features by Importance ----
+
+# ensure results are repeatable
+set.seed(7)
+
+clean_my_data$Site <- factor(clean_my_data$Site, levels = c("SP08", "SP01", "SP02",
+                                                    "SP07","SP06","SP03",
+                                                    "SP12", "SP11", "SP04",
+                                                    "SP09", "SP10","SP05"))
+
+X_clean_my_data <- clean_my_data[,c(1,2:11,30)]
+Y_clean_my_data <- clean_my_data[,c(1,12:29)]
+
+# prepare training scheme
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+
+#I plot them separately because if not it is difficult to interpret
+#***FOR INDEPENDENT VARS.****
+# train the model
+TG = expand.grid(k=1:3,size=seq(5,20,by=5))
+model <- train(Site~., data=X_clean_my_data, method="lvq", preProcess="scale", trControl=control, tuneGrid=TG)
+
+# estimate variable importance
+importance <- varImp(model, scale=FALSE)
+
+# summarize importance
+print(importance)
+
+# plot importance
+plot(importance)
+
+
+#***FOR DEPENDENT VARS.****
+# train the model
+TG = expand.grid(k=1:3,size=seq(5,20,by=5))
+model <- train(Site~., data=Y_clean_my_data, method="lvq", preProcess="scale", trControl=control, tuneGrid=TG)
+
+# estimate variable importance
+importance <- varImp(model, scale=FALSE)
+
+# summarize importance
+print(importance)
+
+# plot importance
+plot(importance)
+
+
+# > Feature Selection ----
+
+set.seed(7)
+library(randomForest)
+
+# define the control using a random forest selection function
+control <- rfeControl(functions=rfFuncs, method="cv", number=10)
+# run the RFE algorithm
+results <- rfe(PimaIndiansDiabetes[,1:8], PimaIndiansDiabetes[,9], sizes=c(1:8), rfeControl=control)
+# summarize the results
+print(results)
+# list the chosen features
+predictors(results)
+# plot the results
+plot(results, type=c("g", "o"))
+
 
 # . ----
 # IV REDUCTION & PLSR ----
@@ -964,12 +1074,127 @@ all_plot
 
 
 
-#Obtain scores:
+#> Obtaining scores PC1 and PC2 ----
 scores <- as.data.frame(all$x[,1:2])
 scores$Site <- unique(data[,1])
 scores <- scores[,c(3,1,2)] #Reorder to have Site as the first column
 
 
+
+
+# Figure 2.2. Physicochemical PCA (with AI, MAT & MAP) ----
+
+data <- my_data[,c(2,5:8,10,12,13,17:23,27:30)]
+for (i in which(sapply(data, is.numeric))) {
+  for (j in which(is.na(data[, i]))) {
+    data[j, i] <- mean(data[data[, "Site"] == data[j, "Site"], i],  na.rm = TRUE)
+  }
+}
+library(dplyr)
+data <- rename(data,
+               Temperature = Soil_Temp,
+               WC = Water_content,
+               CN = C_N)
+
+data2 <- data[,c(-1)]
+
+#By means:
+data_mit <- data %>% 
+  group_by(Site) %>%
+  summarise_all("mean")
+data_mit2 <- data_mit[,c(-1)]
+site <- data_mit[,1]
+site <- site$Site
+site <- factor(site, levels = site)
+all <- prcomp(na.omit(data_mit2), center = TRUE,
+              scale. = TRUE) 
+plot(all, type = "l")
+plot(all)
+summary(all)
+
+
+library(factoextra)
+# Eigenvalues
+eig.val <- get_eigenvalue(all)
+eig.val
+
+# Results for Variables
+res.var <- get_pca_var(all)
+res.var$coord          # Coordinates
+res.var$contrib # Contributions to the PCs
+# # To add a dataframe with a table of OTU
+contributions <- res.var$contrib[,1:2]
+contributionsdf = as.data.frame(contributions[,1:2])
+# write.csv(contributionsdf, "Figures/1 GRADIENT/PCA_fsca_contributions_AIMATMAP.csv", row.names=TRUE)
+
+res.var$cos2           # Quality of representation 
+
+# Results for individuals
+res.ind <- get_pca_ind(all)
+res.ind$coord          # Coordinates
+res.ind$contrib        # Contributions to the PCs
+res.ind$cos2           # Quality of representation 
+
+a <- fviz_contrib(all, choice = "var", axes = 1, top = 10)
+b <- fviz_contrib(all, choice = "var", axes = 2, top = 10)
+ggarrange(a,b, ncol=2) + theme_classic()
+
+# ggsave(path = "Figures/1 GRADIENT","PCA_fsca_contributions_AIMATMAP.png", width = 10, height = 6, dpi = 300)
+
+
+mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
+             "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
+             "#7D1809", "#290500")
+library(ggbiplot)
+all_plot <- ggbiplot(all, obs.scale = 1, var.scale = 1, 
+                     ellipse = TRUE, fill=site,
+                     varname.adjust = 2.5,
+                     circle = TRUE, alpha=0,
+                     loadings.label.repel=TRUE) +
+  theme_classic()+
+  scale_fill_manual(values = mycolors2,
+                    breaks=c('SP08', 'SP01', 'SP02','SP07',
+                             'SP06', 'SP03','SP12','SP11',
+                             'SP04','SP09','SP10','SP05'))+
+  geom_point(aes(fill=site), colour= "black", pch=21, size = 6)+
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=15))+
+  ggtitle("Physicochemical variables")+
+  theme(plot.title = element_text(color="black", size=17, face="bold.italic"))+
+  theme(plot.title = element_text(hjust = 0.5))+
+  theme(legend.title=element_blank())+
+  theme(legend.text = element_text(size=15))
+all_plot
+
+#Place the arrows in the forefront of the points
+all_plot$layers <- c(all_plot$layers, all_plot$layers[[2]])
+
+#The options for styling the plot within the function itself are somewhat limited, but since it produces a 
+#ggplot object, we can re-specify the necessary layers. The following code should work on any object 
+#output from ggbiplot. First we find the geom segment and geom text layers:
+
+seg <- which(sapply(all_plot$layers, function(x) class(x$geom)[1] == 'GeomSegment'))
+txt <- which(sapply(all_plot$layers, function(x) class(x$geom)[1] == 'GeomText'))
+
+#We can change the colour and width of the segments by doing
+all_plot$layers[[seg[1]]]$aes_params$colour <- 'darkred' 
+all_plot$layers[[seg[2]]]$aes_params$colour <- 'darkred'
+
+#Labels
+# Extract loadings of the variables
+PCAloadings <- data.frame(Variables = rownames(all$rotation), all$rotation)
+
+#To change the labels to have a gray background, we need to overwrite the geom_text layer with a geom_label layer:
+all_plot$layers[[txt]] <- geom_label(aes(x = xvar, y = yvar, label = PCAloadings$Variables,
+                                         angle = 0.45, hjust = 0.5, fontface = "bold"), 
+                                     label.size = NA,
+                                     color= 'darkred',
+                                     data = all_plot$layers[[txt]]$data,
+                                     fill = '#dddddd80')
+all_plot
+
+
+# ggsave(path = "Figures/1 GRADIENT","SP_fig2_3.png", width = 7, height = 6, dpi = 300)
 
 
 

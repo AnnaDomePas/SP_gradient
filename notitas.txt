@@ -5,12 +5,14 @@ y = dependientes (EEA, GHG,...)
 
 *** ACTUALIZADO 24/10/2023 ***
 
-- Probar PCA fisicoquímico con el AI MAT MAP
+- Probar PCA fisicoquímico con el AI MAT MAP (DONE)
 
-- Mirar el PCA (cada uno de los ejes) que variables explican mas. A partir de ahí hacer los RLM. Esto con el PCA con dummies y sin dummies.
+- Mirar el PCA (cada uno de los ejes) que variables explican mas (DONE).
+A partir de ahí hacer los RLM. 
+Esto con el PCA con dummies y sin dummies.
 
 - Agrupacion de variables dep. como las enzymas del C, N...
-!!! Preguntar índices de multifuncionalidad a JP
+!!! Preguntar índices de multifuncionalidad a JP (DONE)
 
 - PCA: OX PC1, OY vars agrupadas y sin agrupar.
 
