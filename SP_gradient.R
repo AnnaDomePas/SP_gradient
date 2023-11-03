@@ -35,6 +35,22 @@ for (i in which(sapply(my_data, is.numeric))) {
   }
 }
 
+#Data without ratios, percentages....
+data <- my_data[,c(5:10,12:13,17:23,27:30,33:35,37:38,40:64,76)]
+
+#Dummies....
+dummy <- my_data[,c(5:7,76)]
+
+#Independent variables without dummies....
+indepe <- my_data[,c(8:10,12:13,17:23,27:30,33:34)]
+
+#Independent var with dummies...
+duindepe <- my_data[,c(5:7,76,8:10,12:13,17:23,27:30,33:34)]
+
+#Dependen vars....
+depe <- my_data[,c(35,37:38,40:64)]
+
+
 
 # IMPORT FUNCTIONS ----
 # > DATA SUMMARY (SD) ----
@@ -68,6 +84,195 @@ data_summary2 <- function(data, varname, groupnames){
 # _______________________________________ ----
 # UCI STAY ANALYSES **** ----
 #.----
+
+# Feature Selection (CARET PACKAGE) ----
+# https://machinelearningmastery.com/feature-selection-with-the-caret-r-package/
+# https://bookdown.org/rehk/stm1001_dsm_t1_introduction_to_machine_learning_in_r/machine-learning-in-r-using-the-caret-package.html
+
+# load the library
+library(mlbench)
+library(caret)
+
+# > Remove Redundant Features ----
+# ONLY FOR INDEPENDENT VARIABLES, WITH DUMMIES ***********
+set.seed(7)
+nearZeroVar(duindepe, saveMetrics = TRUE)
+comboInfo <- findLinearCombos(duindepe)
+
+duindepe_cor <- cor(duindepe)
+duindepe_highlyCor <- findCorrelation(duindepe_cor, cutoff = 0.75)
+print(duindepe_highlyCor)
+
+clean_duindepe <- duindepe[,-c(2,7,5,6,12,8,10,3,1,19,17)]
+
+clean_duindepe$Site <- my_data$Site
+clean_duindepe <- clean_duindepe[, c("Site",  
+                              names(clean_duindepe)[names(clean_duindepe) != "Site"])] 
+
+rm(duindepe_cor, comboInfo)
+
+
+#WITH DEPENDENT AND INDEPENDENT VARIABLES ALTOGETHER ***********
+# ensure the results are repeatable
+set.seed(7)
+
+#1. Remove zero- and near zero-variance predictors
+nearZeroVar(data, saveMetrics = TRUE)
+# There are none in data so it returns an empty vector (integer(0)).
+# # nzv <- nearZeroVar(data)
+# # data_filtered <- data[,nzv] #not needed because there is no variables near 0 var.
+
+#2. Remove linear dependencies
+comboInfo <- findLinearCombos(data) #THERE ARE NOT LINEAL DEPENDENCIES
+#  data[,-comboInfo$remove]
+
+#3.Remove correlated predictors
+data_cor <- cor(data)
+data_highlyCor <- findCorrelation(data_cor, cutoff = 0.75)
+print(data_highlyCor)
+#It gives back the number of the columns from the 
+# database USED FOR THE CORRELATION (data_cor)
+# that should be removed, as they are highly correlated with other variables
+# CHECK THAT CUTOFF LEVEL IS ARBITRARY!
+
+# Remember to check that you are removing the correct columns.
+# findCorrelation gives the columns to be removed from the dataset used
+# on the correlation (data_cor), not the original dataset (data)
+clean_data <- data[,-c(2,39,46,6,9,11,7,4,42,5,43,47,25,3,1,10,26,27,29,16,31)]
+
+clean_data$Site <- my_data$Site
+clean_data <- clean_data[ , c("Site",  
+                                 names(clean_data)[names(clean_data) != "Site"])] 
+
+
+
+# > Rank Features by Importance
+# 
+# # ensure results are repeatable
+# set.seed(7)
+# 
+# clean_data$Site <- factor(clean_data$Site, levels = c("SP08", "SP01", "SP02",
+#                                                     "SP07","SP06","SP03",
+#                                                     "SP12", "SP11", "SP04",
+#                                                     "SP09", "SP10","SP05"))
+# 
+# X_clean_data <- clean_data[,c(1,2:11,30)]
+# Y_clean_data <- clean_data[,c(1,12:29)]
+# 
+# # prepare training scheme
+# control <- trainControl(method="repeatedcv", number=10, repeats=3)
+# 
+# #I plot them separately because if not it is difficult to interpret
+# #***FOR INDEPENDENT VARS.****
+# # train the model
+# TG = expand.grid(k=1:3,size=seq(5,20,by=5))
+# model <- train(Site~., data=X_clean_data, method="lvq", preProcess="scale", trControl=control, tuneGrid=TG)
+# 
+# # estimate variable importance
+# importance <- varImp(model, scale=FALSE)
+# 
+# # summarize importance
+# print(importance)
+# 
+# # plot importance
+# plot(importance)
+# 
+# 
+# #***FOR DEPENDENT VARS.****
+# # train the model
+# TG = expand.grid(k=1:3,size=seq(5,20,by=5))
+# model <- train(Site~., data=Y_clean_data, method="lvq", preProcess="scale", trControl=control, tuneGrid=TG)
+# 
+# # estimate variable importance
+# importance <- varImp(model, scale=FALSE)
+# 
+# # summarize importance
+# print(importance)
+# 
+# # plot importance
+# plot(importance)
+
+#.----
+
+clean_indepe <- clean_duindepe[,-2]
+
+model <- lm(cbind(depe$CO2_dark+depe$CH4_ave+depe$N2O+depe$BB+
+                    depe$FB+depe$chla+depe$chlb+depe$carotene+depe$EPS+
+                    depe$EPS+depe$alpha+depe$beta+depe$beta+depe$xyl+depe$cbh+
+                    depe$gla+depe$fos+depe$leu+depe$phe+depe$X16S+depe$ITS2+
+                    depe$mcrA+depe$pmoA+depe$nifH+depe$nifH+depe$AOA+depe$AOB+
+                    depe$qnorB+depe$nosZ+depe$phoD+depe$Respiration)~clean_indepe$pH+clean_indepe$TC+clean_indepe$C_N+
+                    clean_indepe$NH4+clean_indepe$PO43+clean_indepe$SO42+
+                    clean_indepe$Litter+clean_indepe$L_TC+clean_indepe$L_TN+
+                    clean_indepe$Silt)
+
+car::vif(model)
+# vif_values <- vif(model)
+# barplot(vif_values, main = "VIF Values", horiz = TRUE, col = "steelblue")
+#CONFIRMAMOS QUE NINGUNA VARIABLES INDEPENDIENTE TIENE MULTICOLINEALIDAD (VIF>5)
+
+
+# Regressions ----
+library(car)
+library(MASS)
+#CO2_dark
+
+m1 <- lm(data$CO2_dark ~ ., clean_indepe[,-1])
+summary(m1)
+stepb <- stepAIC(m1, direction="backward")
+
+m2 <- lm(data$Respiration ~ ., clean_indepe[,-1])
+summary(m2)
+stepb <- stepAIC(m2, direction="backward")
+
+
+# clean_idepe_depe <- cbind(clean_indepe, depe)
+# 
+# varlist <- c(colnames(depe))
+# models <- lapply(varlist, function(x) {
+#   lm(substitute(i ~ ., list(i = as.name(x))), data = clean_idepe_depe[,-1])
+# })
+# 
+# lapply(models, glance)
+
+
+
+# .----
+# PERMANOVA ----
+
+# https://www.youtube.com/watch?v=1ETBgbXl-BM&ab_channel=RiffomonasProject
+site <- data.frame(my_data[,c(2)]) 
+site <- setNames(site, c("Site"))
+
+perma_data <- depe
+perma_data2 <- cbind(site, depe)
+
+# I HAVE NOT STANDARIZED THE DATA AND I SHOULD, AS
+# ALL VARIABLES HAVE DIFFERENT UNITS
+
+#without negative values because if not i can not
+# obtain matrix distance with Bray-curtis
+perma_data_trans <- log(perma_data+1-min(perma_data))
+perma_data2_trans <- cbind(site,perma_data_trans)
+
+summary(perma_data_trans)
+# Summary shows that Bray-curtis is not a good distance
+# method, as although all variables are the same order,
+# enzymes for example have lost their differences between
+# them
+
+per.dist <- as.matrix(vegdist(perma_data_trans, method="bray"))
+
+# I wanna compare with my Site variable
+# In data should i put a dataframe with my Site variable,
+# it is not important if there is more variables in that dataset
+# it will only take the one specified after ~
+adonis2(per.dist ~ Site, data = perma_data2_trans, permutations = 10000, method="bray")
+
+
+# .----
+
+
 
 # STATISTICAL TESTS ----
 # 1. MANOVA for dependent variables ----
@@ -593,122 +798,14 @@ all
 ggsave(path = "Figures/1 GRADIENT","enzymes3.png",
        width = 30, height = 20, dpi = 300)
 
-#. ----
-# Feature Selection (CARET PACKAGE) ----
-# https://machinelearningmastery.com/feature-selection-with-the-caret-r-package/
-# https://bookdown.org/rehk/stm1001_dsm_t1_introduction_to_machine_learning_in_r/machine-learning-in-r-using-the-caret-package.html
-
-# load the library
-library(mlbench)
-library(caret)
-
-# > Remove Redundant Features ----
-
-#WITH DEPENDENT AND INDEPENDENT VARIABLES ALTOGETHER ***********
-# ensure the results are repeatable
-set.seed(7)
-
-data <- my_data[,c(5:10,12:13,17:23,27:30,33:35,37:38,40:64,76)]
-
-#1. Remove zero- and near zero-variance predictors
-nearZeroVar(data, saveMetrics = TRUE)
-# There are none in data so it returns an empty vector (integer(0)).
-# # nzv <- nearZeroVar(data)
-# # data_filtered <- data[,nzv] #not needed because there is no variables near 0 var.
-
-#2. Remove linear dependencies
-comboInfo <- findLinearCombos(data) #THERE ARE NOT LINEAL DEPENDENCIES
-#  data[,-comboInfo$remove]
-
-#3.Remove correlated predictors
-data_cor <- cor(data)
-data_highlyCor <- findCorrelation(data_cor, cutoff = 0.75)
-print(data_highlyCor)
-#It gives back the number of the columns from the 
-# database USED FOR THE CORRELATION (data_cor)
-# that should be removed, as they are highly correlated with other variables
-# CHECK THAT CUTOFF LEVEL IS ARBITRARY!
-
-# Remember to check that you are removing the correct columns.
-# findCorrelation gives the columns to be removed from the dataset used
-# on the correlation (data_cor), not the original dataset (data)
-clean_data <- data[,-c(2,39,46,6,9,11,7,4,42,5,43,47,25,3,1,10,26,27,29,16,31)]
-
-clean_my_data <- clean_data
-clean_my_data$Site <- my_data$Site
-clean_my_data <- clean_my_data[ , c("Site",  
-                         names(clean_my_data)[names(clean_my_data) != "Site"])] 
-
-
-# > Rank Features by Importance ----
-
-# ensure results are repeatable
-set.seed(7)
-
-clean_my_data$Site <- factor(clean_my_data$Site, levels = c("SP08", "SP01", "SP02",
-                                                    "SP07","SP06","SP03",
-                                                    "SP12", "SP11", "SP04",
-                                                    "SP09", "SP10","SP05"))
-
-X_clean_my_data <- clean_my_data[,c(1,2:11,30)]
-Y_clean_my_data <- clean_my_data[,c(1,12:29)]
-
-# prepare training scheme
-control <- trainControl(method="repeatedcv", number=10, repeats=3)
-
-#I plot them separately because if not it is difficult to interpret
-#***FOR INDEPENDENT VARS.****
-# train the model
-TG = expand.grid(k=1:3,size=seq(5,20,by=5))
-model <- train(Site~., data=X_clean_my_data, method="lvq", preProcess="scale", trControl=control, tuneGrid=TG)
-
-# estimate variable importance
-importance <- varImp(model, scale=FALSE)
-
-# summarize importance
-print(importance)
-
-# plot importance
-plot(importance)
-
-
-#***FOR DEPENDENT VARS.****
-# train the model
-TG = expand.grid(k=1:3,size=seq(5,20,by=5))
-model <- train(Site~., data=Y_clean_my_data, method="lvq", preProcess="scale", trControl=control, tuneGrid=TG)
-
-# estimate variable importance
-importance <- varImp(model, scale=FALSE)
-
-# summarize importance
-print(importance)
-
-# plot importance
-plot(importance)
-
-
-# > Feature Selection ----
-
-set.seed(7)
-library(randomForest)
-
-# define the control using a random forest selection function
-control <- rfeControl(functions=rfFuncs, method="cv", number=10)
-# run the RFE algorithm
-results <- rfe(PimaIndiansDiabetes[,1:8], PimaIndiansDiabetes[,9], sizes=c(1:8), rfeControl=control)
-# summarize the results
-print(results)
-# list the chosen features
-predictors(results)
-# plot the results
-plot(results, type=c("g", "o"))
-
 
 # . ----
 # IV REDUCTION & PLSR ----
 # What variables to use in the MANOVA as covariables
 x_variables = as.data.frame((my_data[,c(2,5:8,10,12:13,17:23,27:30)]))
 
+??cor_mat
+library(rstatix)
 cor.mat <- x_variables[,2:19] %>% cor_mat()
 cor.mat %>% cor_reorder() %>% pull_lower_triangle() %>% cor_plot(label = TRUE)
 
@@ -750,6 +847,10 @@ coefficients = coef(model)
 cv = RMSEP(model)
 best.dims = which.min(cv$val[estimate = "adjCV", , ]) - 1
 R2(model)
+
+
+
+#. ----
 
 
 
