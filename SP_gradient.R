@@ -26,7 +26,7 @@ library(rcompanion)
 
 
 # IMPORT DATA ----
-my_data <- read.csv("SP_metadata_2021.csv", sep=",")
+my_data <- read.csv("SP_metadata_2021.csv", sep=";")
 
 #To replace NA values with a mean of the other values of the Site:
 for (i in which(sapply(my_data, is.numeric))) {
@@ -36,16 +36,16 @@ for (i in which(sapply(my_data, is.numeric))) {
 }
 
 #Data without ratios, percentages....
-data <- my_data[,c(5:10,12:13,17:23,27:30,33:35,37:38,40:64,76)]
+data <- my_data[,c(5:10,12:13,17:23,27:30,33:35,37:38,40:64,76,79:92)]
 
 #Dummies....
 dummy <- my_data[,c(5:7,76)]
 
 #Independent variables without dummies....
-indepe <- my_data[,c(8:10,12:13,17:23,27:30,33:34)]
+indepe <- my_data[,c(8:10,12:13,17:23,27:30,33:34,79:92)]
 
 #Independent var with dummies...
-duindepe <- my_data[,c(5:7,76,8:10,12:13,17:23,27:30,33:34)]
+duindepe <- my_data[,c(5:7,76,8:10,12:13,17:23,27:30,33:34,79:92)]
 
 #Dependen vars....
 depe <- my_data[,c(35,37:38,40:64)]
@@ -85,6 +85,123 @@ data_summary2 <- function(data, varname, groupnames){
 # UCI STAY ANALYSES **** ----
 #.----
 
+# Clustering sites ----
+# https://bookdown.org/stephi_gascon/bookdown-demo-master_-_multivariant/_book/cluster-analysis.html
+
+# > By climatic vars. (DUMMY) ----
+library(ade4) 
+library(vegan)  
+library(gclus) 
+library(cluster)
+library(RColorBrewer)  
+library(labdsv)
+library(leaflet)
+
+# 1. Create dissimilarity matrix:
+# https://stats.stackexchange.com/questions/80377/which-distance-to-use-e-g-manhattan-euclidean-bray-curtis-etc
+
+## Trec les repliques per site pq totes tenen igual valors
+dummy2 <- as.data.frame(unique(dummy))
+
+boxplot(dummy2)
+# Vars. with different units and scales
+# Standardization its needed
+
+# If not, MAP and altitude would have much more
+# influence on the distance matrix only because of
+# their magnitude and variation in absolut terms.
+
+env.std <- scale(dummy2)
+boxplot(env.std)
+# Nicer
+
+# Using Euclidean distance:
+env.de <- dist(env.std)
+attr(env.de, "Labels") <- unique(my_data$Site)
+env.de
+
+
+# 2. Analysis of hierarchical cluster
+par(mfrow = c(2, 2))
+
+# Compute single linkage agglomerative clustering
+env.de.single <- hclust(env.de, method = "single")
+plot(env.de.single, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - Single linkage")
+
+# Compute complete-linkage agglomerative clustering
+env.de.complete <- hclust(env.de, method = "complete")
+plot(env.de.complete, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - Complete linkage")
+
+# Compute UPGMA agglomerative clustering
+env.de.UPGMA <- hclust(env.de, method = "average")
+plot(env.de.UPGMA, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - UPGMA")
+
+# Compute Ward’s Minimum Variance Clustering
+env.de.ward <- hclust(env.de, method = "ward.D2")
+plot(env.de.ward, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - Ward")
+dev.off()
+
+# 3. Comparison dendograms by cophenetic distance
+# HIGHEST CORRELATION = BEST DENDOGRAM
+
+# Single linkage clustering
+env.de.single.coph <- cophenetic(env.de.single)
+cor(env.de, env.de.single.coph)
+
+# Complete linkage clustering
+env.de.comp.coph <- cophenetic(env.de.complete)
+cor(env.de, env.de.comp.coph)
+
+# Average clustering
+env.de.UPGMA.coph <- cophenetic(env.de.UPGMA)
+cor(env.de, env.de.UPGMA.coph)
+
+# Ward clustering
+env.de.ward.coph <- cophenetic(env.de.ward)
+cor(env.de, env.de.ward.coph)
+
+# Ward > UPGMA > Complete > Single
+
+
+# 4. Comparison dendograms by Gower distance
+# LOWEST VALUE = BEST DENDOGRAM
+(gow.dist.single <- sum((env.de - env.de.single.coph) ^ 2))
+(gow.dist.comp <- sum((env.de - env.de.comp.coph) ^ 2))
+(gow.dist.UPGMA <- sum((env.de - env.de.UPGMA.coph) ^ 2))
+(gow.dist.ward <- sum((env.de - env.de.ward.coph) ^ 2))
+
+# UPGMA >> Complete > Single >>>>>> Ward
+
+# Considering both results from points 3 and 4,
+# we consider the UPGMA as the best dendogram option.
+
+plot(env.de.UPGMA, hang=-1, labels = unique(my_data$Site),  main = "Euclidean - UPGMA")
+
+# png(file = "Figures/1 GRADIENT/cluster_by_ENV.png", width = 700, height = 600)
+
+
+
+# > By Microbial community composition ----
+library(ade4) 
+library(vegan)  
+library(gclus) 
+library(cluster)
+library(RColorBrewer)  
+library(labdsv)
+library(leaflet)
+
+
+
+
+#.----
 # Feature Selection (CARET PACKAGE) ----
 # https://machinelearningmastery.com/feature-selection-with-the-caret-r-package/
 # https://bookdown.org/rehk/stm1001_dsm_t1_introduction_to_machine_learning_in_r/machine-learning-in-r-using-the-caret-package.html
@@ -98,12 +215,13 @@ library(caret)
 set.seed(7)
 nearZeroVar(duindepe, saveMetrics = TRUE)
 comboInfo <- findLinearCombos(duindepe)
+comboInfo
 
 duindepe_cor <- cor(duindepe)
 duindepe_highlyCor <- findCorrelation(duindepe_cor, cutoff = 0.75)
 print(duindepe_highlyCor)
 
-clean_duindepe <- duindepe[,-c(2,7,5,6,12,8,10,3,1,19,17)]
+clean_duindepe <- duindepe[,-c(7,2,5,6,27,3,23,1,10,8,12,29,17,11,32,33,34)]
 
 clean_duindepe$Site <- my_data$Site
 clean_duindepe <- clean_duindepe[, c("Site",  
@@ -111,38 +229,236 @@ clean_duindepe <- clean_duindepe[, c("Site",
 
 rm(duindepe_cor, comboInfo)
 
+model <- lm(cbind(depe$CO2_dark+depe$CH4_ave+depe$N2O+depe$BB+
+                    depe$FB+depe$chla+depe$chlb+depe$carotene+depe$EPS+
+                    depe$EPS+depe$alpha+depe$beta+depe$beta+depe$xyl+depe$cbh+
+                    depe$gla+depe$fos+depe$leu+depe$phe+depe$X16S+depe$ITS2+
+                    depe$mcrA+depe$pmoA+depe$nifH+depe$nifH+depe$AOA+depe$AOB+
+                    depe$qnorB+depe$nosZ+depe$phoD+depe$Respiration)~clean_duindepe$altitude+
+              clean_duindepe$pH+clean_duindepe$C_N+
+              clean_duindepe$NH4+clean_duindepe$PO43+clean_duindepe$SO42+clean_duindepe$Silt+
+              clean_duindepe$Clay+
+              clean_duindepe$Litter+clean_duindepe$L_TC+clean_duindepe$L_TN+
+              clean_duindepe$s350.400+clean_duindepe$SR+
+              clean_duindepe$E2.E3+clean_duindepe$E4.E6+
+              clean_duindepe$BIX+clean_duindepe$Peak_A+clean_duindepe$Peak_B+clean_duindepe$HIX
+)
 
-#WITH DEPENDENT AND INDEPENDENT VARIABLES ALTOGETHER ***********
-# ensure the results are repeatable
+car::vif(model)
+# vif_values <- vif(model)
+# barplot(vif_values, main = "VIF Values", horiz = TRUE, col = "steelblue")
+#CONFIRMAMOS QUE NINGUNA VARIABLES INDEPENDIENTE TIENE MULTICOLINEALIDAD (VIF>5)
+
+model2 <- lm(cbind(depe$CO2_dark+depe$CH4_ave+depe$N2O+depe$BB+
+                     depe$FB+depe$chla+depe$chlb+depe$carotene+depe$EPS+
+                     depe$EPS+depe$alpha+depe$beta+depe$beta+depe$xyl+depe$cbh+
+                     depe$gla+depe$fos+depe$leu+depe$phe+depe$X16S+depe$ITS2+
+                     depe$mcrA+depe$pmoA+depe$nifH+depe$nifH+depe$AOA+depe$AOB+
+                     depe$qnorB+depe$nosZ+depe$phoD+depe$Respiration)~clean_duindepe$altitude+
+               clean_duindepe$pH+clean_duindepe$C_N+
+               clean_duindepe$NH4+clean_duindepe$PO43+clean_duindepe$SO42+clean_duindepe$Silt+
+               clean_duindepe$Clay+
+               clean_duindepe$Litter+clean_duindepe$L_TC+clean_duindepe$L_TN+clean_duindepe$SR+
+               clean_duindepe$E2.E3+clean_duindepe$E4.E6+
+               clean_duindepe$BIX+clean_duindepe$Peak_A+clean_duindepe$Peak_B+clean_duindepe$HIX
+)
+car::vif(model2)
+
+model3 <- lm(cbind(depe$CO2_dark+depe$CH4_ave+depe$N2O+depe$BB+
+                     depe$FB+depe$chla+depe$chlb+depe$carotene+depe$EPS+
+                     depe$EPS+depe$alpha+depe$beta+depe$beta+depe$xyl+depe$cbh+
+                     depe$gla+depe$fos+depe$leu+depe$phe+depe$X16S+depe$ITS2+
+                     depe$mcrA+depe$pmoA+depe$nifH+depe$nifH+depe$AOA+depe$AOB+
+                     depe$qnorB+depe$nosZ+depe$phoD+depe$Respiration)~clean_duindepe$altitude+
+               clean_duindepe$pH+clean_duindepe$C_N+
+               clean_duindepe$NH4+clean_duindepe$PO43+clean_duindepe$SO42+clean_duindepe$Silt+
+               clean_duindepe$Clay+
+               clean_duindepe$Litter+clean_duindepe$L_TC+clean_duindepe$L_TN+clean_duindepe$SR+
+               clean_duindepe$E2.E3+clean_duindepe$E4.E6+
+               clean_duindepe$BIX+clean_duindepe$Peak_A+clean_duindepe$HIX
+)
+car::vif(model3)
+
+model4 <- lm(cbind(depe$CO2_dark+depe$CH4_ave+depe$N2O+depe$BB+
+                     depe$FB+depe$chla+depe$chlb+depe$carotene+depe$EPS+
+                     depe$EPS+depe$alpha+depe$beta+depe$beta+depe$xyl+depe$cbh+
+                     depe$gla+depe$fos+depe$leu+depe$phe+depe$X16S+depe$ITS2+
+                     depe$mcrA+depe$pmoA+depe$nifH+depe$nifH+depe$AOA+depe$AOB+
+                     depe$qnorB+depe$nosZ+depe$phoD+depe$Respiration)~clean_duindepe$altitude+
+               clean_duindepe$pH+clean_duindepe$C_N+
+               clean_duindepe$NH4+clean_duindepe$PO43+clean_duindepe$SO42+clean_duindepe$Silt+
+               clean_duindepe$Clay+
+               clean_duindepe$Litter+clean_duindepe$L_TC+clean_duindepe$L_TN+clean_duindepe$SR+
+               clean_duindepe$E2.E3+clean_duindepe$E4.E6+clean_duindepe$Peak_A+clean_duindepe$HIX
+)
+car::vif(model4)
+
+model5 <- lm(cbind(depe$CO2_dark+depe$CH4_ave+depe$N2O+depe$BB+
+                     depe$FB+depe$chla+depe$chlb+depe$carotene+depe$EPS+
+                     depe$EPS+depe$alpha+depe$beta+depe$beta+depe$xyl+depe$cbh+
+                     depe$gla+depe$fos+depe$leu+depe$phe+depe$X16S+depe$ITS2+
+                     depe$mcrA+depe$pmoA+depe$nifH+depe$nifH+depe$AOA+depe$AOB+
+                     depe$qnorB+depe$nosZ+depe$phoD+depe$Respiration)~clean_duindepe$altitude+
+               clean_duindepe$C_N+
+               clean_duindepe$NH4+clean_duindepe$PO43+clean_duindepe$SO42+clean_duindepe$Silt+
+               clean_duindepe$Clay+
+               clean_duindepe$Litter+clean_duindepe$L_TC+clean_duindepe$L_TN+clean_duindepe$SR+
+               clean_duindepe$E2.E3+clean_duindepe$E4.E6+clean_duindepe$Peak_A+clean_duindepe$HIX
+)
+car::vif(model5)
+
+
+clean_duindepe <- clean_duindepe[,-c(3,13,17,19)]
+
+rm(duindepe,dummy,model,model2,model3,model4,model5)
+
+
+# JUST WITH THE INDEPENDENTS, WITHOUT DUMMIES *****
+
 set.seed(7)
+nearZeroVar(indepe, saveMetrics = TRUE)
+comboInfo <- findLinearCombos(indepe)
+comboInfo
 
-#1. Remove zero- and near zero-variance predictors
-nearZeroVar(data, saveMetrics = TRUE)
-# There are none in data so it returns an empty vector (integer(0)).
-# # nzv <- nearZeroVar(data)
-# # data_filtered <- data[,nzv] #not needed because there is no variables near 0 var.
+indepe_cor <- cor(indepe)
+indepe_highlyCor <- findCorrelation(indepe_cor, cutoff = 0.75)
+print(indepe_highlyCor)
 
-#2. Remove linear dependencies
-comboInfo <- findLinearCombos(data) #THERE ARE NOT LINEAL DEPENDENCIES
-#  data[,-comboInfo$remove]
+clean_indepe <- indepe[,-c(3,1,23,19,6,4,8,13,25,7,28,29,30)]
 
-#3.Remove correlated predictors
-data_cor <- cor(data)
-data_highlyCor <- findCorrelation(data_cor, cutoff = 0.75)
-print(data_highlyCor)
-#It gives back the number of the columns from the 
-# database USED FOR THE CORRELATION (data_cor)
-# that should be removed, as they are highly correlated with other variables
-# CHECK THAT CUTOFF LEVEL IS ARBITRARY!
+clean_indepe$Site <- my_data$Site
+clean_indepe <- clean_indepe[, c("Site",  
+                                     names(clean_indepe)[names(clean_indepe) != "Site"])] 
 
-# Remember to check that you are removing the correct columns.
-# findCorrelation gives the columns to be removed from the dataset used
-# on the correlation (data_cor), not the original dataset (data)
-clean_data <- data[,-c(2,39,46,6,9,11,7,4,42,5,43,47,25,3,1,10,26,27,29,16,31)]
+rm(indepe_cor, comboInfo)
 
-clean_data$Site <- my_data$Site
-clean_data <- clean_data[ , c("Site",  
-                                 names(clean_data)[names(clean_data) != "Site"])] 
+model <- lm(cbind(depe$CO2_dark+depe$CH4_ave+depe$N2O+depe$BB+
+                    depe$FB+depe$chla+depe$chlb+depe$carotene+depe$EPS+
+                    depe$EPS+depe$alpha+depe$beta+depe$beta+depe$xyl+depe$cbh+
+                    depe$gla+depe$fos+depe$leu+depe$phe+depe$X16S+depe$ITS2+
+                    depe$mcrA+depe$pmoA+depe$nifH+depe$nifH+depe$AOA+depe$AOB+
+                    depe$qnorB+depe$nosZ+depe$phoD+depe$Respiration)~clean_indepe$Water_activity+
+              clean_indepe$pH+clean_indepe$C_N+
+              clean_indepe$NH4+clean_indepe$PO43+clean_indepe$SO42+clean_indepe$Silt+
+              clean_indepe$Clay+
+              clean_indepe$Litter+clean_indepe$L_TC+clean_indepe$L_TN+
+              clean_indepe$s350.400+clean_indepe$SR+
+              clean_indepe$E2.E3+clean_indepe$E4.E6+
+              clean_indepe$BIX+clean_indepe$Peak_A+clean_indepe$Peak_B+clean_indepe$HIX
+)
+car::vif(model)
+
+model2 <- lm(cbind(depe$CO2_dark+depe$CH4_ave+depe$N2O+depe$BB+
+                    depe$FB+depe$chla+depe$chlb+depe$carotene+depe$EPS+
+                    depe$EPS+depe$alpha+depe$beta+depe$beta+depe$xyl+depe$cbh+
+                    depe$gla+depe$fos+depe$leu+depe$phe+depe$X16S+depe$ITS2+
+                    depe$mcrA+depe$pmoA+depe$nifH+depe$nifH+depe$AOA+depe$AOB+
+                    depe$qnorB+depe$nosZ+depe$phoD+depe$Respiration)~clean_indepe$Water_activity+
+              clean_indepe$pH+clean_indepe$C_N+
+              clean_indepe$NH4+clean_indepe$PO43+clean_indepe$SO42+clean_indepe$Silt+
+              clean_indepe$Clay+
+              clean_indepe$Litter+clean_indepe$L_TC+clean_indepe$L_TN+
+              clean_indepe$SR+
+              clean_indepe$E2.E3+clean_indepe$E4.E6+
+              clean_indepe$BIX+clean_indepe$Peak_A+clean_indepe$Peak_B+clean_indepe$HIX
+)
+car::vif(model2)
+
+model3 <- lm(cbind(depe$CO2_dark+depe$CH4_ave+depe$N2O+depe$BB+
+                     depe$FB+depe$chla+depe$chlb+depe$carotene+depe$EPS+
+                     depe$EPS+depe$alpha+depe$beta+depe$beta+depe$xyl+depe$cbh+
+                     depe$gla+depe$fos+depe$leu+depe$phe+depe$X16S+depe$ITS2+
+                     depe$mcrA+depe$pmoA+depe$nifH+depe$nifH+depe$AOA+depe$AOB+
+                     depe$qnorB+depe$nosZ+depe$phoD+depe$Respiration)~clean_indepe$Water_activity+
+               clean_indepe$pH+clean_indepe$C_N+
+               clean_indepe$NH4+clean_indepe$PO43+clean_indepe$SO42+clean_indepe$Silt+
+               clean_indepe$Clay+
+               clean_indepe$Litter+clean_indepe$L_TC+clean_indepe$L_TN+
+               clean_indepe$SR+
+               clean_indepe$E2.E3+clean_indepe$E4.E6+
+               clean_indepe$Peak_A+clean_indepe$Peak_B+clean_indepe$HIX
+)
+car::vif(model3)
+
+model4 <- lm(cbind(depe$CO2_dark+depe$CH4_ave+depe$N2O+depe$BB+
+                     depe$FB+depe$chla+depe$chlb+depe$carotene+depe$EPS+
+                     depe$EPS+depe$alpha+depe$beta+depe$beta+depe$xyl+depe$cbh+
+                     depe$gla+depe$fos+depe$leu+depe$phe+depe$X16S+depe$ITS2+
+                     depe$mcrA+depe$pmoA+depe$nifH+depe$nifH+depe$AOA+depe$AOB+
+                     depe$qnorB+depe$nosZ+depe$phoD+depe$Respiration)~clean_indepe$Water_activity+
+               clean_indepe$pH+clean_indepe$C_N+
+               clean_indepe$NH4+clean_indepe$PO43+clean_indepe$SO42+clean_indepe$Silt+
+               clean_indepe$Clay+
+               clean_indepe$Litter+clean_indepe$L_TC+clean_indepe$L_TN+
+               clean_indepe$SR+
+               clean_indepe$E2.E3+clean_indepe$E4.E6+
+               clean_indepe$Peak_A+clean_indepe$HIX
+)
+car::vif(model4)
+
+model5 <- lm(cbind(depe$CO2_dark+depe$CH4_ave+depe$N2O+depe$BB+
+                     depe$FB+depe$chla+depe$chlb+depe$carotene+depe$EPS+
+                     depe$EPS+depe$alpha+depe$beta+depe$beta+depe$xyl+depe$cbh+
+                     depe$gla+depe$fos+depe$leu+depe$phe+depe$X16S+depe$ITS2+
+                     depe$mcrA+depe$pmoA+depe$nifH+depe$nifH+depe$AOA+depe$AOB+
+                     depe$qnorB+depe$nosZ+depe$phoD+depe$Respiration)~clean_indepe$Water_activity+
+               clean_indepe$C_N+
+               clean_indepe$NH4+clean_indepe$PO43+clean_indepe$SO42+clean_indepe$Silt+
+               clean_indepe$Clay+
+               clean_indepe$Litter+clean_indepe$L_TC+clean_indepe$L_TN+
+               clean_indepe$SR+
+               clean_indepe$E2.E3+clean_indepe$E4.E6+
+               clean_indepe$Peak_A+clean_indepe$HIX
+)
+car::vif(model5)
+
+
+clean_indepe <- clean_indepe[,-c(3,13,17,19)]
+
+rm(indepe,indepe_cor,comboInfo,model,model2,model3,model4,model5)
+
+
+
+
+
+# #WITH DEPENDENT AND INDEPENDENT VARIABLES ALTOGETHER ***********
+# # ensure the results are repeatable
+# set.seed(7)
+# 
+# #1. Remove zero- and near zero-variance predictors
+# nearZeroVar(data, saveMetrics = TRUE)
+# # There are none in data so it returns an empty vector (integer(0)).
+# # # nzv <- nearZeroVar(data)
+# # # data_filtered <- data[,nzv] #not needed because there is no variables near 0 var.
+# 
+# #2. Remove linear dependencies
+# comboInfo <- findLinearCombos(data)
+# data[,-comboInfo$remove]
+# 
+# #3.Remove correlated predictors
+# data_cor <- cor(data)
+# data_highlyCor <- findCorrelation(data_cor, cutoff = 0.75)
+# print(data_highlyCor)
+# #It gives back the number of the columns from the 
+# # database USED FOR THE CORRELATION (data_cor)
+# # that should be removed, as they are highly correlated with other variables
+# # CHECK THAT CUTOFF LEVEL IS ARBITRARY!
+# 
+# # Remember to check that you are removing the correct columns.
+# # findCorrelation gives the columns to be removed from the dataset used
+# # on the correlation (data_cor), not the original dataset (data)
+# clean_data <- data[,-c(2,39,46,6,9,11,7,4,42,5,43,47,25,3,1,10,26,27,29,16,31)]
+# clean_data <- data[,-c(6,2,39,46,42,9,4,43,11,47,7,5,3,1,25,55,51,10,26,27,57,29,16,60,61,63,32)]
+# 
+# clean_data$Site <- my_data$Site
+# clean_data <- clean_data[ , c("Site",  
+#                                  names(clean_data)[names(clean_data) != "Site"])] 
+# 
+
+
+
+
+
 
 
 
@@ -194,27 +510,13 @@ clean_data <- clean_data[ , c("Site",
 
 #.----
 
-clean_indepe <- clean_duindepe[,-2]
 
-model <- lm(cbind(depe$CO2_dark+depe$CH4_ave+depe$N2O+depe$BB+
-                    depe$FB+depe$chla+depe$chlb+depe$carotene+depe$EPS+
-                    depe$EPS+depe$alpha+depe$beta+depe$beta+depe$xyl+depe$cbh+
-                    depe$gla+depe$fos+depe$leu+depe$phe+depe$X16S+depe$ITS2+
-                    depe$mcrA+depe$pmoA+depe$nifH+depe$nifH+depe$AOA+depe$AOB+
-                    depe$qnorB+depe$nosZ+depe$phoD+depe$Respiration)~clean_indepe$pH+clean_indepe$TC+clean_indepe$C_N+
-                    clean_indepe$NH4+clean_indepe$PO43+clean_indepe$SO42+
-                    clean_indepe$Litter+clean_indepe$L_TC+clean_indepe$L_TN+
-                    clean_indepe$Silt)
-
-car::vif(model)
-# vif_values <- vif(model)
-# barplot(vif_values, main = "VIF Values", horiz = TRUE, col = "steelblue")
-#CONFIRMAMOS QUE NINGUNA VARIABLES INDEPENDIENTE TIENE MULTICOLINEALIDAD (VIF>5)
 
 
 # Regressions ----
 library(car)
 library(MASS)
+
 #CO2_dark
 
 m1 <- lm(data$CO2_dark ~ ., clean_indepe[,-1])
@@ -859,7 +1161,7 @@ R2(model)
 
 # .----
 # FIGURES ----
-# Figure 1. Physicochemical plots ----
+# 1. Physicochemical plots ----
 
 New_data <- my_data[,c(2,7,8,10,12:13,17:23,27:30)]
 
@@ -1059,9 +1361,9 @@ ggsave(path = "Figures/1 GRADIENT","fig1_5.png",
 
 # **************************************************************************************
 
-# Figure 2. Physicochemical PCA (without AI) ----
+# 2. Physicochemical PCA (without AI) ----
 
-data <- my_data[,c(2,8,10,12,13,17:23,27:30)]
+data <- my_data[,c(2,8,10,12,13,17:23,27:30,85,87,90,92)]
 for (i in which(sapply(data, is.numeric))) {
   for (j in which(is.na(data[, i]))) {
     data[j, i] <- mean(data[data[, "Site"] == data[j, "Site"], i],  na.rm = TRUE)
@@ -1170,12 +1472,11 @@ all_plot$layers[[txt]] <- geom_label(aes(x = xvar, y = yvar, label = PCAloadings
                                      fill = '#dddddd80')
 all_plot
 
-
-# ggsave(path = "Figures/1 GRADIENT","SP_fig2_1.png", width = 7, height = 6, dpi = 300)
-
+ggsave(path = "Figures/1 GRADIENT","SP_fig2_1.png", width = 7, height = 6, dpi = 300)
 
 
-#> Obtaining scores PC1 and PC2 ----
+
+## >> Obtaining scores PC1 and PC2 ----
 scores <- as.data.frame(all$x[,1:2])
 scores$Site <- unique(data[,1])
 scores <- scores[,c(3,1,2)] #Reorder to have Site as the first column
@@ -1183,7 +1484,7 @@ scores <- scores[,c(3,1,2)] #Reorder to have Site as the first column
 
 
 
-# Figure 2.2. Physicochemical PCA (with AI, MAT & MAP) ----
+# 2.2. Physicochemical PCA (with AI, MAT & MAP) ----
 
 data <- my_data[,c(2,5:8,10,12,13,17:23,27:30)]
 for (i in which(sapply(data, is.numeric))) {
@@ -1300,7 +1601,7 @@ all_plot
 
 
 
-# (Figure 3. See 2./Enzymes statistical tests) ----
+# (3. See 2./Enzymes statistical tests)
 # data <- my_data[,c(2,7,46:53)]
 # 
 # data_summary2 <- function(data, varname, groupnames){
@@ -3324,7 +3625,7 @@ pca_sd <- ggplot(scores_msd, aes(x=PC1_mean, y=PC2_mean)) +
   theme(legend.text = element_text(size=15))
 pca_sd
 
-ggsave(path = "Figures/1 GRADIENT","SP_PCA_enzymes_mean_sd.png", width = 7, height = 6, dpi = 300)
+# ggsave(path = "Figures/1 GRADIENT","SP_PCA_enzymes_mean_sd.png", width = 7, height = 6, dpi = 300)
 
 
   
@@ -3594,6 +3895,57 @@ all
 # save the plot
 ggsave(path = "Figures/1 GRADIENT","SP_PCA_all_replicate.png", width = 7, height = 6, dpi = 300)
 
+#.----
+# WEOM PCA ----
+#BY MEANS
+pca_data <- my_data[,c(2,79:92)]
+
+pca_data <- pca_data %>%
+  group_by(Site) %>%
+  summarise_all("mean")
+
+site_order <- my_data[,c(2,7)] 
+site_order <- site_order[!duplicated(site_order), ] #Erase duplicated lines from dataframe
+pca_data <- pca_data[order(site_order$AI, decreasing = T),]
+pca_data$Site <- factor(pca_data$Site, levels = pca_data$Site[order(site_order$AI)])
+
+pcr2 <- pca_data[,c(-1)]
+
+#Select column with levels (Site)
+site <- factor(pca_data$Site, levels = c("SP08","SP01","SP02",
+                                         "SP07","SP06","SP03",
+                                         "SP12","SP11","SP04",
+                                         "SP09","SP10","SP05"))
+site
+
+pc <- prcomp(na.omit(pcr2), center = TRUE,
+             scale. = TRUE) 
+
+plot(pc, type = "l")
+plot(pc)
+summary(pc)
+
+mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
+             "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
+             "#7D1809", "#290500")
+
+library(ggfortify)
+autoplot(pc, data=pca_data, 
+         loadings = TRUE, loadings.colour = 'brown',
+         loadings.label.colour='brown', loadings.label = TRUE,
+         loadings.label.size = 7,
+         loadings.label.repel=TRUE)+
+  theme_classic()+
+  geom_point(aes(fill=site), colour= "black", pch=21, size = 5)+
+  scale_fill_manual(values = mycolors2)+
+  ggtitle("Physicochemical variables")+
+  theme(legend.title = element_blank(),
+        legend.text=element_text(size = 12),
+        title = element_text(size = 15,face="bold"),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=15, face="plain"))
+
+ggsave(path = "Figures/1 GRADIENT","PCA_weom.png", width = 10, height = 8, dpi = 300)
 
 
 
@@ -3646,7 +3998,6 @@ autoplot(pc, data=pca_data,
         axis.title=element_text(size=15, face="plain"))
 
 # ggsave(path = "Figures","PCA_Fscq_means.png", width = 10, height = 8, dpi = 300)
-
 
 
 
