@@ -88,7 +88,7 @@ data_summary2 <- function(data, varname, groupnames){
 # Clustering sites ----
 # https://bookdown.org/stephi_gascon/bookdown-demo-master_-_multivariant/_book/cluster-analysis.html
 
-# > By climatic vars. (DUMMY) ----
+# > By climatic vars. ----
 library(ade4) 
 library(vegan)  
 library(gclus) 
@@ -188,8 +188,7 @@ plot(env.de.UPGMA, hang=-1, labels = unique(my_data$Site),  main = "Euclidean - 
 # png(file = "Figures/1 GRADIENT/cluster_by_ENV.png", width = 700, height = 600)
 
 
-
-# > By Microbial community composition ----
+# > By climatic vars. WITHOUT MAP or ALTITUDE ----
 library(ade4) 
 library(vegan)  
 library(gclus) 
@@ -197,6 +196,401 @@ library(cluster)
 library(RColorBrewer)  
 library(labdsv)
 library(leaflet)
+
+# 1. Create dissimilarity matrix:
+# https://stats.stackexchange.com/questions/80377/which-distance-to-use-e-g-manhattan-euclidean-bray-curtis-etc
+
+## Trec les repliques per site pq totes tenen igual valors
+dummy2 <- as.data.frame(unique(dummy[,-c(1,4)]))
+
+boxplot(dummy2)
+# Vars. with different units and scales
+# Standardization its needed
+
+# If not, MAP and altitude would have much more
+# influence on the distance matrix only because of
+# their magnitude and variation in absolut terms.
+
+env.std <- scale(dummy2)
+boxplot(env.std)
+# Nicer
+
+# Using Euclidean distance:
+env.de <- dist(env.std)
+attr(env.de, "Labels") <- unique(my_data$Site)
+env.de
+
+
+# 2. Analysis of hierarchical cluster
+par(mfrow = c(2, 2))
+
+# Compute single linkage agglomerative clustering
+env.de.single <- hclust(env.de, method = "single")
+plot(env.de.single, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - Single linkage")
+
+# Compute complete-linkage agglomerative clustering
+env.de.complete <- hclust(env.de, method = "complete")
+plot(env.de.complete, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - Complete linkage")
+
+# Compute UPGMA agglomerative clustering
+env.de.UPGMA <- hclust(env.de, method = "average")
+plot(env.de.UPGMA, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - UPGMA")
+
+# Compute Ward’s Minimum Variance Clustering
+env.de.ward <- hclust(env.de, method = "ward.D2")
+plot(env.de.ward, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - Ward")
+
+par(mfrow = c(1,1))
+
+# 3. Comparison dendograms by cophenetic distance
+# HIGHEST CORRELATION = BEST DENDOGRAM
+
+# Single linkage clustering
+env.de.single.coph <- cophenetic(env.de.single)
+cor(env.de, env.de.single.coph)
+
+# Complete linkage clustering
+env.de.comp.coph <- cophenetic(env.de.complete)
+cor(env.de, env.de.comp.coph)
+
+# Average clustering
+env.de.UPGMA.coph <- cophenetic(env.de.UPGMA)
+cor(env.de, env.de.UPGMA.coph)
+
+# Ward clustering
+env.de.ward.coph <- cophenetic(env.de.ward)
+cor(env.de, env.de.ward.coph)
+
+# Ward > UPGMA > Complete > Single
+
+
+# 4. Comparison dendograms by Gower distance
+# LOWEST VALUE = BEST DENDOGRAM
+(gow.dist.single <- sum((env.de - env.de.single.coph) ^ 2))
+(gow.dist.comp <- sum((env.de - env.de.comp.coph) ^ 2))
+(gow.dist.UPGMA <- sum((env.de - env.de.UPGMA.coph) ^ 2))
+(gow.dist.ward <- sum((env.de - env.de.ward.coph) ^ 2))
+
+# UPGMA >> Complete > Single >>>>>> Ward
+
+# Considering both results from points 3 and 4,
+# we consider the UPGMA as the best dendogram option.
+
+plot(env.de.UPGMA, hang=-1, labels = unique(my_data$Site),  main = "Euclidean - UPGMA")
+
+# png(file = "Figures/1 GRADIENT/cluster_by_ENV.png", width = 700, height = 600)
+
+
+
+
+# # > By climatic vars. WITHOUT ALTITUDE ----
+library(ade4)
+library(vegan)
+library(gclus)
+library(cluster)
+library(RColorBrewer)
+library(labdsv)
+library(leaflet)
+
+# 1. Create dissimilarity matrix:
+# https://stats.stackexchange.com/questions/80377/which-distance-to-use-e-g-manhattan-euclidean-bray-curtis-etc
+
+## Trec les repliques per site pq totes tenen igual valors
+dummy2 <- as.data.frame(unique(dummy))
+dummy2 <- dummy2[,-c(4)]
+
+boxplot(dummy2)
+
+env.std <- scale(dummy2)
+boxplot(env.std)
+
+
+# Using Euclidean distance:
+env.de <- dist(env.std)
+attr(env.de, "Labels") <- unique(my_data$Site)
+env.de
+
+# 2. Analysis of hierarchical cluster
+par(mfrow = c(2, 2))
+
+# Compute single linkage agglomerative clustering
+env.de.single <- hclust(env.de, method = "single")
+plot(env.de.single, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - Single linkage")
+
+# Compute complete-linkage agglomerative clustering
+env.de.complete <- hclust(env.de, method = "complete")
+plot(env.de.complete, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - Complete linkage")
+
+# Compute UPGMA agglomerative clustering
+env.de.UPGMA <- hclust(env.de, method = "average")
+plot(env.de.UPGMA, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - UPGMA")
+
+# Compute Ward’s Minimum Variance Clustering
+env.de.ward <- hclust(env.de, method = "ward.D2")
+plot(env.de.ward, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - Ward")
+
+
+# 3. Comparison dendograms by cophenetic distance
+# HIGHEST CORRELATION = BEST DENDOGRAM
+
+# Single linkage clustering
+env.de.single.coph <- cophenetic(env.de.single)
+cor(env.de, env.de.single.coph)
+
+# Complete linkage clustering
+env.de.comp.coph <- cophenetic(env.de.complete)
+cor(env.de, env.de.comp.coph)
+
+# Average clustering
+env.de.UPGMA.coph <- cophenetic(env.de.UPGMA)
+cor(env.de, env.de.UPGMA.coph)
+
+# Ward clustering
+env.de.ward.coph <- cophenetic(env.de.ward)
+cor(env.de, env.de.ward.coph)
+
+# UPGMA > Complete > Ward > Single
+
+
+# 4. Comparison dendograms by Gower distance
+# LOWEST VALUE = BEST DENDOGRAM
+(gow.dist.single <- sum((env.de - env.de.single.coph) ^ 2))
+(gow.dist.comp <- sum((env.de - env.de.comp.coph) ^ 2))
+(gow.dist.UPGMA <- sum((env.de - env.de.UPGMA.coph) ^ 2))
+(gow.dist.ward <- sum((env.de - env.de.ward.coph) ^ 2))
+
+# UPGMA >>> Complete > Single > Ward
+
+
+# Considering both results from points 3 and 4,
+# we consider the UPGMA as the best dendogram option.
+
+plot(env.de.UPGMA, hang=-1, labels = unique(my_data$Site),  main = "Euclidean - UPGMA")
+
+png(file = "Figures/1 GRADIENT/cluster_by_ENV_withoutAltitude.png", width = 700, height = 600)
+
+
+# # > By climatic vars. WITHOUT SP06 ----
+# library(ade4) 
+# library(vegan)  
+# library(gclus) 
+# library(cluster)
+# library(RColorBrewer)  
+# library(labdsv)
+# library(leaflet)
+# 
+# # 1. Create dissimilarity matrix:
+# # https://stats.stackexchange.com/questions/80377/which-distance-to-use-e-g-manhattan-euclidean-bray-curtis-etc
+# 
+# ## Trec les repliques per site pq totes tenen igual valors
+# dummy2 <- as.data.frame(unique(dummy))
+# dummy2 <- dummy2[-c(6),]
+# 
+# boxplot(dummy2)
+# # Vars. with different units and scales
+# # Standardization its needed
+# 
+# # If not, MAP and altitude would have much more
+# # influence on the distance matrix only because of
+# # their magnitude and variation in absolut terms.
+# 
+# env.std <- scale(dummy2)
+# boxplot(env.std)
+# # Nicer
+# 
+# # Using Euclidean distance:
+# env.de <- dist(env.std)
+# my_data2 <- subset(my_data,Site != "SP06")
+# attr(env.de, "Labels") <- unique(my_data2$Site)
+# env.de
+# 
+# 
+# # 2. Analysis of hierarchical cluster
+# par(mfrow = c(2, 2))
+# 
+# # Compute single linkage agglomerative clustering
+# env.de.single <- hclust(env.de, method = "single")
+# plot(env.de.single, 
+#      labels = unique(my_data2$Site), 
+#      main = "Euclidean - Single linkage")
+# 
+# # Compute complete-linkage agglomerative clustering
+# env.de.complete <- hclust(env.de, method = "complete")
+# plot(env.de.complete, 
+#      labels = unique(my_data2$Site), 
+#      main = "Euclidean - Complete linkage")
+# 
+# # Compute UPGMA agglomerative clustering
+# env.de.UPGMA <- hclust(env.de, method = "average")
+# plot(env.de.UPGMA, 
+#      labels = unique(my_data2$Site), 
+#      main = "Euclidean - UPGMA")
+# 
+# # Compute Ward’s Minimum Variance Clustering
+# env.de.ward <- hclust(env.de, method = "ward.D2")
+# plot(env.de.ward, 
+#      labels = unique(my_data2$Site), 
+#      main = "Euclidean - Ward")
+# dev.off()
+# 
+# # 3. Comparison dendograms by cophenetic distance
+# # HIGHEST CORRELATION = BEST DENDOGRAM
+# 
+# # Single linkage clustering
+# env.de.single.coph <- cophenetic(env.de.single)
+# cor(env.de, env.de.single.coph)
+# 
+# # Complete linkage clustering
+# env.de.comp.coph <- cophenetic(env.de.complete)
+# cor(env.de, env.de.comp.coph)
+# 
+# # Average clustering
+# env.de.UPGMA.coph <- cophenetic(env.de.UPGMA)
+# cor(env.de, env.de.UPGMA.coph)
+# 
+# # Ward clustering
+# env.de.ward.coph <- cophenetic(env.de.ward)
+# cor(env.de, env.de.ward.coph)
+# 
+# 
+# # 4. Comparison dendograms by Gower distance
+# # LOWEST VALUE = BEST DENDOGRAM
+# (gow.dist.single <- sum((env.de - env.de.single.coph) ^ 2))
+# (gow.dist.comp <- sum((env.de - env.de.comp.coph) ^ 2))
+# (gow.dist.UPGMA <- sum((env.de - env.de.UPGMA.coph) ^ 2))
+# (gow.dist.ward <- sum((env.de - env.de.ward.coph) ^ 2))
+
+
+
+
+
+
+# > By Microbial community composition ----
+# >> 16S ----
+library(ade4) 
+library(vegan)  
+library(gclus) 
+library(cluster)
+library(RColorBrewer)  
+library(labdsv)
+library(leaflet)
+
+library(readxl)
+AbuPhyl <- read_excel("C:/Users/Anna/OneDrive - Universitat de Girona/GRADCATCH/ANALISIS/amplicon_sequencing_2021_JD/16S/AbuPhyl.xlsx")
+
+
+# AbuPhyl_16S <- AbuPhyl_16S[,c(4, 61:63, 8, 66,67)]
+# 
+# AbuPhyl_16S$Altitude[AbuPhyl_16S$Site == '02'] <- '664.5'
+# AbuPhyl_16S$Altitude <- as.numeric(AbuPhyl_16S$Altitude)
+# AbuPhyl_16S$MAP <- as.numeric(AbuPhyl_16S$MAP)
+# AbuPhyl_16S$MAT <- as.numeric(AbuPhyl_16S$MAT)
+# AbuPhyl_16S$AI <- as.numeric(AbuPhyl_16S$AI)
+
+AbuPhyl_16S <- AbuPhyl[,c(4,66,67)]
+
+library(reshape2)
+AbuPhyl_16S <- dcast(AbuPhyl_16S,Site~variable)
+
+AbuPhyl_16S <- AbuPhyl_16S[,-c(1)]
+
+# 1. Create dissimilarity matrix:
+
+boxplot(AbuPhyl_16S)
+# Vars. with same units but different scales
+# a transformation might be needed
+
+env.std <- (AbuPhyl_16S)^(1/3)
+boxplot(env.std)
+# Nicer
+
+# Using Euclidean distance:
+env.de <- dist(env.std)
+attr(env.de, "Labels") <- unique(my_data$Site)
+env.de
+
+
+# 2. Analysis of hierarchical cluster
+par(mfrow = c(2, 2))
+
+# Compute single linkage agglomerative clustering
+env.de.single <- hclust(env.de, method = "single")
+plot(env.de.single, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - Single linkage")
+
+# Compute complete-linkage agglomerative clustering
+env.de.complete <- hclust(env.de, method = "complete")
+plot(env.de.complete, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - Complete linkage")
+
+# Compute UPGMA agglomerative clustering
+env.de.UPGMA <- hclust(env.de, method = "average")
+plot(env.de.UPGMA, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - UPGMA")
+
+# Compute Ward’s Minimum Variance Clustering
+env.de.ward <- hclust(env.de, method = "ward.D2")
+plot(env.de.ward, 
+     labels = unique(my_data$Site), 
+     main = "Euclidean - Ward")
+par(mfrow = c(1,1))
+
+# 3. Comparison dendograms by cophenetic distance
+# HIGHEST CORRELATION = BEST DENDOGRAM
+
+# Single linkage clustering
+env.de.single.coph <- cophenetic(env.de.single)
+cor(env.de, env.de.single.coph)
+
+# Complete linkage clustering
+env.de.comp.coph <- cophenetic(env.de.complete)
+cor(env.de, env.de.comp.coph)
+
+# Average clustering
+env.de.UPGMA.coph <- cophenetic(env.de.UPGMA)
+cor(env.de, env.de.UPGMA.coph)
+
+# Ward clustering
+env.de.ward.coph <- cophenetic(env.de.ward)
+cor(env.de, env.de.ward.coph)
+
+# UPGMA > Complete > Ward > Single
+
+
+# 4. Comparison dendograms by Gower distance
+# LOWEST VALUE = BEST DENDOGRAM
+(gow.dist.single <- sum((env.de - env.de.single.coph) ^ 2))
+(gow.dist.comp <- sum((env.de - env.de.comp.coph) ^ 2))
+(gow.dist.UPGMA <- sum((env.de - env.de.UPGMA.coph) ^ 2))
+(gow.dist.ward <- sum((env.de - env.de.ward.coph) ^ 2))
+
+# UPGMA >> Complete >> Single >>> Ward
+
+# Considering both results from points 3 and 4,
+# we consider the UPGMA as the best dendogram option.
+
+plot(env.de.UPGMA, hang=-1, labels = unique(my_data$Site),  main = "Euclidean - UPGMA")
+
+png(file = "Figures/1 GRADIENT/cluster_by_16S.png", width = 700, height = 600)
 
 
 
