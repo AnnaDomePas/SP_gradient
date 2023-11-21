@@ -188,6 +188,7 @@ plot(env.de.UPGMA, hang=-1, labels = unique(my_data$Site),  main = "Euclidean - 
 # png(file = "Figures/1 GRADIENT/cluster_by_ENV.png", width = 700, height = 600)
 
 
+
 # > By climatic vars. WITHOUT MAP or ALTITUDE ----
 library(ade4) 
 library(vegan)  
@@ -516,12 +517,12 @@ boxplot(AbuPhyl_16S)
 # Vars. with same units but different scales
 # a transformation might be needed
 
-env.std <- (AbuPhyl_16S)^(1/3)
+env.std <- log(AbuPhyl_16S+1)
 boxplot(env.std)
 # Nicer
 
-# Using Euclidean distance:
-env.de <- dist(env.std)
+# Using Bray-Curtis distance:
+env.de <- vegdist(env.std, method = 'bray')
 attr(env.de, "Labels") <- unique(my_data$Site)
 env.de
 

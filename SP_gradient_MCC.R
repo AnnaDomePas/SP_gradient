@@ -35,21 +35,19 @@ for (i in which(sapply(my_data, is.numeric))) {
   }
 }
 
-
-
 my_data$Köppen <- my_data$Site
-my_data$Köppen <- gsub("SP05", "Dry Arid", my_data$Köppen) #SP05
-my_data$Köppen <- gsub("SP10", "Dry Arid", my_data$Köppen) #SP10
-my_data$Köppen <- gsub("SP09", "Dry Semi-arid", my_data$Köppen) #SP09
-my_data$Köppen <- gsub("SP04", "Dry Semi-arid", my_data$Köppen) #SP04
-my_data$Köppen <- gsub("SP11", "Temperate (Dry Hot Summer)", my_data$Köppen) #SP11
-my_data$Köppen <- gsub("SP12", "Temperate (Dry Hot Summer)", my_data$Köppen) #SP12
-my_data$Köppen <- gsub("SP03", "Temperate (Dry Hot Summer)", my_data$Köppen) #SP03
-my_data$Köppen <- gsub("SP06", "Temperate (No dry season)", my_data$Köppen) #SP06
-my_data$Köppen <- gsub("SP07", "Temperate (No dry season)", my_data$Köppen) #SP07
-my_data$Köppen <- gsub("SP02", "Temperate (Dry Warm Summer)", my_data$Köppen) #SP02
-my_data$Köppen <- gsub("SP01", "Temperate (No dry season)", my_data$Köppen) #SP01
-my_data$Köppen <- gsub("SP08", "Temperate (Dry Warm Summer)", my_data$Köppen) #SP08
+my_data$Köppen <- gsub("SP05", "3", my_data$Köppen) #SP05
+my_data$Köppen <- gsub("SP10", "3", my_data$Köppen) #SP10
+my_data$Köppen <- gsub("SP09", "3", my_data$Köppen) #SP09
+my_data$Köppen <- gsub("SP04", "3", my_data$Köppen) #SP04
+my_data$Köppen <- gsub("SP11", "2", my_data$Köppen) #SP11
+my_data$Köppen <- gsub("SP12", "2", my_data$Köppen) #SP12
+my_data$Köppen <- gsub("SP03", "1", my_data$Köppen) #SP03
+my_data$Köppen <- gsub("SP06", "1", my_data$Köppen) #SP06
+my_data$Köppen <- gsub("SP07", "1", my_data$Köppen) #SP07
+my_data$Köppen <- gsub("SP02", "2", my_data$Köppen) #SP02
+my_data$Köppen <- gsub("SP01", "2", my_data$Köppen) #SP01
+my_data$Köppen <- gsub("SP08", "1", my_data$Köppen) #SP08
 
 
 #Data without ratios, percentages....
@@ -218,8 +216,8 @@ ggarrange(a,b, ncol=2) + theme_classic()
 #              "#7D1809", "#290500")
 
 
-mycolors2<-c("#538D88","#9BBD7A",
-             "#FDE74C", "#EC9E57","#D84652")
+mycolors2<-c("#538D88",
+             "#FDE74C", "#D84652")
 
 
 library(ggbiplot)
@@ -230,11 +228,9 @@ all_plot <- ggbiplot(all, obs.scale = 1, var.scale = 1,
                      loadings.label.repel=TRUE) +
   theme_classic()+
   scale_fill_manual(values = mycolors2,
-                    breaks=c('Temperate (No dry season)', 
-                             'Temperate (Dry Warm Summer)', 
-                             'Temperate (Dry Hot Summer)',
-                             'Dry Semi-arid',
-                             'Dry Arid'))+
+                    breaks=c('1', 
+                             '2', 
+                             '3'))+
   geom_point(aes(fill=site), colour= "black", pch=21, size = 6)+
   theme(axis.text=element_text(size=12),
         axis.title=element_text(size=15))+
@@ -274,7 +270,7 @@ all_plot$layers[[txt]] <- geom_label(aes(x = xvar, y = yvar, label = PCAloadings
                                      fill = '#dddddd80')
 all_plot
 
-# ggsave(path = "Figures/1 GRADIENT","PCA_Phsca_selected2.png", width = 7, height = 6, dpi = 300)
+# ggsave(path = "Figures/1 GRADIENT","PCA_Phsca_selected3.png", width = 7, height = 6, dpi = 300)
 
 
 
@@ -282,152 +278,3 @@ all_plot
 scores <- as.data.frame(all$x[,1:2])
 scores$Site <- unique(data[,1])
 scores <- scores[,c(3,1,2)] #Reorder to have Site as the first column
-
-
-
-#.----
-# Multiple lineal regressions ----
-library(car)
-library(MASS)
-
-
-# > With IV separately ----
-
-# >> Respiration ----
-# R <- lm(Respiration ~ altitude+pH+TC+C_N+NH4+PO43+SO42+Silt+Litter+L_TC+L_TN+BIX+HIX+Köppen, my_data)
-# summary(R)
-
-R <- lm(Respiration ~ altitude+pH+TC+C_N+NH4+PO43+SO42+Silt+Litter+L_TC+L_TN+BIX+HIX+Köppen+
-          Köppen:pH + Köppen:C_N + Köppen:L_TC + Köppen:HIX + 
-          Köppen:altitude + Köppen:TC + Köppen:NH4 + Köppen:PO43 + Köppen:SO42+
-          Köppen:Silt + Köppen:Litter + Köppen:L_TN + Köppen:BIX, my_data)
-summary(R)
-AIC(R)
-
-
-stepb <- stepAIC(R, direction="backward")
-
-R <- lm(Respiration ~ altitude + pH + C_N + NH4 + PO43 + SO42 + Silt + 
-          Litter + L_TC + L_TN + BIX + HIX + Köppen + pH:Köppen + C_N:Köppen + 
-          L_TC:Köppen + HIX:Köppen + altitude:Köppen + NH4:Köppen + 
-          PO43:Köppen + SO42:Köppen + Silt:Köppen + Litter:Köppen + 
-          L_TN:Köppen + BIX:Köppen, data=my_data)
-summary(R)
-
-# Calculating manually one coefficient:
-cf_altitude <- R$coeff["altitude"]
-b_altitude<- cf_altitude*sd(my_data$altitude)/sd(my_data$Respiration)
-b_altitude
-
-
-
-# Loop for all coefficients:
-# Extract coefficients from the model
-coefficients <- coef(R)
-
-# Get the names of independent variables in your model
-independent_vars <- names(coefficients)[!grepl(":Köppen", names(coefficients)) & names(coefficients) != "(Intercept)"]
-
-# Initialize an empty dataframe to store coefficients
-result_df <- data.frame(Variable = character(),
-                        Coefficient = numeric(),
-                        Standardized_Beta = numeric(),
-                        stringsAsFactors = FALSE)
-
-# Loop through each independent variable
-for (var in independent_vars) {
-  cf <- coefficients[var]  # Coefficient from the model
-  
-  # Calculate the standardized beta coefficient
-  sd_iv <- sd(my_data[[var]])  # Standard deviation of the independent variable
-  b <- cf * (sd_iv / sd(my_data$Respiration))  # Calculate beta coefficient
-  
-  # Store the results in the dataframe
-  result_df <- rbind(result_df, data.frame(Variable = var,
-                                           Coefficient = round(cf, 2),
-                                           Standardized_Beta = round(b, 2)))
-}
-
-rownames(result_df) <- NULL  # Reset row names
-# Display the resulting dataframe
-print(result_df)
-
-# Exclude rows with NA values in Standardized_Beta column
-filtered_result_df <- result_df[!is.na(result_df$Standardized_Beta), ]
-
-# Create a bar plot using ggplot
-ggplot(filtered_result_df, aes(x = Variable, y = Standardized_Beta)) +
-  geom_bar(stat = "identity", fill = "darkblue") +
-  labs(title = "Standardized Beta Values for Respiration",
-       x = "Variables", y = "Standardized Beta") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  theme_bw()+
-  scale_y_continuous(labels = function(x) round(x, 2))  # Set Y-axis labels to two decimal places
-  
-
-
-
-
-
-# > Clustering DV together -----
-depe_cluster <- depe
-depe_cluster$Carbon_enz <- depe$alpha + depe$beta + depe$xyl + depe$cbh
-depe_cluster$Nitrogen_enz <- depe$gla + depe$leu
-depe_cluster$pigments <- depe$chla + depe$chlb + depe$carotene
-depe_cluster$MB <- depe$BB + depe$FB
-depe_cluster$methane_genes <- depe$mcrA + depe$pmoA
-depe_cluster$nitrogen_genes <- depe$nifH + depe$qnorB + depe$nosZ
-depe_cluster$ammonia_genes <- depe$AOA + depe$AOB
-depe_cluster$metagenome <- depe$X16S + depe$ITS2
-depe_cluster <- depe_cluster[,-c(4:8,10:14,16,18:26)]
-
-
-# >> Carbon enzs ----
-
-R <- lm(depe_cluster$Carbon_enz ~ altitude+pH+TC+C_N+NH4+PO43+SO42+Silt+Litter+L_TC+L_TN+BIX+HIX+Köppen+
-          Köppen:pH + Köppen:C_N + Köppen:L_TC + Köppen:HIX + 
-          Köppen:altitude + Köppen:TC + Köppen:NH4 + Köppen:PO43 + Köppen:SO42+
-          Köppen:Silt + Köppen:Litter + Köppen:L_TN + Köppen:BIX, my_data)
-summary(R)
-AIC(R)
-
-
-stepb <- stepAIC(R, direction="backward")
-
-R <- lm(depe_cluster$Carbon_enz ~ altitude + pH + NH4 + PO43 + SO42 + 
-          Silt + Litter + L_TC + L_TN + BIX + HIX + Köppen + pH:Köppen + 
-          L_TC:Köppen + HIX:Köppen + altitude:Köppen + NH4:Köppen + 
-          PO43:Köppen + SO42:Köppen + Litter:Köppen + BIX:Köppen, data=my_data)
-summary(R)
-
-
-# Loop for all coefficients:
-# Extract coefficients from the model
-coefficients <- coef(R)
-
-# Get the names of independent variables in your model
-independent_vars <- names(coefficients)[!grepl(":Köppen", names(coefficients)) & names(coefficients) != "(Intercept)"]
-
-# Initialize an empty dataframe to store coefficients
-result_df <- data.frame(Variable = character(),
-                        Coefficient = numeric(),
-                        Standardized_Beta = numeric(),
-                        stringsAsFactors = FALSE)
-
-# Loop through each independent variable
-for (var in independent_vars) {
-  cf <- coefficients[var]  # Coefficient from the model
-  
-  # Calculate the standardized beta coefficient
-  sd_iv <- sd(my_data[[var]])  # Standard deviation of the independent variable
-  b <- cf * (sd_iv / sd(my_data$Respiration))  # Calculate beta coefficient
-  
-  # Store the results in the dataframe
-  result_df <- rbind(result_df, data.frame(Variable = var,
-                                           Coefficient = round(cf, 2),
-                                           Standardized_Beta = round(b, 2)))
-}
-
-rownames(result_df) <- NULL  # Reset row names
-# Display the resulting dataframe
-print(result_df)
