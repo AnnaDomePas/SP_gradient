@@ -391,3 +391,50 @@ best.dims = which.min(cv$val[estimate = "adjCV", , ]) - 1
 R2(model)
 
 # Reference paper: https://bsssjournals.onlinelibrary.wiley.com/doi/epdf/10.1111/ejss.13419
+
+# New Liner mixed model ####
+library(lme4)
+library(car)
+my_data         = read.csv("SP_metadata_2021.csv", sep=";")
+
+#To replace NA values with a mean of the other values of the Site:
+for (i in which(sapply(my_data, is.numeric))) {
+  for (j in which(is.na(my_data[, i]))) {
+    my_data[j, i] <- mean(my_data[my_data[, "Site"] == my_data[j, "Site"], i],  na.rm = TRUE)
+  }
+}
+
+a                = as.data.frame(colnames(my_data))
+my_data.1        = my_data %>% select(c('Site','AI','MAP','MAT','Water_activity','C_N','NH4','PO43',
+                                        'SO42','Silt','Clay','Litter','L_TC',
+                                        'L_TN','SR','E2.E3','Peak_A','HIX','X16S','ITS2','Respiration'))
+my_data.1        = my_data.1 %>% mutate(C_N.1 = C_N/max(C_N)) %>% mutate(NH4.1 = NH4/max(NH4)) %>%
+  mutate(PO43.1 = PO43/max(PO43)) %>% mutate(SO42.1 = SO42/max(SO42)) %>% 
+  mutate(Litter.1 = Litter/max(Litter)) %>% mutate(HIX.1 = HIX/max(HIX)) %>% 
+  mutate(E2.E3.1 = E2.E3/max(E2.E3)) %>% mutate(X16S.1 = X16S/max(X16S)) %>% 
+  mutate(ITS2.1 = ITS2/max(ITS2))
+
+# Respiration ####
+
+respiration.test = lmer(Respiration ~ (AI+Water_activity+C_N.1+NH4.1+PO43.1+Silt+
+                                         Clay+Litter.1+L_TC+L_TN+SR+E2.E3.1+Peak_A+
+                                         HIX.1 + X16S.1 + ITS2.1) + (1|Site), data = my_data.1)
+summary(respiration.test)
+Anova(respiration.test)
+
+respiration.test.1 = lmer(Respiration ~ (AI+SO42.1+E2.E3.1 + X16S.1 + ITS2.1) + (1|Site), data = my_data.1)
+summary(respiration.test.1)
+Anova(respiration.test.1)
+
+respiration.test.2 = lmer(Respiration ~ (SO42.1+E2.E3.1 + X16S.1 + ITS2.1) + (1|Site), data = my_data.1)
+summary(respiration.test.2)
+Anova(respiration.test.2)
+
+AIC(respiration.test)
+AIC(respiration.test.1)
+AIC(respiration.test.2)
+
+library(MuMIn)
+r.squaredGLMM(respiration.test) # R1: represents the variance explained by the fixed effects
+r.squaredGLMM(respiration.test.1)
+r.squaredGLMM(respiration.test.2)
