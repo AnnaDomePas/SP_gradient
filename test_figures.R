@@ -1,400 +1,11 @@
-a = as.data.frame(colnames(my_data))
-library(car)
-
-# Soil characterization along the gradient ####
-
-# Soil Temperature
-test = aov(Soil_Temp ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(Soil_Temp ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "Soil_Temp",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# Water content
-test = aov(Water_content ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(Water_content ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "Water_content",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# Soil organic matter (%)
-test = aov(SOM_perc ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(SOM_perc ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "SOM_perc",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# pH (%)
-test = aov(pH ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(pH ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "pH",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# TOC_perc (%)
-test = aov(TOC_perc ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(TOC_perc ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "TOC_perc",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# TN_perc (%)
-test = aov(TN_perc ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(TN_perc ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "TN_perc",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# C_N
-test = aov(C_N ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(C_N ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "C_N",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# NH4
-test = aov(NH4 ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(NH4 ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "NH4",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# PO43
-test = aov(PO43 ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(PO43 ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "PO43",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# SO42
-test = aov(SO42 ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(SO42 ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "SO42",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# Litter
-test = aov(Litter ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(Litter ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "Litter",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# Litter
-test = aov(Litter ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(Litter ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "Litter",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# L_TC_perc
-test = aov(L_TC_perc ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(L_TC_perc ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "L_TC_perc",
-          fill = "AI") + stat_compare_means(method = "anova") + 
-  scale_fill_gradient(low="blue", high="red")
-
-# L_TN_perc
-test = aov(L_TN_perc ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(L_TN_perc ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "L_TN_perc",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# CO2_dark
-test = aov(CO2_dark ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(CO2_dark ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "CO2_dark",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# CH4_ave
-test = aov(CH4_ave ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(CH4_ave ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "CH4_ave",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# N2O
-test = aov(N2O ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(N2O ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "N2O",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# BB_2
-test = aov(BB_2 ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(BB_2 ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "BB_2",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# BB_2
-test = aov(BB_2 ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(BB_2 ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "BB_2",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# Respiration
-test = aov(Respiration ~ Site,data = my_data)
-shapiro.test(test$residuals)
-bartlett.test(Respiration ~ Site, data = my_data)
-par(mfrow = c(2, 2))
-plot(test)
-par(mfrow = c(1, 1))
-summary(test)
-ggboxplot(my_data, x = "Site", y = "Respiration",
-          fill = "AI") + stat_compare_means() + 
-  scale_fill_gradient(low="blue", high="red")
-
-# PCA ####
-
-results          = prcomp(my_data[,c(8,9,10,11,13,14,16,20,21,22,23,24,25,26,30,31,32)],
-                  scale = TRUE)
-results$rotation = -1*results$rotation
-results$rotation
-biplot(results, scale = 0)
-
-results$x        = -1*results$x
-results$x
-
-results$sdev^2 / sum(results$sdev^2)
-
-# Manova ####
-
-# Manova Asumptions ####
-
-y_variables = as.data.frame((my_data[,c(2,35,42:53,56:64)]))
-
-library(rstatix)
-library(broom)
-
-# Outliers ####
-out = as.data.frame(y_variables %>% group_by(Site) %>% identify_outliers("CO2_dark"))
-# There are outliers but we are keeping them for the analysis
-
-# Multivariate outliers ####
-y_variables_2       = scale(y_variables[,c(2:6,8,9,11:13,15:23)],center = FALSE)
-mahal               = mahalanobis(y_variables_2, colMeans(y_variables_2), cov(y_variables_2))
-p_val               = pchisq(mahal, df=3, lower.tail=FALSE)
-y_variables_2       = as.data.frame(cbind(y_variables_2,mahal,p_val))
-# There are outliers but we are keeping them for the analysis
-
-# Normality ####
-y_variables_2      = as.data.frame(cbind(y_variables$Site,y_variables_2))
-ggqqplot(y_variables_2, "CO2_dark", facet.by = "y_variables$Site",
-         ylab = "CO2_dark", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "chla", facet.by = "y_variables$Site",
-         ylab = "chla", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "chlb", facet.by = "y_variables$Site",
-         ylab = "chlb", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "carotene", facet.by = "y_variables$Site",
-         ylab = "carotene", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "EPS", facet.by = "y_variables$Site",
-         ylab = "EPS", ggtheme = theme_bw())
-ggqqplot(y_variables, "alpha", facet.by = "Site",
-         ylab = "alpha", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "beta", facet.by = "y_variables$Site",
-         ylab = "beta", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "xyl", facet.by = "y_variables$Site",
-         ylab = "xyl", ggtheme = theme_bw())
-ggqqplot(y_variables, "cbh", facet.by = "Site",
-         ylab = "cbh", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "gla", facet.by = "y_variables$Site",
-         ylab = "gla", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "fos", facet.by = "y_variables$Site",
-         ylab = "fos", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "leu", facet.by = "y_variables$Site",
-         ylab = "leu", ggtheme = theme_bw())
-ggqqplot(y_variables, "phe", facet.by = "Site",
-         ylab = "phe", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "mcrA", facet.by = "y_variables$Site",
-         ylab = "mcrA", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "pmoA", facet.by = "y_variables$Site",
-         ylab = "pmoA", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "nifH", facet.by = "y_variables$Site",
-         ylab = "nifH", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "AOA", facet.by = "y_variables$Site",
-         ylab = "AOA", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "AOB", facet.by = "y_variables$Site",
-         ylab = "AOB", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "qnorB", facet.by = "y_variables$Site",
-         ylab = "qnorB", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "nosZ", facet.by = "y_variables$Site",
-         ylab = "nosZ", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "phoD", facet.by = "y_variables$Site",
-         ylab = "phoD", ggtheme = theme_bw())
-ggqqplot(y_variables_2, "Respiration", facet.by = "y_variables$Site",
-         ylab = "Respiration", ggtheme = theme_bw())
-# I think most of the variables are normally distributed and MANOVA is robust with
-# slightly violations of normality. 
-
-# Multivariate normality ####
-mshapiro_test((y_variables_2[,2:22]))
-# Not really normal
-
-# Multicollinearity ####
-cor.mat <- y_variables[,2:23] %>% cor_mat()
-cor.mat %>% cor_reorder() %>% pull_lower_triangle() %>% cor_plot(label = TRUE)
-# New selected variables
-y_variables_3 = as.data.frame((y_variables[,c(1:3,5:20,22,23)]))
-
-# Linearity assumption ####
-library(GGally)
-linear_ass <- y_variables_3 %>% group_by(Site) %>% doo(~ggpairs(.) + theme_bw(), result = "plots")
-linear_ass$plots
-
-# Homogeneity of covariances ####
-# Balance design and we could continue with the analysis. We will use the 
-# Pillai’s multivariate statistic as a more robust metric
-
-# Homogeneity of variance assumption ####
-a = as.data.frame(colnames(y_variables_3))
-y_variables_3 %>% gather(key = "variable", value = "value", a[2:21,]) %>%
-  group_by(variable) %>% levene_test(sqrt(value) ~ as.factor(Site))
-# Squaring the variables solves almost completely the homogeneity of variances
-
-# Manova test ####
-mod         = manova(as.matrix(y_variables_3[,2:21]) ~ (my_data$AI))
-summary(mod,summary=TRUE)
-
-# Univariate one-way ANOVA ####
-grouped.data <- y_variables_3 %>% gather(key = "variable", value = "value", a[2:21,]) %>%
-  group_by(variable)
-grouped.data %>% kruskal_test(value ~ my_data$AI)
-
-# What variables to use in the MANOVA as covariables
-x_variables = as.data.frame((my_data[,c(2,5:8,10,11,13:16,20:26,30:32)]))
-
-cor.mat <- x_variables[,2:21] %>% cor_mat()
-cor.mat %>% cor_reorder() %>% pull_lower_triangle() %>% cor_plot(label = TRUE)
-# New selected variables
-x_variables_1 = as.data.frame((x_variables[,c(1,5:7,10,12:15,19:21)]))
-
-# VIF ####
-library(car)
-cor.mat <- x_variables_1[,2:12] %>% cor_mat()
-model <- lm(cbind(y_variables_3$CO2_dark+y_variables_3$chla+y_variables_3$carotene+
-                    y_variables_3$EPS) 
-            ~ x_variables_1$Soil_Temp+
-              x_variables_1$Water_content+x_variables_1$SOM_perc+x_variables_1$TC_perc+
-              x_variables_1$C_N+x_variables_1$NH4+x_variables_1$PO43+x_variables_1$SO42+
-              x_variables_1$Litter+x_variables_1$L_TC_perc+x_variables_1$L_TN_perc+as.numeric(my_data$AI))
-car::vif(model)
-
-library(pls)
-model <- plsr(y_variables_3$CO2_dark~x_variables_1$Soil_Temp+
-                x_variables_1$Water_content+x_variables_1$SOM_perc+x_variables_1$TC_perc+
-                x_variables_1$C_N+x_variables_1$NH4+x_variables_1$PO43+x_variables_1$SO42+
-                x_variables_1$Litter+x_variables_1$L_TC_perc+x_variables_1$L_TN_perc, scale=TRUE, validation="CV")
-summary(model)
-coefficients = coef(model)
-
-cv = RMSEP(model)
-best.dims = which.min(cv$val[estimate = "adjCV", , ]) - 1
-R2(model)
 
 # Reference paper: https://bsssjournals.onlinelibrary.wiley.com/doi/epdf/10.1111/ejss.13419
 
 # New Liner mixed model ####
 library(lme4)
 library(car)
+library(MuMIn)
+
 my_data         = read.csv("SP_metadata_2021.csv", sep=";")
 
 #To replace NA values with a mean of the other values of the Site:
@@ -404,37 +15,258 @@ for (i in which(sapply(my_data, is.numeric))) {
   }
 }
 
-a                = as.data.frame(colnames(my_data))
-my_data.1        = my_data %>% select(c('Site','AI','MAP','MAT','Water_activity','C_N','NH4','PO43',
-                                        'SO42','Silt','Clay','Litter','L_TC',
-                                        'L_TN','SR','E2.E3','Peak_A','HIX','X16S','ITS2','Respiration'))
-my_data.1        = my_data.1 %>% mutate(C_N.1 = C_N/max(C_N)) %>% mutate(NH4.1 = NH4/max(NH4)) %>%
+# Checking data outliers ####
+
+ggplot(my_data, aes(x=as.factor(AI), y=Soil_Temp, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$Soil_Temp)
+
+ggplot(my_data, aes(x=as.factor(AI), y=Water_activity, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$Water_activity)
+
+ggplot(my_data, aes(x=as.factor(AI), y=SOM, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$SOM)
+
+ggplot(my_data, aes(x=as.factor(AI), y=pH, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$pH)
+
+ggplot(my_data, aes(x=as.factor(AI), y=TOC, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$TOC)
+
+ggplot(my_data, aes(x=as.factor(AI), y=C_N, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$C_N)
+
+ggplot(my_data, aes(x=as.factor(AI), y=TC, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$TC)
+
+ggplot(my_data, aes(x=as.factor(AI), y=TN, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$TN)
+
+ggplot(my_data, aes(x=as.factor(AI), y=NH4, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$NH4)
+
+ggplot(my_data, aes(x=as.factor(AI), y=PO43, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$PO43)
+
+ggplot(my_data, aes(x=as.factor(AI), y=SO42, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$SO42)
+
+ggplot(my_data, aes(x=as.factor(Site), y=Sand, fill=as.factor(Site))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$Sand)
+
+ggplot(my_data, aes(x=as.factor(Site), y=Silt, fill=as.factor(Site))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$Silt)
+
+ggplot(my_data, aes(x=as.factor(Site), y=Clay, fill=as.factor(Site))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$Clay)
+
+ggplot(my_data, aes(x=as.factor(AI), y=Litter, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$Litter)
+
+ggplot(my_data, aes(x=as.factor(AI), y=L_TC, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$L_TC)
+
+ggplot(my_data, aes(x=as.factor(AI), y=L_TN, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$L_TN)
+
+ggplot(my_data, aes(x=as.factor(AI), y=BB, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$BB)
+
+ggplot(my_data, aes(x=as.factor(AI), y=FB, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$FB)
+
+ggplot(my_data, aes(x=as.factor(AI), y=ShannonEEA, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$ShannonEEA)
+
+ggplot(my_data, aes(x=as.factor(AI), y=SR, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$SR)
+
+ggplot(my_data, aes(x=as.factor(AI), y=E2.E3, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$E2.E3)
+
+ggplot(my_data, aes(x=as.factor(AI), y=E3.E4, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$E3.E4)
+
+ggplot(my_data, aes(x=as.factor(AI), y=E4.E6, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$E4.E6)
+
+ggplot(my_data, aes(x=as.factor(AI), y=FI, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$FI)
+
+ggplot(my_data, aes(x=as.factor(AI), y=BIX, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$BIX)
+
+ggplot(my_data, aes(x=as.factor(AI), y=Peak_A, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$Peak_A)
+
+ggplot(my_data, aes(x=as.factor(AI), y=Peak_C, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$Peak_C)
+
+ggplot(my_data, aes(x=as.factor(AI), y=Peak_M, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$Peak_M)
+
+ggplot(my_data, aes(x=as.factor(AI), y=Peak_T, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$Peak_T)
+
+ggplot(my_data, aes(x=as.factor(AI), y=Peak_B, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$Peak_B)
+
+ggplot(my_data, aes(x=as.factor(AI), y=HIX, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$HIX)
+
+# Data normalization ####
+
+my_data          = my_data %>% mutate(C_N.1 = C_N/max(C_N)) %>% mutate(NH4.1 = NH4/max(NH4)) %>%
   mutate(PO43.1 = PO43/max(PO43)) %>% mutate(SO42.1 = SO42/max(SO42)) %>% 
   mutate(Litter.1 = Litter/max(Litter)) %>% mutate(HIX.1 = HIX/max(HIX)) %>% 
   mutate(E2.E3.1 = E2.E3/max(E2.E3)) %>% mutate(X16S.1 = X16S/max(X16S)) %>% 
-  mutate(ITS2.1 = ITS2/max(ITS2))
+  mutate(ITS2.1 = ITS2/max(ITS2)) %>% mutate(altitude.1 = altitude/max(altitude)) %>%
+  mutate(Water_content.1 = Water_content/max(Water_content)) %>% mutate(Soil_Temp.1 = Soil_Temp/max(Soil_Temp)) %>%
+  mutate(pH.1 = pH/max(pH))
+a                = as.data.frame(colnames(my_data))
 
 # Respiration ####
 
-respiration.test = lmer(Respiration ~ (AI+Water_activity+C_N.1+NH4.1+PO43.1+Silt+
-                                         Clay+Litter.1+L_TC+L_TN+SR+E2.E3.1+Peak_A+
-                                         HIX.1 + X16S.1 + ITS2.1) + (1|Site), data = my_data.1)
-summary(respiration.test)
-Anova(respiration.test)
+# Full model ####
 
-respiration.test.1 = lmer(Respiration ~ (AI+SO42.1+E2.E3.1 + X16S.1 + ITS2.1) + (1|Site), data = my_data.1)
-summary(respiration.test.1)
-Anova(respiration.test.1)
+respiration.full = lmer(Respiration ~ (AI+altitude.1+Soil_Temp.1+Water_content.1+
+                                         pH.1+Silt+Clay+C_N.1+TOC+TC+TN+PO43.1+
+                                         Litter.1+L_TC+L_TN+BB+FB+ShannonEEA+
+                                         SR+E2.E3.1+Peak_A+HIX.1+FI) + (1|Site), data = my_data)
+summary(respiration.full)
+Anova(respiration.full)
+AIC(respiration.full)
+r.squaredGLMM(respiration.full)
 
-respiration.test.2 = lmer(Respiration ~ (SO42.1+E2.E3.1 + X16S.1 + ITS2.1) + (1|Site), data = my_data.1)
-summary(respiration.test.2)
-Anova(respiration.test.2)
+qqnorm(residuals(respiration.full))
+scatter.smooth(residuals(respiration.full) ~ fitted(respiration.full))
 
-AIC(respiration.test)
-AIC(respiration.test.1)
-AIC(respiration.test.2)
+# Full model interactions ####
 
-library(MuMIn)
-r.squaredGLMM(respiration.test) # R1: represents the variance explained by the fixed effects
-r.squaredGLMM(respiration.test.1)
-r.squaredGLMM(respiration.test.2)
+respiration.full.I = lmer(Respiration ~ (altitude.1+Soil_Temp.1+Water_content.1+
+                                           pH.1+Silt+Clay+C_N.1+TOC+TC+TN+PO43.1+
+                                           Litter.1+L_TC+L_TN+BB+FB+ShannonEEA+
+                                           SR+E2.E3.1+Peak_A+HIX.1+FI)*AI + (1|Site), data = my_data)                                         
+   
+summary(respiration.full.I)
+Anova(respiration.full.I)
+AIC(respiration.full.I)
+r.squaredGLMM(respiration.full.I)
+
+qqnorm(residuals(respiration.full.I))
+scatter.smooth(residuals(respiration.full.I) ~ fitted(respiration.full.I))
+
+# Full model A  interactions ####
+
+respiration.full.Ia = lmer(Respiration ~ (altitude.1+Soil_Temp.1+Water_content.1+
+                                           pH.1+Clay+C_N.1+PO43.1+
+                                           Litter.1+BB+FB+
+                                           E2.E3.1)*AI + (1|Site), data = my_data)
+summary(respiration.full.Ia)
+Anova(respiration.full.Ia)
+AIC(respiration.full.Ia)
+r.squaredGLMM(respiration.full.Ia)
+
+qqnorm(residuals(respiration.full.Ia))
+scatter.smooth(residuals(respiration.full.Ia) ~ fitted(respiration.full.Ia))
+
+# Simplified 1 interactions ####
+
+respiration.1.I = lmer(Respiration ~ (Clay+Water_content.1+pH.1+E2.E3.1)*AI + (1|Site), data = my_data)
+summary(respiration.1.I)
+Anova(respiration.1.I)
+AIC(respiration.1.I)
+r.squaredGLMM(respiration.1.I)
+
+qqnorm(residuals(respiration.1.I))
+scatter.smooth(residuals(respiration.1.I) ~ fitted(respiration.1.I))
+
+# Simplified 2 interactions ####
+
+respiration.2.I = lmer(Respiration ~ (Clay+Water_content.1+pH.1)*AI + (1|Site), data = my_data)
+summary(respiration.2.I)
+Anova(respiration.2.I)
+AIC(respiration.2.I)
+r.squaredGLMM(respiration.2.I)
+
+qqnorm(residuals(respiration.2.I))
+scatter.smooth(residuals(respiration.2.I) ~ fitted(respiration.2.I))
+
+# Simplified 3 interactions ####
+
+respiration.3.I = lmer(Respiration ~ (Clay+Water_content.1)*AI + (1|Site), data = my_data)
+summary(respiration.3.I)
+Anova(respiration.3.I)
+AIC(respiration.3.I)
+r.squaredGLMM(respiration.3.I)
+
+qqnorm(residuals(respiration.3.I))
+scatter.smooth(residuals(respiration.3.I) ~ fitted(respiration.3.I))
+
+# Simplified 4 interactions ####
+
+respiration.4.I = lmer(Respiration ~ (Clay)*AI + (1|Site), data = my_data)
+summary(respiration.4.I)
+Anova(respiration.4.I)
+AIC(respiration.4.I)
+r.squaredGLMM(respiration.4.I)
+
+qqnorm(residuals(respiration.4.I))
+scatter.smooth(residuals(respiration.4.I) ~ fitted(respiration.4.I))
+
+# New Linear Model ####
+
+my_data.1 = my_data %>% group_by(Site) %>% summarise(across(everything(), list(mean)))
+
+# Full model linear interactions ####
+
+respiration.full.linear.I = lm(Respiration_1 ~ altitude.1_1:AI_1+Soil_Temp.1_1:AI_1+
+                                 Water_content.1_1:AI_1+pH.1_1:AI_1+Clay_1:AI_1+
+                                 C_N.1_1:AI_1+PO43.1_1:AI_1+BB_1:AI_1+FB_1:AI_1+
+                                 E2.E3.1_1:AI_1, data = my_data.1)  
+summary(respiration.full.linear.I)
+Anova(respiration.full.linear.I)
+qqnorm(residuals(respiration.full.linear.I))
+scatter.smooth(residuals(respiration.full.linear.I) ~ fitted(respiration.full.linear.I))
+
+# Full model A  linear interactions ####
+
+respiration.full.linear.Ia = lm(Respiration_1 ~ Soil_Temp.1_1:AI_1+
+                                  Water_content.1_1:AI_1+
+                                  C_N.1_1:AI_1+PO43.1_1:AI_1+BB_1:AI_1+FB_1:AI_1+
+                                  E2.E3.1_1:AI_1, data = my_data.1)
+summary(respiration.full.linear.Ia)
+Anova(respiration.full.linear.Ia)
+qqnorm(residuals(respiration.full.linear.Ia))
+scatter.smooth(residuals(respiration.full.linear.Ia) ~ fitted(respiration.full.linear.Ia))
