@@ -158,23 +158,9 @@ a                = as.data.frame(colnames(my_data))
 
 # Respiration ####
 
-# Full model ####
-
-respiration.full = lmer(Respiration ~ (AI+altitude.1+Soil_Temp.1+Water_content.1+
-                                         pH.1+Silt+Clay+C_N.1+TOC+TC+TN+PO43.1+
-                                         Litter.1+L_TC+L_TN+BB+FB+ShannonEEA+
-                                         SR+E2.E3.1+Peak_A+HIX.1+FI) + (1|Site), data = my_data)
-summary(respiration.full)
-Anova(respiration.full)
-AIC(respiration.full)
-r.squaredGLMM(respiration.full)
-
-qqnorm(residuals(respiration.full))
-scatter.smooth(residuals(respiration.full) ~ fitted(respiration.full))
-
 # Full model interactions ####
 
-respiration.full.I = lmer(Respiration ~ (altitude.1+Soil_Temp.1+Water_content.1+
+respiration.full.I = lmer(Respiration ~ altitude.1+(Soil_Temp.1+Water_content.1+
                                            pH.1+Silt+Clay+C_N.1+TOC+TC+TN+PO43.1+
                                            Litter.1+L_TC+L_TN+BB+FB+ShannonEEA+
                                            SR+E2.E3.1+Peak_A+HIX.1+FI)*AI + (1|Site), data = my_data)                                         
@@ -189,7 +175,7 @@ scatter.smooth(residuals(respiration.full.I) ~ fitted(respiration.full.I))
 
 # Full model A  interactions ####
 
-respiration.full.Ia = lmer(Respiration ~ (altitude.1+Soil_Temp.1+Water_content.1+
+respiration.full.Ia = lmer(Respiration ~ altitude.1+(Soil_Temp.1+Water_content.1+
                                            pH.1+Clay+C_N.1+PO43.1+
                                            Litter.1+BB+FB+
                                            E2.E3.1)*AI + (1|Site), data = my_data)
@@ -203,7 +189,7 @@ scatter.smooth(residuals(respiration.full.Ia) ~ fitted(respiration.full.Ia))
 
 # Simplified 1 interactions ####
 
-respiration.1.I = lmer(Respiration ~ (Clay+Water_content.1+pH.1+E2.E3.1)*AI + (1|Site), data = my_data)
+respiration.1.I = lmer(Respiration ~ (Clay+Water_content.1+E2.E3.1+FB)*AI + (1|Site), data = my_data)
 summary(respiration.1.I)
 Anova(respiration.1.I)
 AIC(respiration.1.I)
@@ -245,28 +231,3 @@ r.squaredGLMM(respiration.4.I)
 qqnorm(residuals(respiration.4.I))
 scatter.smooth(residuals(respiration.4.I) ~ fitted(respiration.4.I))
 
-# New Linear Model ####
-
-my_data.1 = my_data %>% group_by(Site) %>% summarise(across(everything(), list(mean)))
-
-# Full model linear interactions ####
-
-respiration.full.linear.I = lm(Respiration_1 ~ altitude.1_1:AI_1+Soil_Temp.1_1:AI_1+
-                                 Water_content.1_1:AI_1+pH.1_1:AI_1+Clay_1:AI_1+
-                                 C_N.1_1:AI_1+PO43.1_1:AI_1+BB_1:AI_1+FB_1:AI_1+
-                                 E2.E3.1_1:AI_1, data = my_data.1)  
-summary(respiration.full.linear.I)
-Anova(respiration.full.linear.I)
-qqnorm(residuals(respiration.full.linear.I))
-scatter.smooth(residuals(respiration.full.linear.I) ~ fitted(respiration.full.linear.I))
-
-# Full model A  linear interactions ####
-
-respiration.full.linear.Ia = lm(Respiration_1 ~ Soil_Temp.1_1:AI_1+
-                                  Water_content.1_1:AI_1+
-                                  C_N.1_1:AI_1+PO43.1_1:AI_1+BB_1:AI_1+FB_1:AI_1+
-                                  E2.E3.1_1:AI_1, data = my_data.1)
-summary(respiration.full.linear.Ia)
-Anova(respiration.full.linear.Ia)
-qqnorm(residuals(respiration.full.linear.Ia))
-scatter.smooth(residuals(respiration.full.linear.Ia) ~ fitted(respiration.full.linear.Ia))
