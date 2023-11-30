@@ -1,6 +1,26 @@
 
 # Reference paper: https://bsssjournals.onlinelibrary.wiley.com/doi/epdf/10.1111/ejss.13419
 
+## SP gradient-----------
+rm(list = ls())
+
+# LOAD LIBRARY ----
+library("ggplot2")
+library("scales")
+library("tidyr")
+library("dplyr")
+library("ggpmisc")
+library("ggpubr")
+library("plotly")
+library(plyr)
+library(RColorBrewer)
+library(devtools)
+# install_github("vqv/ggbiplot")
+library(ggbiplot)
+library(vegan)
+library(FSA)
+library(rcompanion)
+
 # New Liner mixed model ####
 library(lme4)
 library(car)
