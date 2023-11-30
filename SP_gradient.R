@@ -51,6 +51,18 @@ duindepe <- my_data[,c(5:7,76,8:10,12:13,17:23,27:30,33:34,79:92)]
 depe <- my_data[,c(35,37:38,40:64)]
 
 
+#Functional dependent vars ....
+# MICROBIAL BIOMASSES (aggregated)
+# RESPIRATION
+# EEA (aggregated)
+func <- my_data[,c(2,40,41,46:53,64)]
+
+func <-func %>%
+  mutate(Cenz = select(., 4:7) %>% rowSums(na.rm = TRUE)) %>% 
+  mutate(MB = select(.,2:3) %>% rowSums(na.rm = TRUE))
+func <- func[,-c(2:7)]
+
+
 
 # IMPORT FUNCTIONS ----
 # > DATA SUMMARY (SD) ----
@@ -2645,6 +2657,156 @@ adonis2(per.dist ~ Site, data = perma_data2_trans, permutations = 10000, method=
 
 
 # . ----
+# PCA with FUNCTIONAL explan. vars. ----
+
+pca_data <- func %>%
+  group_by(Site) %>%
+  summarise_all("mean")
+
+site_order <- my_data[,c(2,7)] 
+site_order <- site_order[!duplicated(site_order), ] #Erase duplicated lines from dataframe
+pca_data <- pca_data[order(site_order$AI, decreasing = T),]
+pca_data$Site <- factor(pca_data$Site, levels = c("SP08","SP01","SP02","SP07", "SP06" ,"SP03" ,"SP12", "SP11" ,"SP04", "SP09", "SP10" ,"SP05"))
+
+pcr2 <- pca_data[,c(-1)]
+
+
+#Select column with levels (Site)
+site <- factor(pca_data$Site, levels = pca_data$Site)
+site
+
+pc <- prcomp(na.omit(pcr2), center = TRUE,
+             scale. = TRUE) 
+
+# 
+# loadings <- pc$rotation
+# 
+scores = as.data.frame(pc$x)
+scores$AI <- site_order$AI
+scores$Site <- site_order$Site
+# 
+# 
+# 
+# p5 <- ggplot()+
+#   geom_point(data = scores, aes(x = PC1, y = PC2, size=4, color=AI))+
+#   geom_text(aes(scores$PC1, scores$PC2,label = scores$Site), size = 3, hjust = 1.7) +
+#   scale_color_AI(discrete = FALSE, palette = "Sites")+
+#   plot.theme1+
+#   ggtitle("PCoA") +
+#   guides(size = "none")
+# 
+# grid.arrange(p5,ncol=1)
+
+
+
+
+pca_data$AI <- site_order$AI
+
+scores = as.data.frame(scale(pc$x))
+scores$AI <- site_order$AI
+scores$Site <- site_order$Site
+
+autoplot(pc, data=pca_data, 
+         loadings = TRUE, loadings.colour = 'brown',
+         loadings.label.colour='brown', loadings.label = TRUE,
+         loadings.label.size = 7,
+         loadings.label.repel=TRUE,
+         color = pca_data$AI)+
+  plot.theme1+
+  geom_point(aes(fill=AI), colour= "black", pch=21, size = 5)+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  ggtitle("Functional response variables")+
+  geom_text(aes(label = scores$Site), size = 4, hjust = 1.5) +
+  theme(legend.title = element_blank(),
+        legend.text=element_text(size = 12),
+        title = element_text(size = 15,face="bold"),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=15, face="plain"))+
+  scale_x_continuous(expand = c(0.1, 0.1))
+
+# ggsave(path = "Figures/1 GRADIENT","PCA_func_response_means.png", width = 10, height = 8, dpi = 300)
+
+
+
+
+
+# PCA with FUNCTIONAL AGGREGATED explan. vars. ----
+
+func <-func %>%
+  mutate(Cenz = select(., 4:7) %>% rowSums(na.rm = TRUE)) %>% 
+  mutate(MB = select(.,2:3) %>% rowSums(na.rm = TRUE))
+func <- func[,-c(2:7)]
+
+pca_data <- func %>%
+  group_by(Site) %>%
+  summarise_all("mean")
+
+site_order <- my_data[,c(2,7)] 
+site_order <- site_order[!duplicated(site_order), ] #Erase duplicated lines from dataframe
+pca_data <- pca_data[order(site_order$AI, decreasing = T),]
+pca_data$Site <- factor(pca_data$Site, levels = c("SP08","SP01","SP02","SP07", "SP06" ,"SP03" ,"SP12", "SP11" ,"SP04", "SP09", "SP10" ,"SP05"))
+
+pcr2 <- pca_data[,c(-1)]
+
+
+#Select column with levels (Site)
+site <- factor(pca_data$Site, levels = pca_data$Site)
+site
+
+pc <- prcomp(na.omit(pcr2), center = TRUE,
+             scale. = TRUE) 
+
+# 
+# loadings <- pc$rotation
+# 
+scores = as.data.frame(pc$x)
+scores$AI <- site_order$AI
+scores$Site <- site_order$Site
+# 
+# 
+# 
+# p5 <- ggplot()+
+#   geom_point(data = scores, aes(x = PC1, y = PC2, size=4, color=AI))+
+#   geom_text(aes(scores$PC1, scores$PC2,label = scores$Site), size = 3, hjust = 1.7) +
+#   scale_color_AI(discrete = FALSE, palette = "Sites")+
+#   plot.theme1+
+#   ggtitle("PCoA") +
+#   guides(size = "none")
+# 
+# grid.arrange(p5,ncol=1)
+
+
+
+
+pca_data$AI <- site_order$AI
+
+scores = as.data.frame(scale(pc$x))
+scores$AI <- site_order$AI
+scores$Site <- site_order$Site
+
+autoplot(pc, data=pca_data, 
+         loadings = TRUE, loadings.colour = 'brown',
+         loadings.label.colour='brown', loadings.label = TRUE,
+         loadings.label.size = 7,
+         loadings.label.repel=TRUE,
+         color = pca_data$AI)+
+  plot.theme1+
+  geom_point(aes(fill=AI), colour= "black", pch=21, size = 5)+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  ggtitle("Functional response variables")+
+  geom_text(aes(label = scores$Site), size = 4, hjust = 1.5) +
+  theme(legend.title = element_blank(),
+        legend.text=element_text(size = 12),
+        title = element_text(size = 15,face="bold"),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=15, face="plain"))+
+  scale_x_continuous(expand = c(0.1, 0.1))
+
+# ggsave(path = "Figures/1 GRADIENT","PCA_func_response_means.png", width = 10, height = 8, dpi = 300)
+
+
+
+
 # PCA with all explanatory variables ----
 
 #Selecting variables:
