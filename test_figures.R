@@ -239,7 +239,7 @@ ggplot(my_data, aes(x=as.factor(AI), y=cbh, fill=as.factor(AI))) +
   geom_boxplot(alpha=0.7)
 plot(my_data$AI,my_data$cbh)
 
-# alpha
+# alpha ####
 
 # Full model interactions ####
 
@@ -320,3 +320,24 @@ domin(alpha ~ 1,
       data = my_data.1, 
       sets = list("L_TC","L_TC:AI","BB","BB:AI"), 
       consmodel = "(1|Site)")
+
+# beta ####
+
+# Full model interactions ####
+
+beta.full.I = lmer(beta ~ altitude+(TOC+ShannonEEA+Silt+Clay+L_TC+
+                                        L_TN+BB+FB+BIX+Soil_Temp+
+                                        Water_content+pH+PO43+Litter+
+                                        SR+E2.E3+FI+HIX+Peak_A+
+                                        Peak_T)*AI + (1|Site), data = my_data.1)                                         
+isSingular(beta.full.I, tol = 1e-4)
+
+
+summary(beta.full.I)
+Anova(beta.full.I)
+cAIC(beta.full.I)
+AIC(beta.full.I)
+r.squaredGLMM(beta.full.I)
+
+qqnorm(residuals(beta.full.I))
+scatter.smooth(residuals(beta.full.I) ~ fitted(beta.full.I))
