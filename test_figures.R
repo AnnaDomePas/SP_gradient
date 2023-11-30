@@ -25,6 +25,9 @@ library(rcompanion)
 library(lme4)
 library(car)
 library(MuMIn)
+library(cAIC4)
+library(domir)
+library(MuMIn)
 
 my_data         = read.csv("SP_metadata_2021.csv", sep=";")
 
@@ -230,9 +233,6 @@ qqnorm(residuals(respiration.full.III))
 scatter.smooth(residuals(respiration.full.III) ~ fitted(respiration.full.III))
 
 # Importance assessment ####
-
-library(domir)
-library(MuMIn)
 
 domin(Respiration ~ 1, 
       lmer, 
