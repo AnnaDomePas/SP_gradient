@@ -187,7 +187,7 @@ corr            = as.data.frame(cor(my_data.1[,8:37]))
 
 # Full model interactions ####
 
-respiration.full.I = lmer(Respiration ~ altitude+(TOC+ShannonEEA+Silt+Clay+L_TC+
+respiration.full.I = lmer(Respiration ~ altitude+(TOC+Silt+Clay+L_TC+
                                                     L_TN+BB+FB+BIX+Soil_Temp+
                                                     Water_content+pH+PO43+Litter+
                                                     SR+E2.E3+FI+HIX+Peak_A+
@@ -263,7 +263,7 @@ plot(my_data$AI,my_data$cbh)
 
 # Full model interactions ####
 
-alpha.full.I = lmer(alpha ~ altitude+(TOC+ShannonEEA+Silt+Clay+L_TC+
+alpha.full.I = lmer(alpha ~ altitude+(TOC+Silt+Clay+L_TC+
                                                     L_TN+BB+FB+BIX+Soil_Temp+
                                                     Water_content+pH+PO43+Litter+
                                                     SR+E2.E3+FI+HIX+Peak_A+
@@ -345,7 +345,7 @@ domin(alpha ~ 1,
 
 # Full model interactions ####
 
-beta.full.I = lmer(beta ~ altitude+(TOC+ShannonEEA+Silt+Clay+L_TC+
+beta.full.I = lmer(beta ~ altitude+(TOC+Silt+Clay+L_TC+
                                         L_TN+BB+FB+BIX+Soil_Temp+
                                         Water_content+pH+PO43+Litter+
                                         SR+E2.E3+FI+HIX+Peak_A+
@@ -361,3 +361,32 @@ r.squaredGLMM(beta.full.I)
 
 qqnorm(residuals(beta.full.I))
 scatter.smooth(residuals(beta.full.I) ~ fitted(beta.full.I))
+
+# Full model interactions ####
+
+beta.full.II = lmer(beta ~(L_TC+BB+Soil_Temp+HIX)*AI + (1|Site), data = my_data.1)                                         
+isSingular(beta.full.I, tol = 1e-4)
+
+
+summary(beta.full.II)
+Anova(beta.full.II)
+cAIC(beta.full.II)
+AIC(beta.full.II)
+r.squaredGLMM(beta.full.II)
+
+qqnorm(residuals(beta.full.I))
+scatter.smooth(residuals(beta.full.I) ~ fitted(beta.full.I))
+
+# Full model interactions ####
+
+beta.full.III = lmer((beta) ~L_TC+BB+HIX+(Soil_Temp)*AI + (1|Site), data = my_data.1)                                         
+isSingular(beta.full.I, tol = 1e-4)
+
+summary(beta.full.III)
+Anova(beta.full.III)
+cAIC(beta.full.III)
+AIC(beta.full.III)
+r.squaredGLMM(beta.full.III)
+
+qqnorm(residuals(beta.full.III))
+scatter.smooth(residuals(beta.full.III) ~ fitted(beta.full.III))
