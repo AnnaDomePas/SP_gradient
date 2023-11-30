@@ -146,88 +146,177 @@ ggplot(my_data, aes(x=as.factor(AI), y=HIX, fill=as.factor(AI))) +
 plot(my_data$AI,my_data$HIX)
 
 # Data normalization ####
+# We are normalizing all the variables to use the coefficients to assess the
+# importance of the variables for the model
 
-my_data          = my_data %>% mutate(C_N.1 = C_N/max(C_N)) %>% mutate(NH4.1 = NH4/max(NH4)) %>%
-  mutate(PO43.1 = PO43/max(PO43)) %>% mutate(SO42.1 = SO42/max(SO42)) %>% 
-  mutate(Litter.1 = Litter/max(Litter)) %>% mutate(HIX.1 = HIX/max(HIX)) %>% 
-  mutate(E2.E3.1 = E2.E3/max(E2.E3)) %>% mutate(X16S.1 = X16S/max(X16S)) %>% 
-  mutate(ITS2.1 = ITS2/max(ITS2)) %>% mutate(altitude.1 = altitude/max(altitude)) %>%
-  mutate(Water_content.1 = Water_content/max(Water_content)) %>% mutate(Soil_Temp.1 = Soil_Temp/max(Soil_Temp)) %>%
-  mutate(pH.1 = pH/max(pH))
-a                = as.data.frame(colnames(my_data))
+a               = as.data.frame(colnames(my_data))
+max_values      = apply(my_data[,c(8,10,13,20,22,30,76,81,82,83,85,92)],2,max)
+my_data.1       = as.data.frame(cbind(my_data[,c(2,64,46,47,48,49,7,9,17,18,19,27,28,29,33,34,40,41,86,87,88,89,90,91,74)],
+                                      my_data[,c(8,10,13,20,22,30,76,81,82,83,85,92)] / as.list(max_values)))
+a.1             = as.data.frame(colnames(my_data.1))
+
+corr            = as.data.frame(cor(my_data.1[,8:37]))
+
+# Parameters correlated: Water activity-water content; TOC-TN,FB,BB,TC;
+# Sand-silt,clay; Peak_A-Peak_M, Peak_C; Peak_T-Peak_B; E2.E3-E3.E4
 
 # Respiration ####
 
 # Full model interactions ####
 
-respiration.full.I = lmer(Respiration ~ altitude.1+(Soil_Temp.1+Water_content.1+
-                                           pH.1+Silt+Clay+C_N.1+TOC+TC+TN+PO43.1+
-                                           Litter.1+L_TC+L_TN+BB+FB+ShannonEEA+
-                                           SR+E2.E3.1+Peak_A+HIX.1+FI)*AI + (1|Site), data = my_data)                                         
+respiration.full.I = lmer(Respiration ~ altitude+(TOC+ShannonEEA+Silt+Clay+L_TC+
+                                                    L_TN+BB+FB+BIX+Soil_Temp+
+                                                    Water_content+pH+PO43+Litter+
+                                                    SR+E2.E3+FI+HIX+Peak_A+
+                                                    Peak_T)*AI + (1|Site), data = my_data.1)                                         
    
 summary(respiration.full.I)
 Anova(respiration.full.I)
+cAIC(respiration.full.I)
 AIC(respiration.full.I)
 r.squaredGLMM(respiration.full.I)
 
 qqnorm(residuals(respiration.full.I))
 scatter.smooth(residuals(respiration.full.I) ~ fitted(respiration.full.I))
 
-# Full model A  interactions ####
+# Full model II  interactions ####
 
-respiration.full.Ia = lmer(Respiration ~ altitude.1+(Soil_Temp.1+Water_content.1+
-                                           pH.1+Clay+C_N.1+PO43.1+
-                                           Litter.1+BB+FB+
-                                           E2.E3.1)*AI + (1|Site), data = my_data)
-summary(respiration.full.Ia)
-Anova(respiration.full.Ia)
-AIC(respiration.full.Ia)
-r.squaredGLMM(respiration.full.Ia)
+respiration.full.II = lmer(Respiration ~ altitude+(Silt+Clay+L_TC+
+                                                     BB+TOC+L_TN+
+                                                     Water_content+
+                                                     SR+FI)*AI + (1|Site), data = my_data.1)                                         
 
-qqnorm(residuals(respiration.full.Ia))
-scatter.smooth(residuals(respiration.full.Ia) ~ fitted(respiration.full.Ia))
+summary(respiration.full.II)
+Anova(respiration.full.II)
+cAIC(respiration.full.II)
+AIC(respiration.full.II)
+r.squaredGLMM(respiration.full.II)
 
-# Simplified 1 interactions ####
+qqnorm(residuals(respiration.full.II))
+scatter.smooth(residuals(respiration.full.II) ~ fitted(respiration.full.II))
 
-respiration.1.I = lmer(Respiration ~ (Clay+Water_content.1+E2.E3.1+FB)*AI + (1|Site), data = my_data)
-summary(respiration.1.I)
-Anova(respiration.1.I)
-AIC(respiration.1.I)
-r.squaredGLMM(respiration.1.I)
+# Full model III  interactions ####
 
-qqnorm(residuals(respiration.1.I))
-scatter.smooth(residuals(respiration.1.I) ~ fitted(respiration.1.I))
+respiration.full.III = lmer(Respiration ~ altitude+Water_content+Silt+Clay+Silt:AI+
+                              Clay:AI+SR:AI+(1|Site), data = my_data.1)                                         
 
-# Simplified 2 interactions ####
+summary(respiration.full.III)
+Anova(respiration.full.III)
+cAIC(respiration.full.III)
+AIC(respiration.full.III)
+r.squaredGLMM(respiration.full.III)
 
-respiration.2.I = lmer(Respiration ~ (Clay+Water_content.1+pH.1)*AI + (1|Site), data = my_data)
-summary(respiration.2.I)
-Anova(respiration.2.I)
-AIC(respiration.2.I)
-r.squaredGLMM(respiration.2.I)
+qqnorm(residuals(respiration.full.III))
+scatter.smooth(residuals(respiration.full.III) ~ fitted(respiration.full.III))
 
-qqnorm(residuals(respiration.2.I))
-scatter.smooth(residuals(respiration.2.I) ~ fitted(respiration.2.I))
+# Importance assessment ####
 
-# Simplified 3 interactions ####
+library(domir)
+library(MuMIn)
 
-respiration.3.I = lmer(Respiration ~ (Clay+Water_content.1)*AI + (1|Site), data = my_data)
-summary(respiration.3.I)
-Anova(respiration.3.I)
-AIC(respiration.3.I)
-r.squaredGLMM(respiration.3.I)
+domin(Respiration ~ 1, 
+      lmer, 
+      list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+      data = my_data.1, 
+      sets = list("altitude","Water_content","Silt","Silt:AI","Clay","Clay:AI","SR:AI"), 
+      consmodel = "(1|Site)")
 
-qqnorm(residuals(respiration.3.I))
-scatter.smooth(residuals(respiration.3.I) ~ fitted(respiration.3.I))
+# Enzymes ####
 
-# Simplified 4 interactions ####
+ggplot(my_data, aes(x=as.factor(AI), y=alpha, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$alpha)
 
-respiration.4.I = lmer(Respiration ~ (Clay)*AI + (1|Site), data = my_data)
-summary(respiration.4.I)
-Anova(respiration.4.I)
-AIC(respiration.4.I)
-r.squaredGLMM(respiration.4.I)
+ggplot(my_data, aes(x=as.factor(AI), y=beta, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$beta)
 
-qqnorm(residuals(respiration.4.I))
-scatter.smooth(residuals(respiration.4.I) ~ fitted(respiration.4.I))
+ggplot(my_data, aes(x=as.factor(AI), y=xyl, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$xyl)
 
+ggplot(my_data, aes(x=as.factor(AI), y=cbh, fill=as.factor(AI))) +
+  geom_boxplot(alpha=0.7)
+plot(my_data$AI,my_data$cbh)
+
+# alpha
+
+# Full model interactions ####
+
+alpha.full.I = lmer(alpha ~ altitude+(TOC+ShannonEEA+Silt+Clay+L_TC+
+                                                    L_TN+BB+FB+BIX+Soil_Temp+
+                                                    Water_content+pH+PO43+Litter+
+                                                    SR+E2.E3+FI+HIX+Peak_A+
+                                                   Peak_T)*AI + (1|Site), data = my_data.1)                                         
+isSingular(alpha.full.I, tol = 1e-4)
+
+
+summary(alpha.full.I)
+Anova(alpha.full.I)
+cAIC(alpha.full.I)
+AIC(alpha.full.I)
+r.squaredGLMM(alpha.full.I)
+
+qqnorm(residuals(alpha.full.I))
+scatter.smooth(residuals(alpha.full.I) ~ fitted(alpha.full.I))
+
+# Full model interactions II ####
+
+alpha.full.II = lmer(alpha ~ (TOC+Clay+L_TC+L_TN+BB+BIX+Soil_Temp+Water_content+pH+PO43+
+                                        SR+FI)*AI + (1|Site), data = my_data.1)                                         
+
+summary(alpha.full.II)
+Anova(alpha.full.II)
+cAIC(alpha.full.II)
+AIC(alpha.full.II)
+r.squaredGLMM(alpha.full.II)
+
+qqnorm(residuals(alpha.full.II))
+scatter.smooth(residuals(alpha.full.II) ~ fitted(alpha.full.II))
+
+# Full model interactions III ####
+
+alpha.full.III = lmer(alpha ~ L_TC+L_TC:AI+L_TN:AI+BB+BB:AI+FI+AI + 
+                        (1|Site), data = my_data.1) 
+
+summary(alpha.full.III)
+Anova(alpha.full.III)
+cAIC(alpha.full.III)
+AIC(alpha.full.III)
+r.squaredGLMM(alpha.full.III)
+
+qqnorm(residuals(alpha.full.III))
+scatter.smooth(residuals(alpha.full.III) ~ fitted(alpha.full.III))
+
+# Full model interactions 4 ####
+
+alpha.full.4 = lmer(alpha ~ L_TC+L_TC:AI+BB+BB:AI+(1|Site), data = my_data.1) 
+
+summary(alpha.full.4)
+Anova(alpha.full.4)
+cAIC(alpha.full.4)
+AIC(alpha.full.4)
+r.squaredGLMM(alpha.full.4)
+
+qqnorm(residuals(alpha.full.4))
+scatter.smooth(residuals(alpha.full.4) ~ fitted(alpha.full.4))
+
+# Full model interactions 4 ####
+
+alpha.full.4 = lmer(alpha ~ L_TC+L_TC:AI+BB+BB:AI+(1|Site), data = my_data.1) 
+
+summary(alpha.full.4)
+Anova(alpha.full.4)
+cAIC(alpha.full.4)
+AIC(alpha.full.4)
+r.squaredGLMM(alpha.full.4)
+
+qqnorm(residuals(alpha.full.4))
+scatter.smooth(residuals(alpha.full.4) ~ fitted(alpha.full.4))
+
+domin(alpha ~ 1, 
+      lmer, 
+      list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+      data = my_data.1, 
+      sets = list("L_TC","L_TC:AI","BB","BB:AI"), 
+      consmodel = "(1|Site)")
