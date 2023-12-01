@@ -850,39 +850,53 @@ scatter.smooth(residuals(Cenz.full.I) ~ fitted(Cenz.full.I))
 
 # Full model II interactions ####
 
-Cenz.full.II = lmer(Cenz ~ ()*AI + (1|Site), data = my_data.1)                                         
+Cenz.full.II = lmer(Cenz ~ (L_TC+BB+Soil_Temp+HIX)*AI + (1|Site), data = my_data.1)                                         
 isSingular(Cenz.full.II, tol = 1e-4)
 
-summary(phe.full.II)
-Anova(phe.full.II)
-cAIC(phe.full.II)
-AIC(phe.full.II)
-r.squaredGLMM(phe.full.II)
+summary(Cenz.full.II)
+Anova(Cenz.full.II)
+cAIC(Cenz.full.II)
+AIC(Cenz.full.II)
+r.squaredGLMM(Cenz.full.II)
 
-qqnorm(residuals(phe.full.II))
-scatter.smooth(residuals(phe.full.II) ~ fitted(phe.full.II))
+qqnorm(residuals(Cenz.full.II))
+scatter.smooth(residuals(Cenz.full.II) ~ fitted(Cenz.full.II))
 
 # Full model III interactions ####
 
-phe.full.III = lmer(phe ~ L_TC + pH + AI + L_TC:AI + (1|Site), data = my_data.1)                                         
-isSingular(phe.full.III, tol = 1e-4)
+Cenz.full.III = lmer(Cenz ~ BB+Soil_Temp+HIX+Soil_Temp:AI + (1|Site), data = my_data.1)                                         
+isSingular(Cenz.full.III, tol = 1e-4)
 
-summary(phe.full.III)
-Anova(phe.full.III)
-cAIC(phe.full.III)
-AIC(phe.full.III)
-r.squaredGLMM(phe.full.III)
+summary(Cenz.full.III)
+Anova(Cenz.full.III)
+cAIC(Cenz.full.III)
+AIC(Cenz.full.III)
+r.squaredGLMM(Cenz.full.III)
 
-qqnorm(residuals(phe.full.III))
-scatter.smooth(residuals(phe.full.III) ~ fitted(phe.full.III))
+qqnorm(residuals(Cenz.full.III))
+scatter.smooth(residuals(Cenz.full.III) ~ fitted(Cenz.full.III))
+
+# Full model 4 interactions ####
+
+Cenz.full.4 = lmer(Cenz ~ Soil_Temp+HIX + (1|Site), data = my_data.1)                                         
+isSingular(Cenz.full.4, tol = 1e-4)
+
+summary(Cenz.full.4)
+Anova(Cenz.full.4)
+cAIC(Cenz.full.4)
+AIC(Cenz.full.4)
+r.squaredGLMM(Cenz.full.4)
+
+qqnorm(residuals(Cenz.full.4))
+scatter.smooth(residuals(Cenz.full.4) ~ fitted(Cenz.full.4))
 
 # Importance assessment ####
 
-domin(phe ~ 1, 
+domin(Cenz ~ 1, 
       lmer, 
       list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
       data = my_data.1, 
-      sets = list("L_TC","pH","AI","L_TC:AI"), 
+      sets = list("Soil_Temp","HIX"), 
       consmodel = "(1|Site)")
 
 # BB ####
@@ -1040,4 +1054,82 @@ domin(FB ~ 1,
       list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
       data = my_data.1, 
       sets = list("TOC","Clay","Water_content","SR","Peak_A","AI"), 
+      consmodel = "(1|Site)")
+
+# MB ####
+
+# Full model interactions ####
+
+MB.full.I = lmer(MB ~ altitude+(TOC+Silt+Clay+L_TC+NH4+SO42+
+                                  L_TN+BIX+Soil_Temp+
+                                  Water_content+pH+PO43+Litter+
+                                  SR+E2.E3+FI+HIX+Peak_A+
+                                  Peak_T)*AI + (1|Site), data = my_data.1)                                         
+isSingular(MB.full.I, tol = 1e-4)
+
+
+summary(MB.full.I)
+Anova(MB.full.I)
+cAIC(MB.full.I)
+AIC(MB.full.I)
+r.squaredGLMM(MB.full.I)
+
+qqnorm(residuals(MB.full.I))
+scatter.smooth(residuals(MB.full.I) ~ fitted(MB.full.I))
+
+# Full model II interactions ####
+
+MB.full.II = lmer(MB ~ (TOC+Clay+NH4+SO42+Water_content+PO43+Litter+SR+FI+
+                          Peak_A)*AI + (1|Site), data = my_data.1)                                         
+isSingular(MB.full.II, tol = 1e-4)
+
+
+summary(MB.full.II)
+Anova(MB.full.II)
+cAIC(MB.full.II)
+AIC(MB.full.II)
+r.squaredGLMM(MB.full.II)
+
+qqnorm(residuals(MB.full.II))
+scatter.smooth(residuals(MB.full.II) ~ fitted(MB.full.II))
+
+# Full model III interactions ####
+
+MB.full.III = lmer(MB ~ TOC+Clay+NH4+Water_content+PO43+SR+FI+Peak_A+AI+
+                     TOC:AI+SO42:AI+PO43:AI+SR:AI+Peak_A:AI+(1|Site), data = my_data.1)                                         
+isSingular(MB.full.III, tol = 1e-4)
+
+
+summary(MB.full.III)
+Anova(MB.full.III)
+cAIC(MB.full.III)
+AIC(MB.full.III)
+r.squaredGLMM(MB.full.III)
+
+qqnorm(residuals(MB.full.III))
+scatter.smooth(residuals(MB.full.III) ~ fitted(MB.full.III))
+
+# Full model 4 interactions ####
+
+MB.full.4 = lmer(MB ~ TOC+Clay+Water_content+SR+Peak_A+AI+
+                     (1|Site), data = my_data.1)                                         
+isSingular(MB.full.4, tol = 1e-4)
+
+
+summary(MB.full.4)
+Anova(MB.full.4)
+cAIC(MB.full.4)
+AIC(MB.full.4)
+r.squaredGLMM(MB.full.4)
+
+qqnorm(residuals(MB.full.4))
+scatter.smooth(residuals(MB.full.4) ~ fitted(MB.full.4))
+
+# Importance assessment ####
+
+domin(MB ~ 1, 
+      lmer, 
+      list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+      data = my_data.1, 
+      sets = list("TOC","Clay","Water_content","SR","AI","Peak_A"), 
       consmodel = "(1|Site)")
