@@ -24,10 +24,10 @@ library(rcompanion)
 # New Liner mixed model ####
 library(lme4)
 library(car)
+remotes::install_version("MuMIn", "1.46.0")
 library(MuMIn)
 library(cAIC4)
 library(domir)
-library(MuMIn)
 
 my_data         = read.csv("SP_metadata_2021.csv", sep=";")
 
@@ -182,6 +182,19 @@ corr            = as.data.frame(cor(my_data.1[,12:43]))
 
 # Parameters correlated: Water activity-water content; TOC-TN,FB,BB,TC;
 # Sand-silt,clay; Peak_A-Peak_M, Peak_C; Peak_T-Peak_B; E2.E3-E3.E4
+
+
+my_data.1 <-my_data.1 %>%
+  mutate(Cenz = select(., 3:6) %>% rowSums(na.rm = TRUE)) %>% 
+  mutate(MB = select(.,21:22) %>% rowSums(na.rm = TRUE))
+
+
+#1rst. Full model
+#2nd. Remove variables with Estimates <0.1 --> full model II
+#3rd. Remove variables with p-val no sig. --> full model III
+#(Repeat 3 until everything is sig.)
+#(Keep checking AIC and R2)
+
 
 # Respiration ####
 
@@ -780,6 +793,65 @@ scatter.smooth(residuals(phe.full.I) ~ fitted(phe.full.I))
 
 phe.full.II = lmer(phe ~ (L_TC+pH+FB+FI)*AI + (1|Site), data = my_data.1)                                         
 isSingular(phe.full.II, tol = 1e-4)
+
+summary(phe.full.II)
+Anova(phe.full.II)
+cAIC(phe.full.II)
+AIC(phe.full.II)
+r.squaredGLMM(phe.full.II)
+
+qqnorm(residuals(phe.full.II))
+scatter.smooth(residuals(phe.full.II) ~ fitted(phe.full.II))
+
+# Full model III interactions ####
+
+phe.full.III = lmer(phe ~ L_TC + pH + AI + L_TC:AI + (1|Site), data = my_data.1)                                         
+isSingular(phe.full.III, tol = 1e-4)
+
+summary(phe.full.III)
+Anova(phe.full.III)
+cAIC(phe.full.III)
+AIC(phe.full.III)
+r.squaredGLMM(phe.full.III)
+
+qqnorm(residuals(phe.full.III))
+scatter.smooth(residuals(phe.full.III) ~ fitted(phe.full.III))
+
+# Importance assessment ####
+
+domin(phe ~ 1, 
+      lmer, 
+      list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+      data = my_data.1, 
+      sets = list("L_TC","pH","AI","L_TC:AI"), 
+      consmodel = "(1|Site)")
+
+
+# Carbon enzymes ####
+
+# Full model interactions ####
+
+Cenz.full.I = lmer(Cenz ~ altitude+(TOC+Silt+Clay+L_TC+NH4+SO42+
+                                    L_TN+BB+FB+BIX+Soil_Temp+
+                                    Water_content+pH+PO43+Litter+
+                                    SR+E2.E3+FI+HIX+Peak_A+
+                                    Peak_T)*AI + (1|Site), data = my_data.1)                                         
+isSingular(Cenz.full.I, tol = 1e-4)
+
+
+summary(Cenz.full.I)
+Anova(Cenz.full.I)
+cAIC(Cenz.full.I)
+AIC(Cenz.full.I)
+r.squaredGLMM(Cenz.full.I)
+
+qqnorm(residuals(Cenz.full.I))
+scatter.smooth(residuals(Cenz.full.I) ~ fitted(Cenz.full.I))
+
+# Full model II interactions ####
+
+Cenz.full.II = lmer(Cenz ~ ()*AI + (1|Site), data = my_data.1)                                         
+isSingular(Cenz.full.II, tol = 1e-4)
 
 summary(phe.full.II)
 Anova(phe.full.II)

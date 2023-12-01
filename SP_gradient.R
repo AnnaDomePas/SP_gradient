@@ -57,10 +57,10 @@ depe <- my_data[,c(35,37:38,40:64)]
 # EEA (aggregated)
 func <- my_data[,c(2,40,41,46:53,64)]
 
-func <-func %>%
+func_ag <-func %>%
   mutate(Cenz = select(., 4:7) %>% rowSums(na.rm = TRUE)) %>% 
   mutate(MB = select(.,2:3) %>% rowSums(na.rm = TRUE))
-func <- func[,-c(2:7)]
+func_ag <- func_ag[,-c(2:7)]
 
 
 
