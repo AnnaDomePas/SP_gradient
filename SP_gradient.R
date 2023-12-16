@@ -2724,7 +2724,7 @@ autoplot(pc, data=pca_data,
         axis.title=element_text(size=15, face="plain"))+
   scale_x_continuous(expand = c(0.1, 0.1))
 
-# ggsave(path = "Figures/1 GRADIENT","PCA_func_response_means.png", width = 10, height = 8, dpi = 300)
+ggsave(path = "Figures/1 GRADIENT","PCA_func_response_means.png", width = 10, height = 8, dpi = 300)
 
 
 
