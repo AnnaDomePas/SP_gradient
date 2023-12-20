@@ -31,6 +31,10 @@ library(domir)
 
 my_data         = read.csv("SP_metadata_2021.csv", sep=";")
 
+my_data$LTC_LTN <- my_data$L_TC/my_data$L_TN
+my_data$xylcbh <- my_data$xyl + my_data$cbh
+my_data$alphabeta <- my_data$alpha + my_data$beta
+
 #To replace NA values with a mean of the other values of the Site:
 for (i in which(sapply(my_data, is.numeric))) {
   for (j in which(is.na(my_data[, i]))) {
