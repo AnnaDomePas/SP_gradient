@@ -24,7 +24,7 @@ library(rcompanion)
 # New Liner mixed model ####
 library(lme4)
 library(car)
-remotes::install_version("MuMIn", "1.46.0")
+# remotes::install_version("MuMIn", "1.46.0")
 library(MuMIn)
 library(cAIC4)
 library(domir)
@@ -1137,3 +1137,99 @@ domin(MB ~ 1,
       data = my_data.1, 
       sets = list("TOC","Clay","Water_content","SR","AI","Peak_A"), 
       consmodel = "(1|Site)")
+
+
+
+
+# Parameter ranking plots ----
+
+# # MB
+# # Your dominance statistics
+# dominance_data <- data.frame(
+#   Set = c("TOC", "Clay", "Water_content", "SR", "AI", "Peak_A"),
+#   Dominance_Standardized = c(0.681199839, 0.223002055, 0.073609231, 0.007493872, 0.008105584, 0.006589419),
+#   Ranking = c(1, 2, 3, 5, 4, 6)
+# )
+# 
+# # Create the ggplot
+# ggplot(dominance_data, aes(x = Set, y = Dominance_Standardized, fill = factor(Ranking))) +
+#   geom_bar(stat = "identity", position = "dodge") +
+#   labs(
+#     x = "Predictor Variables",
+#     y = "General Dominance Standardized",
+#     fill = "Ranking"
+#   ) +
+#   scale_fill_discrete(name = "Ranking") +
+#   theme_minimal() +
+#   ggtitle("General Dominance Ranking of Predictor Variables")
+# 
+# 
+# 
+# 
+# 
+# # Create a data frame with the variable names and their coefficients
+# variable_coefs <- data.frame(
+#   Variable = c("TOC", "Clay", "Water_content", "SR", "Peak_A", "AI"),
+#   Estimate = c(61.4248, 6.3390, -6.5492, 1.9986, 0.2496, 1.9616)
+# )
+# 
+# # Plotting
+# ggplot(variable_coefs, aes(x = Variable, y = Estimate)) +
+#   geom_bar(stat = "identity", fill = "grey", color = "black") +
+#   labs(
+#     x = "Predictor Variables",
+#     y = "Estimate"
+#   ) +
+#   coord_flip() +  # Horizontal bars
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+#   geom_text(aes(label = ifelse(Estimate >= 0, round(Estimate, 2), -round(Estimate, 2))),
+#             position = position_dodge(width = 0.9), vjust = ifelse(variable_coefs$Estimate >= 0, 0, 0),
+#             color = "black", hjust = ifelse(variable_coefs$Estimate >= 0, -0.3, 1.2)) +  # Adjust label position
+#   ggtitle("Coefficients for Predictor Variables") +
+#   theme(legend.position = "none")  # Remove the legend
+
+
+
+
+#CHANGE SIGN OF THE DOMINANCE VALUES
+dominance_output <- domin(MB ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("TOC","Clay","Water_content","SR","AI","Peak_A"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+# Extracting General Dominance Standardized Ranks
+general_dominance <- dominance_output$Standardized
+general_dominance_ranks <- dominance_output$Ranks
+
+dominance_data <- data.frame(Standardized = general_dominance)
+dominance_data$Ranks <- general_dominance_ranks
+dominance_data <- dominance_data[order(dominance_data$Ranks), ]
+
+# Extracting estimates from the summary output
+estimates <- summary(MB.full.4)$coefficients[, "Estimate"][-1]  # Exclude intercept
+
+# Automatically aligning signs of General Dominance Standardized Ranks with Estimate values
+aligned_dominance <- sign(estimates) * abs(dominance_data)
+
+components <- data.frame(Variables = c("TOC","Clay","Water_content","SR","AI","Peak_A"))
+
+aligned_dominance <- cbind(aligned_dominance, components)
+
+
+# Plotting
+ggplot(aligned_dominance, aes(x = Standardized, y = Variables)) +
+  geom_bar(stat = "identity", fill = "grey", color = "black") +
+  labs(
+    y = "Predictor Variables",
+    x = "Standardized"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  geom_text(aes(label = ifelse(Standardized >= 0, round(Standardized, 2), -round(Standardized, 2))),
+            position = position_dodge(width = 0.9), vjust = ifelse(aligned_dominance$Standardized >= 0, 0, 0),
+            color = "black", hjust = ifelse(aligned_dominance$Standardized >= 0, -0.3, 1.2)) +  # Adjust label position
+  ggtitle("Coefficients for Predictor Variables") +
+  theme(legend.position = "none")  # Remove the legend
