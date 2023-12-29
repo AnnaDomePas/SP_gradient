@@ -294,6 +294,18 @@ plot(my_data$AI,my_data$phe)
 
 # alpha ####
 
+# Test alpha####
+
+plot(my_data.1$Soil_Temp,my_data.1$alpha)
+plot(my_data.1$Peak_T,my_data.1$alpha)
+
+library(mgcv)
+
+gam_mod = gam(alpha ~ s(BB) + s(as.factor(my_data.1$Site), bs = "re"),data = my_data.1, method = "ML")
+gam.check(gam_mod)
+summary(gam_mod)
+plot(resid(gam_mod)~fitted(gam_mod))
+
 # Full model interactions ####
 
 alpha.full.I = lmer(alpha ~ altitude+(TOC+Silt+Clay+L_TC+NH4+SO42+
