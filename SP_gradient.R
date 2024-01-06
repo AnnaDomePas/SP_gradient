@@ -1649,7 +1649,7 @@ p1 <- ggplot(New_data1, aes(x=AI, y=values, color = Site)) +
 
 p1
 
-ggsave(path = "Figures/1 GRADIENT","SP_fig1_1.png", width = 20, height = 5, dpi = 300)
+# ggsave(path = "Figures/1 GRADIENT","SP_fig1_1.png", width = 20, height = 5, dpi = 300)
 
 
 p2 <- ggplot(New_data2, aes(x=AI, y=values, color = Site)) +
@@ -2860,8 +2860,58 @@ autoplot(pc, data=pca_data,
 
 
 
+# PCA physicochemical selected vars.----
+data <- my_data[,c(2, 7, 76, 13, 18,20:23,28,30,33,34,86,92)]
+for (i in which(sapply(data, is.numeric))) {
+  for (j in which(is.na(data[, i]))) {
+    data[j, i] <- mean(data[data[, "Site"] == data[j, "Site"], i],  na.rm = TRUE)
+  }
+}
+library(dplyr)
+data <- rename(data,
+               CN = C_N,
+               LTC = L_TC,
+               LTN = L_TN,
+               Altitude = altitude)
+
+data2 <- data[,c(-1)]
+
+#By means:
+data_mit <- data %>% 
+  group_by(Site) %>%
+  summarise_all("mean")
+data_mit2 <- data_mit[,-c(1:2)]
+site <- data_mit[,1]
+site <- site$Site
+site <- factor(site, levels = site)
+all <- prcomp(na.omit(data_mit2), center = TRUE,
+              scale. = TRUE) 
+plot(all, type = "l")
+plot(all)
+summary(all)
 
 
+library(ggfortify)
+library(ggplot2)
+
+autoplot(all, data=data_mit2, 
+         loadings = TRUE, loadings.colour = 'brown',
+         loadings.label.colour='brown', loadings.label = TRUE,
+         loadings.label.size = 7,
+         loadings.label.repel=TRUE,
+         color = data_mit$AI)+
+  plot.theme1+
+  geom_point(aes(fill=data_mit$AI), colour= "black", pch=21, size = 5)+
+  scale_fill_AI(discrete = FALSE, palette = "Sites")+
+  ggtitle("Physicochemical variables")+
+  geom_text(aes(label = scores$Site), size = 4, hjust = 1.5) +
+  theme(legend.position="right",
+        legend.title = element_blank(),
+        legend.text=element_text(size = 12),
+        title = element_text(size = 15,face="bold"),
+        axis.text=element_text(size=12),
+        axis.title=element_text(size=15, face="plain"))+
+  scale_x_continuous(expand = c(0.1, 0.1))
 
 
 # _______________________________________ ----
