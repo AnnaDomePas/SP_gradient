@@ -2894,7 +2894,7 @@ summary(all)
 library(ggfortify)
 library(ggplot2)
 
-autoplot(all, data=data_mit2, 
+fsca_pca <-autoplot(all, data=data_mit2, 
          loadings = TRUE, loadings.colour = 'brown',
          loadings.label.colour='brown', loadings.label = TRUE,
          loadings.label.size = 7,
@@ -2912,6 +2912,9 @@ autoplot(all, data=data_mit2,
         axis.text=element_text(size=12),
         axis.title=element_text(size=15, face="plain"))+
   scale_x_continuous(expand = c(0.1, 0.1))
+
+# ggsave(path = "Figures/1 GRADIENT","PCA_fsca_selected.png", width = 10, height = 8, dpi = 300)
+
 
 
 # _______________________________________ ----
