@@ -1649,7 +1649,7 @@ p1 <- ggplot(New_data1, aes(x=AI, y=values, color = Site)) +
 
 p1
 
-# ggsave(path = "Figures/1 GRADIENT","SP_fig1_1.png", width = 20, height = 5, dpi = 300)
+ggsave(path = "Figures/1 GRADIENT","SP_fig1_1.png", width = 20, height = 5, dpi = 300)
 
 
 p2 <- ggplot(New_data2, aes(x=AI, y=values, color = Site)) +
@@ -2705,7 +2705,7 @@ pca_data$AI <- site_order$AI
 scores = as.data.frame(scale(pc$x))
 scores$AI <- site_order$AI
 scores$Site <- site_order$Site
-library(ggfortify)
+
 autoplot(pc, data=pca_data, 
          loadings = TRUE, loadings.colour = 'brown',
          loadings.label.colour='brown', loadings.label = TRUE,
@@ -2860,60 +2860,7 @@ autoplot(pc, data=pca_data,
 
 
 
-# PCA physicochemical selected vars.----
-data <- my_data[,c(2, 7, 76, 13, 18,20:23,28,30,33,34,86,92)]
-for (i in which(sapply(data, is.numeric))) {
-  for (j in which(is.na(data[, i]))) {
-    data[j, i] <- mean(data[data[, "Site"] == data[j, "Site"], i],  na.rm = TRUE)
-  }
-}
-library(dplyr)
-data <- rename(data,
-               CN = C_N,
-               LTC = L_TC,
-               LTN = L_TN,
-               Altitude = altitude)
 
-data2 <- data[,c(-1)]
-
-#By means:
-data_mit <- data %>% 
-  group_by(Site) %>%
-  summarise_all("mean")
-data_mit2 <- data_mit[,-c(1:2)]
-site <- data_mit[,1]
-site <- site$Site
-site <- factor(site, levels = site)
-all <- prcomp(na.omit(data_mit2), center = TRUE,
-              scale. = TRUE) 
-plot(all, type = "l")
-plot(all)
-summary(all)
-
-
-library(ggfortify)
-library(ggplot2)
-
-fsca_pca <-autoplot(all, data=data_mit2, 
-         loadings = TRUE, loadings.colour = 'brown',
-         loadings.label.colour='brown', loadings.label = TRUE,
-         loadings.label.size = 7,
-         loadings.label.repel=TRUE,
-         color = data_mit$AI)+
-  plot.theme1+
-  geom_point(aes(fill=data_mit$AI), colour= "black", pch=21, size = 5)+
-  scale_fill_AI(discrete = FALSE, palette = "Sites")+
-  ggtitle("Physicochemical variables")+
-  geom_text(aes(label = scores$Site), size = 4, hjust = 1.5) +
-  theme(legend.position="right",
-        legend.title = element_blank(),
-        legend.text=element_text(size = 12),
-        title = element_text(size = 15,face="bold"),
-        axis.text=element_text(size=12),
-        axis.title=element_text(size=15, face="plain"))+
-  scale_x_continuous(expand = c(0.1, 0.1))
-
-# ggsave(path = "Figures/1 GRADIENT","PCA_fsca_selected.png", width = 10, height = 8, dpi = 300)
 
 
 
@@ -2957,6 +2904,71 @@ Sites_by_AI <- ggplot(AI_ord, aes(x=Site, y=AI)) +
   scale_y_continuous(breaks = breaks_width(0.2))
 
 Sites_by_AI
+
+Sites_by_AI1 <- ggplot(AI_ord, aes(x=Site, y=AI)) +
+  geom_point(size= 3, color ="black", fill= "gold", pch = 21) +
+  ylab("Aridity Index") +
+  theme(axis.title.x = element_blank())+
+  theme(axis.title.y = element_text(size = 20, face = "bold", colour = "black")) +
+  theme(strip.background =element_rect(fill="light grey")) +
+  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
+  theme(panel.background = element_blank()) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+  theme(axis.text.x = element_text(size = 18, angle = 45, hjust = 1, color = "black", face = "bold"))+
+  theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
+  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+  theme(legend.position = "none")+
+  coord_cartesian(ylim = c(0,1.4))+
+  scale_y_continuous(breaks = breaks_width(0.2))
+
+Sites_by_AI1
+
+# ggsave(path = "Figures/1 GRADIENT","sites_AI_points.png", width = 6, height = 6, dpi = 300)
+
+
+
+Sites_by_AI2 <- ggplot(AI_ord, aes(x=Site, y=AI, fill = Site)) +
+  geom_bar(stat = "identity", color = "black")+
+  scale_fill_AI(discrete = TRUE, palette = "Sites")+
+  ylab("Aridity Index") +
+  theme(axis.title.x = element_blank())+
+  theme(axis.title.y = element_text(size = 20, face = "bold", colour = "black")) +
+  theme(strip.background =element_rect(fill="light grey")) +
+  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
+  theme(panel.background = element_blank()) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+  theme(axis.text.x = element_text(size = 18, angle = 45, hjust = 1, color = "black", face = "bold"))+
+  theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
+  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+  theme(legend.position = "none")+
+  coord_cartesian(ylim = c(0,1.4))+
+  scale_y_continuous(breaks = breaks_width(0.2))
+
+Sites_by_AI2
+
+# ggsave(path = "Figures/1 GRADIENT","sites_AI_bars.png", width = 6, height = 6, dpi = 300)
+
+
+Sites_by_AI3 <- ggplot(AI_ord, aes(x=Site, y=AI)) +
+  geom_bar(stat = "identity", color = "black", fill = "gold")+
+  ylab("Aridity Index") +
+  theme(axis.title.x = element_blank())+
+  theme(axis.title.y = element_text(size = 20, face = "bold", colour = "black")) +
+  theme(strip.background =element_rect(fill="light grey")) +
+  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
+  theme(panel.background = element_blank()) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+  theme(axis.text.x = element_text(size = 18, angle = 45, hjust = 1, color = "black", face = "bold"))+
+  theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
+  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+  theme(legend.position = "none")+
+  coord_cartesian(ylim = c(0,1.4))+
+  scale_y_continuous(breaks = breaks_width(0.2))
+
+Sites_by_AI3
+
+ggsave(path = "Figures/1 GRADIENT","sites_AI_bars2.png", width = 6, height = 6, dpi = 300)
+
 
 
 ## MAT plot ----
