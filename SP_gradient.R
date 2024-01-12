@@ -3365,7 +3365,7 @@ ggsave(path = "Figures/1 GRADIENT", "SP_gas_AI_noSP6.png", width = 16, height = 
 
 
 ## Enzymes ----
-# my_data <- read.csv("SP_metadata_2021.csv", sep=",")
+# my_data <- read.csv("SP_metadata_2021.csv", sep=";")
 # my_data <- read.csv("SP_metadata_2021_SD.csv", sep=",")
 
 New_data <- my_data %>% gather(enzyme, values, c(46:53))
@@ -3412,6 +3412,74 @@ enzyme <- ggplot(New_data, aes(x=AI, y=values, color = AI)) +
   #          p.accuracy = 0.001, r.accuracy = 0.01,
   #          color = "blue", size = 4.5)
 enzyme
+
+
+
+
+# >>> ARTICLE PLOT ----
+New_data <- my_data %>% gather(enzyme, values, c(46:53))
+New_data$enzyme <- factor(New_data$enzyme, levels = c("alpha", "beta", 
+                                                      "xyl", "cbh", 
+                                                      "gla", "fos",
+                                                      "leu","phe" ))
+New_data <- data_summary2(New_data, varname="values", 
+                          groupnames=c("Site","AI", "enzyme"))
+New_data$values = as.numeric(New_data$values)
+enzyme <- ggplot(New_data, aes(x=AI, y=values)) +
+  geom_point(size= 3, shape = 16, color="grey") +
+  geom_pointrange(data=subset(New_data), aes(ymin=values-sem, ymax=values+sem),
+                  color = "black", stroke = 1, size = 0.6, shape = 1) +
+  xlab("Aridity Index") +
+  theme(axis.title.y=element_blank()) +
+  theme(axis.title.x = element_text(size = 20, face = "bold", colour = "black")) +
+  facet_wrap( .~ enzyme , nrow = 2, scales = "free_y", labeller = label_value) +
+  theme(strip.background =element_rect(fill="light grey")) +
+  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
+  theme(panel.background = element_blank()) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+  theme(axis.text.x = element_text(size = 18, angle = 0, color = "black", face = "bold"))+
+  theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
+  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+  theme(legend.position = "right")+
+  coord_cartesian(xlim = c(0,1.4))+
+  scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
+                     labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
+
+enzyme
+
+
+
+ggsave(path = "Figures/1 GRADIENT", "SP_enzymes_AI_se2.png", width = 16, height = 8, dpi = 300)
+
+
+# 
+# New_data <- my_data %>% gather(enzyme, values, c(46:53))
+# ggplot(New_data, aes(x=AI, y=values)) +
+#   geom_boxplot(data=subset(New_data), aes(group = Site),
+#                                 color = "black")+
+#   facet_wrap( .~ enzyme , nrow = 2, scales = "free_y", labeller = label_parsed)+
+#   xlab("Aridity Index") +
+#   theme(axis.title.y=element_blank()) +
+#   theme(axis.title.x = element_text(size = 20, face = "bold", colour = "black")) +
+#   theme(strip.background =element_rect(fill="light grey")) +
+#   theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
+#   theme(panel.background = element_blank()) +
+#   theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+#   theme(axis.text.x = element_text(size = 18, angle = 0, color = "black", face = "bold"))+
+#   theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
+#   theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+#   theme(legend.position = "right")+
+#   coord_cartesian(xlim = c(0,1.4))+
+#   scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
+#                      labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
+# # geom_smooth(method = "lm", color = "blue", fill = "grey") +
+# # stat_cor(label.x = 0.6, label.y.npc="top",
+# #          aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+# #          p.accuracy = 0.001, r.accuracy = 0.01,
+# #          color = "blue", size = 4.5)
+# enzyme
+
+
 
 # save the plot
 # ggsave(path = "Figures/1 GRADIENT", "SP_enzymes_AI_se.png", width = 16, height = 8, dpi = 300)
@@ -3678,6 +3746,39 @@ ggsave(path = "Figures/1 GRADIENT", "SP_MB_AI_noSP6.png", width = 12, height = 6
 
 
 
+# >>> ARTICLE PLOT ----
+New_data <- my_data %>% gather(mb, values, c(40:41))
+New_data$mb <- factor(New_data$mb, levels = c("BB", "FB"))
+New_data <- data_summary(New_data, varname="values", 
+                         groupnames=c("Site","AI", "mb"))
+New_data$values = as.numeric(New_data$values)
+biomasses <- ggplot(New_data, aes(x=AI, y=values, color = mb, 
+                                  fill = mb)) +
+  geom_point(size= 3, color ="grey") +
+  geom_pointrange(data = New_data, aes(ymin=values-sd, ymax=values+sd),
+                  color = "black", stroke = 1, size = 0.6, shape = 1) +
+  xlab("Aridity Index") +
+  theme(axis.title.y=element_blank()) +
+  theme(axis.title.x = element_text(size = 20, face = "bold", colour = "black")) +
+  facet_wrap( .~ mb , nrow = 1, scales = "free_y", labeller = label_value) +
+  theme(strip.background =element_rect(fill="light grey")) +
+  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
+  theme(panel.background = element_blank()) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+  theme(axis.text.x = element_text(size = 18, angle = 0, color = "black", face = "bold"))+
+  theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
+  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+  theme(legend.position = "none")+
+  coord_cartesian(xlim = c(0,1.4))+
+  scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
+                     labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
+biomasses
+
+ggsave(path = "Figures/1 GRADIENT", "SP_MB_AI2.png", width = 12, height = 6, dpi = 300)
+
+
+
+
 ###  16s, ITS2 + BB, FB ----
 New_data <- my_data %>% gather(biogene, values, c(40,41,54,55))
 
@@ -3825,6 +3926,39 @@ respiration
 
 # save the plot
 ggsave(path = "Figures/1 GRADIENT", "SP_respiration_AI.png", width = 6, height = 6, dpi = 300)
+
+
+# >>> ARTICLE PLOT ----
+New_data <- my_data %>% gather(respi, values, c(64))
+New_data$respi <- factor(New_data$respi, levels = c("Respiration"))
+New_data <- data_summary(New_data, varname="values", 
+                         groupnames=c("Site","AI", "respi"))
+New_data$values = as.numeric(New_data$values)
+respiration <- ggplot(New_data, aes(x=AI, y=values, color = respi, 
+                                    fill = respi)) +
+  geom_point(size= 3, color ="grey") +
+  geom_pointrange(data = New_data, aes(ymin=values-sd, ymax=values+sd),
+                  color = "black", stroke = 1, size = 0.6, shape = 1) +
+  xlab("Aridity Index") +
+  theme(axis.title.y=element_blank()) +
+  theme(axis.title.x = element_text(size = 20, face = "bold", colour = "black")) +
+  facet_wrap( .~ respi , nrow = 1, scales = "free_y", labeller = label_parsed) +
+  theme(strip.background =element_rect(fill="light grey")) +
+  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
+  theme(panel.background = element_blank()) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+  theme(axis.text.x = element_text(size = 18, angle = 0, color = "black", face = "bold"))+
+  theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
+  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+  theme(legend.position = "none")+
+  coord_cartesian(xlim = c(0,1.4))+
+  scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
+                     labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
+respiration
+
+# save the plot
+ggsave(path = "Figures/1 GRADIENT", "SP_respiration_AI2.png", width = 6, height = 6, dpi = 300)
+
 
 
 

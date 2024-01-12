@@ -1154,6 +1154,61 @@ domin(MB ~ 1,
 
 
 # Parameter ranking plot ----
+# # Change the signs of the variables
+# dominance_output <- domin(MB ~ 1, 
+#                           lmer, 
+#                           list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+#                           data = my_data.1, 
+#                           sets = list("TOC","Clay","Water_content","SR","AI","Peak_A"), 
+#                           consmodel = "(1|Site)") # Replace with your actual function
+# 
+# # Extracting General Dominance Standardized Ranks
+# general_dominance <- dominance_output$Standardized
+# general_dominance_ranks <- dominance_output$Ranks
+# 
+# dominance_data <- data.frame(Standardized = general_dominance)
+# dominance_data$Ranks <- general_dominance_ranks
+# dominance_data <- dominance_data[order(dominance_data$Ranks), ]
+# 
+# # Extracting estimates from the summary output
+# estimates <- summary(MB.full.4)$coefficients[, "Estimate"][-1]  # Exclude intercept
+# 
+# # Automatically aligning signs of General Dominance Standardized Ranks with Estimate values
+# aligned_dominance <- sign(estimates) * abs(dominance_data)
+# 
+# components <- data.frame(Variables = c("TOC","Clay","Water_content","SR","AI","Peak_A"))
+# 
+# aligned_dominance <- cbind(aligned_dominance, components)
+# 
+# 
+# # Reorder the levels of the 'Variables' column based on 'Standardized' values
+# aligned_dominance <- aligned_dominance %>% 
+#   arrange(Standardized)  # Arrange in descending order of 'Standardized'
+# 
+# # Convert 'Variables' to a factor with levels based on the ordered 'Variables'
+# aligned_dominance$Variables <- factor(aligned_dominance$Variables, 
+#                                       levels = aligned_dominance$Variables)
+# 
+# # Plotting
+# ggplot(aligned_dominance, aes(x = Standardized, y = Variables)) +
+#   geom_bar(stat = "identity", fill = "royalblue", color = "black") +
+#   labs(
+#     y = "Predictor Variables",
+#     x = "Standardized dominance"
+#   ) +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+#   geom_text(aes(label = ifelse(Standardized >= 0, round(Standardized, 2), -round(Standardized, 2))),
+#             position = position_dodge(width = 0.9), vjust = ifelse(aligned_dominance$Standardized >= 0, 0, 0),
+#             color = "black", hjust = ifelse(aligned_dominance$Standardized >= 0, -0.3, 1.2)) +  # Adjust label position
+#   ggtitle("MB model") +
+#   theme(legend.position = "none")  # Remove the legend
+
+
+
+
+
+
 #Change the signs of the variables
 dominance_output <- domin(MB ~ 1, 
                           lmer, 
@@ -1189,9 +1244,12 @@ aligned_dominance <- aligned_dominance %>%
 aligned_dominance$Variables <- factor(aligned_dominance$Variables, 
                                       levels = aligned_dominance$Variables)
 
+aligned_dominance$abs_vals <- abs(aligned_dominance$Standardized)
+
 # Plotting
-ggplot(aligned_dominance, aes(x = Standardized, y = Variables)) +
-  geom_bar(stat = "identity", fill = "royalblue", color = "black") +
+ggplot(aligned_dominance, aes(x = abs_vals, y = reorder(Variables, abs_vals))) +
+  geom_bar(stat = "identity", fill = ifelse(aligned_dominance$Standardized >= 0, "royalblue", "firebrick"),
+           color = "black") +
   labs(
     y = "Predictor Variables",
     x = "Standardized dominance"
@@ -1200,6 +1258,6 @@ ggplot(aligned_dominance, aes(x = Standardized, y = Variables)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   geom_text(aes(label = ifelse(Standardized >= 0, round(Standardized, 2), -round(Standardized, 2))),
             position = position_dodge(width = 0.9), vjust = ifelse(aligned_dominance$Standardized >= 0, 0, 0),
-            color = "black", hjust = ifelse(aligned_dominance$Standardized >= 0, -0.3, 1.2)) +  # Adjust label position
+            color = "black", hjust = -0.3) +  # Adjust label position
   ggtitle("MB model") +
   theme(legend.position = "none")  # Remove the legend
