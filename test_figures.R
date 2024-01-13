@@ -19,6 +19,8 @@ library(devtools)
 library(ggbiplot)
 library(vegan)
 library(FSA)
+# install.packages("DescTools")
+library(DescTools)
 library(rcompanion)
 
 # New Liner mixed model ####
@@ -258,6 +260,66 @@ domin(Respiration ~ 1,
       sets = list("altitude","Water_content","Silt","Silt:AI","Clay","Clay:AI","SR:AI"), 
       consmodel = "(1|Site)")
 
+# Parameter ranking plot ----
+#Change the signs of the variables
+dominance_output <- domin(Respiration ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("altitude","Water_content","Silt","Silt:AI","Clay","Clay:AI","SR:AI"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+# Extracting General Dominance Standardized Ranks
+general_dominance <- dominance_output$Standardized
+general_dominance_ranks <- dominance_output$Ranks
+
+dominance_data <- data.frame(Standardized = general_dominance)
+dominance_data$Ranks <- general_dominance_ranks
+dominance_data <- dominance_data[order(dominance_data$Ranks), ]
+
+# Extracting estimates from the summary output
+estimates <- summary(respiration.full.III)$coefficients[, "Estimate"][-1]  # Exclude intercept
+
+# Automatically aligning signs of General Dominance Standardized Ranks with Estimate values
+aligned_dominance <- sign(estimates) * abs(dominance_data)
+
+components <- data.frame(Variables = c("altitude","WC","Silt","Silt:AI","Clay","Clay:AI","SR:AI"))
+
+aligned_dominance <- cbind(aligned_dominance, components)
+
+
+# Reorder the levels of the 'Variables' column based on 'Standardized' values
+aligned_dominance <- aligned_dominance %>% 
+  arrange(Standardized)  # Arrange in descending order of 'Standardized'
+
+# Convert 'Variables' to a factor with levels based on the ordered 'Variables'
+aligned_dominance$Variables <- factor(aligned_dominance$Variables, 
+                                      levels = aligned_dominance$Variables)
+
+aligned_dominance$abs_vals <- abs(aligned_dominance$Standardized)
+
+
+Respi <- ggplot(aligned_dominance, aes(x = abs_vals, y = reorder(Variables, abs_vals), fill = factor(Standardized >= 0))) +
+  geom_bar(stat = "identity",
+           color = "black") +
+  labs(
+    y = "Predictor Variables",
+    x = "Standardized dominance"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  geom_text(aes(label = ifelse(Standardized >= 0, round(Standardized, 2), -round(Standardized, 2))),
+            position = position_dodge(width = 0.9), vjust = ifelse(aligned_dominance$Standardized >= 0, 0, 0),
+            color = "black", hjust = -0.3) +  # Adjust label position
+  ggtitle("MB model") +
+  theme(legend.position = "right")+
+  theme(legend.title=element_blank())+
+  scale_fill_manual(values = c("firebrick", "royalblue"), name = "Standardized",
+                    labels = c("Negative", "Positive"))
+
+
+
+
 # Enzymes ####
 
 ggplot(my_data, aes(x=as.factor(AI), y=alpha, fill=as.factor(AI))) +
@@ -375,6 +437,10 @@ domin(alpha ~ 1,
       sets = list("L_TC","L_TC:AI","BB","BB:AI"), 
       consmodel = "(1|Site)")
 
+
+# Parameter ranking plot ----
+
+
 # beta ####
 
 # Full model interactions ####
@@ -435,6 +501,10 @@ domin(beta ~ 1,
       sets = list("HIX","Soil_Temp"), 
       consmodel = "(1|Site)")
 
+
+# Parameter ranking plot ----
+
+
 # xyl ####
 
 # Full model interactions ####
@@ -492,6 +562,10 @@ domin(xyl ~ 1,
       data = my_data.1, 
       sets = list("L_TN","L_TN:AI","L_TC","L_TC:AI"), 
       consmodel = "(1|Site)")
+
+
+# Parameter ranking plot ----
+
 
 # cbh ####
 
@@ -552,6 +626,11 @@ domin(cbh ~ 1,
       data = my_data.1, 
       sets = list("L_TN","L_TN:AI","L_TC","L_TC:AI","AI"), 
       consmodel = "(1|Site)")
+
+
+# Parameter ranking plot ----
+
+
 
 # gla ####
 
@@ -625,6 +704,10 @@ domin(gla ~ 1,
       list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
       data = my_data.1, 
       sets = list("Water_content","Water_content:AI","SR:AI"))
+
+
+# Parameter ranking plot ----
+
 
 # fos ####
 
@@ -706,6 +789,10 @@ domin(fos ~ 1,
       sets = list("BIX","Water_content","Peak_A","Soil_Temp:AI","pH:AI","FI:AI"), 
       consmodel = "(1|Site)")
 
+
+# Parameter ranking plot ----
+
+
 # leu ####
 
 # Full model interactions ####
@@ -784,6 +871,11 @@ domin(leu ~ 1,
       sets = list("TOC","Water_content","SR","Peak_A"), 
       consmodel = "(1|Site)")
 
+
+# Parameter ranking plot ----
+
+
+
 # phe ####
 
 # Full model interactions ####
@@ -841,6 +933,11 @@ domin(phe ~ 1,
       data = my_data.1, 
       sets = list("L_TC","pH","AI","L_TC:AI"), 
       consmodel = "(1|Site)")
+
+
+
+# Parameter ranking plot ----
+
 
 
 # Carbon enzymes ####
@@ -914,6 +1011,12 @@ domin(Cenz ~ 1,
       data = my_data.1, 
       sets = list("Soil_Temp","HIX"), 
       consmodel = "(1|Site)")
+
+
+
+# Parameter ranking plot ----
+
+
 
 # BB ####
 
@@ -993,6 +1096,11 @@ domin(BB ~ 1,
       sets = list("SO42","PO43","Clay","Peak_A","SO42:AI"), 
       consmodel = "(1|Site)")
 
+
+
+# Parameter ranking plot ----
+
+
 # FB ####
 
 # Full model interactions ####
@@ -1071,6 +1179,12 @@ domin(FB ~ 1,
       data = my_data.1, 
       sets = list("TOC","Clay","Water_content","SR","Peak_A","AI"), 
       consmodel = "(1|Site)")
+
+
+# Parameter ranking plot ----
+
+
+
 
 # MB ####
 
@@ -1231,7 +1345,7 @@ estimates <- summary(MB.full.4)$coefficients[, "Estimate"][-1]  # Exclude interc
 # Automatically aligning signs of General Dominance Standardized Ranks with Estimate values
 aligned_dominance <- sign(estimates) * abs(dominance_data)
 
-components <- data.frame(Variables = c("TOC","Clay","Water_content","SR","AI","Peak_A"))
+components <- data.frame(Variables = c("TOC","Clay","WC","SR","AI","PeakA"))
 
 aligned_dominance <- cbind(aligned_dominance, components)
 
@@ -1247,8 +1361,24 @@ aligned_dominance$Variables <- factor(aligned_dominance$Variables,
 aligned_dominance$abs_vals <- abs(aligned_dominance$Standardized)
 
 # Plotting
-ggplot(aligned_dominance, aes(x = abs_vals, y = reorder(Variables, abs_vals))) +
-  geom_bar(stat = "identity", fill = ifelse(aligned_dominance$Standardized >= 0, "royalblue", "firebrick"),
+# ggplot(aligned_dominance, aes(x = abs_vals, y = reorder(Variables, abs_vals))) +
+#   geom_bar(stat = "identity", fill = ifelse(aligned_dominance$Standardized >= 0, "royalblue", "firebrick"),
+#            color = "black") +
+#   labs(
+#     y = "Predictor Variables",
+#     x = "Standardized dominance"
+#   ) +
+#   theme_minimal() +
+#   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+#   geom_text(aes(label = ifelse(Standardized >= 0, round(Standardized, 2), -round(Standardized, 2))),
+#             position = position_dodge(width = 0.9), vjust = ifelse(aligned_dominance$Standardized >= 0, 0, 0),
+#             color = "black", hjust = -0.3) +  # Adjust label position
+#   ggtitle("MB model") +
+#   theme(legend.position = "bottom") 
+
+
+MB <- ggplot(aligned_dominance, aes(x = abs_vals, y = reorder(Variables, abs_vals), fill = factor(Standardized >= 0))) +
+  geom_bar(stat = "identity",
            color = "black") +
   labs(
     y = "Predictor Variables",
@@ -1260,4 +1390,8 @@ ggplot(aligned_dominance, aes(x = abs_vals, y = reorder(Variables, abs_vals))) +
             position = position_dodge(width = 0.9), vjust = ifelse(aligned_dominance$Standardized >= 0, 0, 0),
             color = "black", hjust = -0.3) +  # Adjust label position
   ggtitle("MB model") +
-  theme(legend.position = "none")  # Remove the legend
+  theme(legend.position = "right")+
+  theme(legend.title=element_blank())+
+  scale_fill_manual(values = c("firebrick", "royalblue"), name = "Standardized",
+                    labels = c("Negative", "Positive"))
+
