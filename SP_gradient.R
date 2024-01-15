@@ -2887,64 +2887,64 @@ ALT_ord$Site <- factor(ALT_ord$Site, levels = ALT_ord$Site[order(ALT_ord$altitud
 
 
 ## AI plot ----
-Sites_by_AI <- ggplot(AI_ord, aes(x=Site, y=AI)) +
-  geom_point(size= 3, color ="gold") +
-  ylab("Aridity Index") +
-  theme(axis.title.x = element_blank())+
-  theme(axis.title.y = element_text(size = 20, face = "bold", colour = "black")) +
-  theme(strip.background =element_rect(fill="light grey")) +
-  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
-  theme(panel.background = element_blank()) +
-  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
-  theme(axis.text.x = element_text(size = 18, angle = 45, hjust = 1, color = "black", face = "bold"))+
-  theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
-  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
-  theme(legend.position = "none")+
-  coord_cartesian(ylim = c(0,1.4))+
-  scale_y_continuous(breaks = breaks_width(0.2))
-
-Sites_by_AI
-
-Sites_by_AI1 <- ggplot(AI_ord, aes(x=Site, y=AI)) +
-  geom_point(size= 3, color ="black", fill= "gold", pch = 21) +
-  ylab("Aridity Index") +
-  theme(axis.title.x = element_blank())+
-  theme(axis.title.y = element_text(size = 20, face = "bold", colour = "black")) +
-  theme(strip.background =element_rect(fill="light grey")) +
-  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
-  theme(panel.background = element_blank()) +
-  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
-  theme(axis.text.x = element_text(size = 18, angle = 45, hjust = 1, color = "black", face = "bold"))+
-  theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
-  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
-  theme(legend.position = "none")+
-  coord_cartesian(ylim = c(0,1.4))+
-  scale_y_continuous(breaks = breaks_width(0.2))
-
-Sites_by_AI1
-
-# ggsave(path = "Figures/1 GRADIENT","sites_AI_points.png", width = 6, height = 6, dpi = 300)
-
-
-
-Sites_by_AI2 <- ggplot(AI_ord, aes(x=Site, y=AI, fill = Site)) +
-  geom_bar(stat = "identity", color = "black")+
-  scale_fill_AI(discrete = TRUE, palette = "Sites")+
-  ylab("Aridity Index") +
-  theme(axis.title.x = element_blank())+
-  theme(axis.title.y = element_text(size = 20, face = "bold", colour = "black")) +
-  theme(strip.background =element_rect(fill="light grey")) +
-  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
-  theme(panel.background = element_blank()) +
-  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
-  theme(axis.text.x = element_text(size = 18, angle = 45, hjust = 1, color = "black", face = "bold"))+
-  theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
-  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
-  theme(legend.position = "none")+
-  coord_cartesian(ylim = c(0,1.4))+
-  scale_y_continuous(breaks = breaks_width(0.2))
-
-Sites_by_AI2
+# Sites_by_AI <- ggplot(AI_ord, aes(x=Site, y=AI)) +
+#   geom_point(size= 3, color ="gold") +
+#   ylab("Aridity Index") +
+#   theme(axis.title.x = element_blank())+
+#   theme(axis.title.y = element_text(size = 20, face = "bold", colour = "black")) +
+#   theme(strip.background =element_rect(fill="light grey")) +
+#   theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
+#   theme(panel.background = element_blank()) +
+#   theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+#   theme(axis.text.x = element_text(size = 18, angle = 45, hjust = 1, color = "black", face = "bold"))+
+#   theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
+#   theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+#   theme(legend.position = "none")+
+#   coord_cartesian(ylim = c(0,1.4))+
+#   scale_y_continuous(breaks = breaks_width(0.2))
+# 
+# Sites_by_AI
+# 
+# Sites_by_AI1 <- ggplot(AI_ord, aes(x=Site, y=AI)) +
+#   geom_point(size= 3, color ="black", fill= "gold", pch = 21) +
+#   ylab("Aridity Index") +
+#   theme(axis.title.x = element_blank())+
+#   theme(axis.title.y = element_text(size = 20, face = "bold", colour = "black")) +
+#   theme(strip.background =element_rect(fill="light grey")) +
+#   theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
+#   theme(panel.background = element_blank()) +
+#   theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+#   theme(axis.text.x = element_text(size = 18, angle = 45, hjust = 1, color = "black", face = "bold"))+
+#   theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
+#   theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+#   theme(legend.position = "none")+
+#   coord_cartesian(ylim = c(0,1.4))+
+#   scale_y_continuous(breaks = breaks_width(0.2))
+# 
+# Sites_by_AI1
+# 
+# # ggsave(path = "Figures/1 GRADIENT","sites_AI_points.png", width = 6, height = 6, dpi = 300)
+# 
+# 
+# 
+# Sites_by_AI2 <- ggplot(AI_ord, aes(x=Site, y=AI, fill = Site)) +
+#   geom_bar(stat = "identity", color = "black")+
+#   scale_fill_AI(discrete = TRUE, palette = "Sites")+
+#   ylab("Aridity Index") +
+#   theme(axis.title.x = element_blank())+
+#   theme(axis.title.y = element_text(size = 20, face = "bold", colour = "black")) +
+#   theme(strip.background =element_rect(fill="light grey")) +
+#   theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
+#   theme(panel.background = element_blank()) +
+#   theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1))+
+#   theme(axis.text.x = element_text(size = 18, angle = 45, hjust = 1, color = "black", face = "bold"))+
+#   theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
+#   theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
+#   theme(legend.position = "none")+
+#   coord_cartesian(ylim = c(0,1.4))+
+#   scale_y_continuous(breaks = breaks_width(0.2))
+# 
+# Sites_by_AI2
 
 # ggsave(path = "Figures/1 GRADIENT","sites_AI_bars.png", width = 6, height = 6, dpi = 300)
 
@@ -2963,7 +2963,8 @@ Sites_by_AI3 <- ggplot(AI_ord, aes(x=Site, y=AI)) +
   theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
   theme(legend.position = "none")+
   coord_cartesian(ylim = c(0,1.4))+
-  scale_y_continuous(breaks = breaks_width(0.2))
+  scale_y_continuous(breaks = breaks_width(0.2))+
+  scale_x_discrete(limits = rev(levels(AI_ord$Site))) #Reverse order bars without editing ordering lines (before plot)
 
 Sites_by_AI3
 
