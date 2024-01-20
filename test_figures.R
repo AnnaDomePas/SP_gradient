@@ -179,21 +179,19 @@ plot(my_data$AI,my_data$HIX)
 # importance of the variables for the model
 
 a               = as.data.frame(colnames(my_data))
-max_values      = apply(my_data[,c(8,10,13,20,22,30,76,81,82,83,85,92,21,23)],2,max)
-my_data.1       = as.data.frame(cbind(my_data[,c(2,64,46,47,48,49,50,51,52,53,7,9,17,18,19,27,28,29,33,34,40,41,86,87,88,89,90,91,74)],
-                                      my_data[,c(8,10,13,20,22,30,76,81,82,83,85,92,21,23)] / as.list(max_values)))
+max_values      = apply(my_data[,c(8:34,40,41,76,81:93)],2,max)
+my_data.1       = as.data.frame(cbind(my_data[,c(7,46:53,64,94,95)],
+                                      my_data[,c(8:34,40,41,76,81:93)] / as.list(max_values)))
 a.1             = as.data.frame(colnames(my_data.1))
 
-corr            = as.data.frame(cor(my_data.1[,12:43]))
+corr            = as.data.frame(cor(my_data.1[,13:55]))
 
 # Parameters correlated: Water activity-water content; TOC-TN,FB,BB,TC;
 # Sand-silt,clay; Peak_A-Peak_M, Peak_C; Peak_T-Peak_B; E2.E3-E3.E4
 
-
 my_data.1 <-my_data.1 %>%
   mutate(Cenz = select(., 3:6) %>% rowSums(na.rm = TRUE)) %>% 
   mutate(MB = select(.,21:22) %>% rowSums(na.rm = TRUE))
-
 
 #1rst. Full model
 #2nd. Remove variables with Estimates <0.1 --> full model II
