@@ -459,7 +459,7 @@ scatter.smooth(residuals(alpha.full.2.a) ~ fitted(alpha.full.2.a))
 dominance_output <- domin(alpha ~ 1, 
                           lmer, 
                           list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
-                          data = my_data.1, 
+                          data = my_data.2, 
                           sets = list("Soil_Temp","TN","C_N","SOM","E2.E3","BB",
                                       "Peak_A","Clay","Peak_T"), 
                           consmodel = "(1|Site)") # Replace with your actual function
@@ -610,10 +610,10 @@ scatter.smooth(residuals(beta.full.2.a) ~ fitted(beta.full.2.a))
 
 # Parameter ranking plot ----
 #Change the signs of the variables
-dominance_output <- domin(alpha ~ 1, 
+dominance_output <- domin(beta ~ 1, 
                           lmer, 
                           list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
-                          data = my_data.1, 
+                          data = my_data.3, 
                           sets = list("L_TN","Soil_Temp","TOC","FB","TC","Peak_A",
                                       "Water_content"), 
                           consmodel = "(1|Site)") # Replace with your actual function
@@ -704,7 +704,7 @@ scatter.smooth(residuals(xyl.full.3) ~ fitted(xyl.full.3))
 
 # Parameter ranking plot ----
 #Change the signs of the variables
-dominance_output <- domin(alpha ~ 1, 
+dominance_output <- domin(xyl ~ 1, 
                           lmer, 
                           list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
                           data = my_data.1, 
@@ -771,7 +771,7 @@ scatter.smooth(residuals(cbh.full.2) ~ fitted(cbh.full.2))
 
 # Parameter ranking plot ----
 #Change the signs of the variables
-dominance_output <- domin(alpha ~ 1, 
+dominance_output <- domin(cbh ~ 1, 
                           lmer, 
                           list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
                           data = my_data.1, 
@@ -923,14 +923,14 @@ AIC(gla.full.2a)
 r.squaredGLMM(gla.full.2a)
 
 qqnorm(residuals(gla.full.2a))
-scatter.smooth(residuals(gla.full.2a) ~ fitted(gla.full.2a))
+scatter.smooth(residuals(c.full.2a) ~ fitted(gla.full.2a))
 
 # Parameter ranking plot ----
 #Change the signs of the variables
-dominance_output <- domin(alpha ~ 1, 
+dominance_output <- domin(gla ~ 1, 
                           lmer, 
                           list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
-                          data = my_data.1, 
+                          data = my_data.4, 
                           sets = list("Water_content","SR","altitude","TOC",
                                       "Clay","AI","pH"), 
                           consmodel = "(1|Site)") # Replace with your actual function
@@ -1179,7 +1179,7 @@ scatter.smooth(residuals(leu.full.3a) ~ fitted(leu.full.3a))
 dominance_output <- domin(leu ~ 1, 
                           lmer, 
                           list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
-                          data = my_data.1, 
+                          data = my_data.5, 
                           sets = list("Clay","E2.E3","Silt","SOM","TN","LTC_LTN",
                                       "NH4","pH","TC","L_TC","L_TN","TOC","AI",
                                       "SO42","SO42:AI"), 
@@ -1481,7 +1481,7 @@ scatter.smooth(residuals(alphabeta.full.2a) ~ fitted(alphabeta.full.2a))
 dominance_output <- domin(alphabeta ~ 1, 
                           lmer, 
                           list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
-                          data = my_data.1, 
+                          data = my_data.6, 
                           sets = list("FI","Soil_Temp","TOC","TC","Peak_A","AI",
                                       "FB","Clay","L_TN","AI:L_TN","Litter",
                                       "Litter:AI"), 
@@ -1637,7 +1637,7 @@ scatter.smooth(residuals(Cenz.full.Ia) ~ fitted(Cenz.full.Ia))
 dominance_output <- domin(Cenz ~ 1, 
                           lmer, 
                           list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
-                          data = my_data.1, 
+                          data = my_data.8, 
                           sets = list("FI","L_TN","Peak_A","C_N","Soil_Temp",
                                       "TOC","FB","BB","SOM","Clay","AI","Peak_A:AI",
                                       "BB:AI","L_TN:AI","FI:AI"), 
