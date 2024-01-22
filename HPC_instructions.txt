@@ -70,8 +70,628 @@ corr            = as.data.frame(cor(my_data.1[,14:56]))
 my_data.1 <-my_data.1 %>%
   mutate(Cenz = select(., 3:6) %>% rowSums(na.rm = TRUE)) %>% 
   mutate(MB = select(.,41:42) %>% rowSums(na.rm = TRUE))
+  
+######################################################################################
+# Biomass BB
+######################################################################################
+dominance_output <- domin(BB ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("NH4","SOM","pH","FB","E2.E3","Water_content",
+                                      "AI","NH4:AI","Clay"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
 
+> dominance_output
+Overall Fit Statistic:      0.8342675
+Constant Model Fit Statistic:  0
 
+General Dominance Statistics:
+     General Dominance Standardized Ranks
+set1       0.020992861  0.025163225     7
+set2       0.152099235  0.182314712     2
+set3       0.018484902  0.022157045     8
+set4       0.280623605  0.336371262     1
+set5      -0.007093711 -0.008502921     9
+set6       0.137339094  0.164622376     4
+set7       0.031953506  0.038301273     6
+set8       0.055567702  0.066606578     5
+set9       0.144300284  0.172966450     3
 
+Components of sets:
+set1 : NH4
+set2 : SOM
+set3 : pH
+set4 : FB
+set5 : E2.E3
+set6 : Water_content
+set7 : AI
+set8 : NH4:AI
+set9 : Clay
 
+######################################################################################
+# Biomass MB
+######################################################################################
+dominance_output <- domin(MB ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("TOC","NH4"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+						  
+> dominance_output
+Overall Fit Statistic:      0.8757035
+Constant Model Fit Statistic:  0
 
+General Dominance Statistics:
+     General Dominance Standardized Ranks
+set1        0.85465026   0.97595848     1
+set2        0.02105324   0.02404152     2
+
+Components of sets:
+set1 : TOC
+set2 : NH4
+
+######################################################################################
+# Enzyme xylcbh
+######################################################################################
+dominance_output <- domin(xylcbh ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("L_TN","Peak_A","AI","L_TN:AI","Water_content",
+                                      "C_N"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+> dominance_output
+Overall Fit Statistic:      0.4414149
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+     General Dominance Standardized Ranks
+set1        0.14926846   0.33815906     1
+set2        0.06619525   0.14996151     4
+set3        0.08637632   0.19568057     2
+set4        0.08285395   0.18770083     3
+set5        0.03830642   0.08678098     5
+set6        0.01841453   0.04171705     6
+
+Components of sets:
+set1 : L_TN
+set2 : Peak_A
+set3 : AI
+set4 : L_TN:AI
+set5 : Water_content
+set6 : C_N
+						  
+######################################################################################
+# Enzyme phe
+######################################################################################
+dominance_output <- domin(phe ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("L_TC","TN","SOM","BB","Peak_A","Water_content","C_N"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+						  
+> dominance_output
+Overall Fit Statistic:      0.4807092
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+     General Dominance Standardized Ranks
+set1       0.174875183   0.36378577     1
+set2       0.090588073   0.18844670     3
+set3       0.009233959   0.01920903     7
+set4       0.014052190   0.02923220     6
+set5       0.092782605   0.19301190     2
+set6       0.022597005   0.04700763     5
+set7       0.076580232   0.15930676     4
+
+Components of sets:
+set1 : L_TC
+set2 : TN
+set3 : SOM
+set4 : BB
+set5 : Peak_A
+set6 : Water_content
+set7 : C_N
+						  
+######################################################################################
+# Enzyme fos
+######################################################################################
+dominance_output <- domin(fos ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("Water_content","SR","PO43","Clay","BB"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+						  
+> dominance_output
+Overall Fit Statistic:      0.650659
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+     General Dominance Standardized Ranks
+set1        0.41333252   0.63525212     1
+set2        0.07977657   0.12260888     2
+set3        0.05967097   0.09170851     4
+set4        0.03497917   0.05375960     5
+set5        0.06289978   0.09667089     3
+
+Components of sets:
+set1 : Water_content
+set2 : SR
+set3 : PO43
+set4 : Clay
+set5 : BB
+						  
+######################################################################################
+# Enzyme gla
+######################################################################################
+dominance_output <- domin(gla ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.4, 
+                          sets = list("Water_content","SR","altitude","TOC",
+                                      "Clay","AI","pH"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+						  
+> dominance_output
+Overall Fit Statistic:      0.7181956
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+     General Dominance Standardized Ranks
+set1        0.31110477   0.43317553     1
+set2        0.05424392   0.07552806     5
+set3        0.02405819   0.03349810     6
+set4        0.15895939   0.22133160     2
+set5        0.02058437   0.02866124     7
+set6        0.07967369   0.11093591     3
+set7        0.06957130   0.09686957     4
+
+Components of sets:
+set1 : Water_content
+set2 : SR
+set3 : altitude
+set4 : TOC
+set5 : Clay
+set6 : AI
+set7 : pH
+
+######################################################################################
+# Respiration 
+######################################################################################
+dominance_output.1 <- domin(Respiration ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("Water_content","Clay","Silt","TC","SOM",
+                                      "TOC","AI","Clay:AI","Silt:AI","altitude",
+                                      "SR","AI:SR","Soil_Temp","L_TN","FI"), 
+                          consmodel = "(1|Site)") # Replace with your actual function						  
+
+> dominance_output.1
+Overall Fit Statistic:      0.8048003
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+      General Dominance  Standardized Ranks
+set1       5.283576e-02  0.0656507749     5
+set2       2.613460e-01  0.3247339540     1
+set3       9.834229e-02  0.1221946444     3
+set4       3.463444e-02  0.0430348209     7
+set5       1.176980e-02  0.0146244942    11
+set6       2.842627e-02  0.0353209024     8
+set7       4.411055e-02  0.0548093129     6
+set8       1.706387e-01  0.2120261801     2
+set9       6.771182e-02  0.0841349347     4
+set10      1.823756e-02  0.0226609741     9
+set11     -7.501220e-04 -0.0009320598    14
+set12      1.769105e-02  0.0219819128    10
+set13      1.620577e-03  0.0020136390    12
+set14     -2.535145e-05 -0.0000315003    13
+set15     -1.789058e-03 -0.0022229842    15
+
+Components of sets:
+set1 : Water_content
+set2 : Clay
+set3 : Silt
+set4 : TC
+set5 : SOM
+set6 : TOC
+set7 : AI
+set8 : Clay:AI
+set9 : Silt:AI
+set10 : altitude
+set11 : SR
+set12 : AI:SR
+set13 : Soil_Temp
+set14 : L_TN
+set15 : FI
+						  
+dominance_output.2 <- domin(Respiration ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("AI:FI","C_N","AI:L_TN","Water_content:AI",
+                                      "SO42","Litter","NH4","AI:NH4","AI:SO42","SOM:AI"), 
+                          consmodel = "(1|Site)")
+
+> dominance_output.2
+Overall Fit Statistic:      0.108124
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+      General Dominance Standardized Ranks
+set1      -0.0428243620 -0.396067095    10
+set2       0.0077173361  0.071374861     5
+set3       0.0236644783  0.218864234     2
+set4       0.0796620484  0.736765584     1
+set5       0.0019485189  0.018021150     6
+set6      -0.0001667462 -0.001542176     9
+set7       0.0012953136  0.011979889     8
+set8       0.0015616452  0.014443094     7
+set9       0.0124525035  0.115168718     4
+set10      0.0228132728  0.210991741     3
+
+Components of sets:
+set1 : AI:FI
+set2 : C_N
+set3 : AI:L_TN
+set4 : Water_content:AI
+set5 : SO42
+set6 : Litter
+set7 : NH4
+set8 : AI:NH4
+set9 : AI:SO42
+set10 : SOM:AI
+						  
+######################################################################################
+# Biomass FB 
+######################################################################################
+dominance_output <- domin(FB ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("TOC","Water_content","BB","SOM","NH4",
+                                      "E2.E3","SR","SO42","AI","pH","Soil_Temp"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+> dominance_output
+Overall Fit Statistic:      0.9423046
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+      General Dominance Standardized Ranks
+set1        0.428058660  0.454267802     1
+set2        0.054301187  0.057625936     4
+set3        0.133064724  0.141212000     3
+set4        0.251849629  0.267269859     2
+set5        0.001137400  0.001207041    10
+set6       -0.004997337 -0.005303314    11
+set7        0.006354336  0.006743399     9
+set8        0.009320893  0.009891592     8
+set9        0.015616810  0.016572995     6
+set10       0.032437523  0.034423605     5
+set11       0.015160820  0.016089086     7
+
+Components of sets:
+set1 : TOC
+set2 : Water_content
+set3 : BB
+set4 : SOM
+set5 : NH4
+set6 : E2.E3
+set7 : SR
+set8 : SO42
+set9 : AI
+set10 : pH
+set11 : Soil_Temp
+
+######################################################################################
+# Enzyme alpha
+######################################################################################
+my_data.2 = my_data.1[-c(49,59),]
+dominance_output <- domin(alpha ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.2, 
+                          sets = list("Soil_Temp","TN","C_N","SOM","E2.E3","BB",
+                                      "Peak_A","Clay","Peak_T"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+> dominance_output
+Overall Fit Statistic:      0.6451882
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+     General Dominance Standardized Ranks
+set1       0.378992356   0.58741369     1
+set2       0.034358767   0.05325387     6
+set3       0.040592447   0.06291567     5
+set4       0.041103319   0.06370749     4
+set5       0.079601880   0.12337777     2
+set6       0.006578300   0.01019594     9
+set7       0.043792944   0.06787624     3
+set8       0.009845186   0.01525940     8
+set9       0.010322963   0.01599993     7
+
+Components of sets:
+set1 : Soil_Temp
+set2 : TN
+set3 : C_N
+set4 : SOM
+set5 : E2.E3
+set6 : BB
+set7 : Peak_A
+set8 : Clay
+set9 : Peak_T
+						  
+######################################################################################
+# Enzyme beta
+######################################################################################
+my_data.3 = my_data.1[-c(59),]
+dominance_output <- domin(beta ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.3, 
+                          sets = list("L_TN","Soil_Temp","TOC","FB","TC","Peak_A",
+                                      "Water_content"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+> dominance_output
+Overall Fit Statistic:      0.4380945
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+     General Dominance Standardized Ranks
+set1        0.01162208   0.02652870     6
+set2        0.10271205   0.23445184     2
+set3        0.16120346   0.36796507     1
+set4       -0.01325410  -0.03025398     7
+set5        0.10221268   0.23331197     3
+set6        0.03679170   0.08398121     5
+set7        0.03680659   0.08401519     4
+
+Components of sets:
+set1 : L_TN
+set2 : Soil_Temp
+set3 : TOC
+set4 : FB
+set5 : TC
+set6 : Peak_A
+set7 : Water_content
+						  
+######################################################################################
+# Enzyme xyl
+######################################################################################
+dominance_output <- domin(xyl ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("L_TN","HIX","AI","Litter","Soil_Temp","Silt","SO42"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+> dominance_output
+Overall Fit Statistic:      0.3549247
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+     General Dominance Standardized Ranks
+set1       0.126135004   0.35538526     1
+set2       0.070949827   0.19990107     2
+set3       0.054182493   0.15265912     4
+set4      -0.007678987  -0.02163554     7
+set5       0.032494403   0.09155295     5
+set6       0.023960329   0.06750821     6
+set7       0.054881627   0.15462893     3
+
+Components of sets:
+set1 : L_TN
+set2 : HIX
+set3 : AI
+set4 : Litter
+set5 : Soil_Temp
+set6 : Silt
+set7 : SO42
+
+######################################################################################
+# Enzyme cbh
+######################################################################################
+dominance_output <- domin(cbh ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("Peak_A","L_TN","FI","Clay","HIX","Peak_T",
+                                      "SR","SOM","pH","AI","Peak_T:AI","L_TN:AI",
+                                      "HIX:AI","TC"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+> dominance_output
+Overall Fit Statistic:      0.5797086
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+      General Dominance Standardized Ranks
+set1        0.014380587   0.02480658    12
+set2        0.051362041   0.08859975     6
+set3        0.049638597   0.08562681     7
+set4        0.070172145   0.12104727     2
+set5        0.061415152   0.10594142     3
+set6        0.006986877   0.01205239    13
+set7        0.025117440   0.04332770    10
+set8        0.005517533   0.00951777    14
+set9        0.058283293   0.10053894     5
+set10       0.083306233   0.14370363     1
+set11       0.042571681   0.07343634     8
+set12       0.060935393   0.10511383     4
+set13       0.019272119   0.03324449    11
+set14       0.030749525   0.05304307     9
+
+Components of sets:
+set1 : Peak_A
+set2 : L_TN
+set3 : FI
+set4 : Clay
+set5 : HIX
+set6 : Peak_T
+set7 : SR
+set8 : SOM
+set9 : pH
+set10 : AI
+set11 : Peak_T:AI
+set12 : L_TN:AI
+set13 : HIX:AI
+set14 : TC
+						  
+######################################################################################
+# Enzyme leu
+######################################################################################						  
+my_data.5 = my_data.1[-c(30,43),]
+dominance_output <- domin(leu ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.5, 
+                          sets = list("Clay","E2.E3","Silt","SOM","TN","LTC_LTN",
+                                      "NH4","pH","TC","L_TC","L_TN","TOC","AI",
+                                      "SO42","SO42:AI"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+> dominance_output
+Overall Fit Statistic:      0.6452141
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+      General Dominance Standardized Ranks
+set1        0.263652558  0.408628031     1
+set2        0.038865821  0.060237095     4
+set3        0.037640898  0.058338619     5
+set4       -0.013581465 -0.021049548    13
+set5        0.142830316  0.221368877     2
+set6        0.013166423  0.020406286     8
+set7        0.009795542  0.015181848    10
+set8        0.140378287  0.217568543     3
+set9       -0.017048232 -0.026422598    15
+set10       0.010247179  0.015881828     9
+set11      -0.003327890 -0.005157808    11
+set12       0.027782855  0.043059902     6
+set13       0.017647331  0.027351125     7
+set14      -0.014610869 -0.022644994    14
+set15      -0.008224676 -0.012747205    12
+
+Components of sets:
+set1 : Clay
+set2 : E2.E3
+set3 : Silt
+set4 : SOM
+set5 : TN
+set6 : LTC_LTN
+set7 : NH4
+set8 : pH
+set9 : TC
+set10 : L_TC
+set11 : L_TN
+set12 : TOC
+set13 : AI
+set14 : SO42
+set15 : SO42:AI
+
+######################################################################################
+# Enzyme alphabeta
+######################################################################################
+my_data.6 = my_data.1[-c(59),]
+dominance_output <- domin(alphabeta ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.6, 
+                          sets = list("FI","Soil_Temp","TOC","TC","Peak_A","AI",
+                                      "FB","Clay","L_TN","AI:L_TN","Litter",
+                                      "Litter:AI"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+> dominance_output
+Overall Fit Statistic:      0.5128266
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+      General Dominance Standardized Ranks
+set1        0.073530340  0.143382461     4
+set2        0.092057862  0.179510700     3
+set3        0.172528624  0.336426823     1
+set4        0.110184926  0.214858054     2
+set5        0.010648140  0.020763626     9
+set6        0.025043588  0.048834417     6
+set7       -0.026795745 -0.052251082    12
+set8       -0.003297313 -0.006429684    11
+set9        0.010958535  0.021368890     8
+set10       0.030885945  0.060226877     5
+set11      -0.001667199 -0.003250999    10
+set12       0.018748896  0.036559913     7
+
+Components of sets:
+set1 : FI
+set2 : Soil_Temp
+set3 : TOC
+set4 : TC
+set5 : Peak_A
+set6 : AI
+set7 : FB
+set8 : Clay
+set9 : L_TN
+set10 : AI:L_TN
+set11 : Litter
+set12 : Litter:AI
+
+######################################################################################
+# Enzyme Cenz
+######################################################################################	
+my_data.8 = my_data.1[-c(59),]
+dominance_output <- domin(Cenz ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.8, 
+                          sets = list("FI","L_TN","Peak_A","C_N","Soil_Temp",
+                                      "TOC","FB","BB","SOM","Clay","AI","Peak_A:AI",
+                                      "BB:AI","L_TN:AI","FI:AI"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+> dominance_output
+Overall Fit Statistic:      0.583739
+Constant Model Fit Statistic:  0
+
+General Dominance Statistics:
+      General Dominance Standardized Ranks
+set1        0.032736845  0.056081304     9
+set2        0.045625840  0.078161370     7
+set3        0.009485137  0.016248935    12
+set4        0.055161342  0.094496584     5
+set5        0.113633734  0.194665310     1
+set6        0.074356367  0.127379474     2
+set7        0.004411367  0.007557088    14
+set8        0.015026018  0.025740987    11
+set9        0.007841268  0.013432832    13
+set10      -0.003010668 -0.005157559    15
+set11       0.034792653  0.059603098     8
+set12       0.058875851  0.100859890     4
+set13       0.023467951  0.040202815    10
+set14       0.049040163  0.084010428     6
+set15       0.062295135  0.106717445     3
+
+Components of sets:
+set1 : FI
+set2 : L_TN
+set3 : Peak_A
+set4 : C_N
+set5 : Soil_Temp
+set6 : TOC
+set7 : FB
+set8 : BB
+set9 : SOM
+set10 : Clay
+set11 : AI
+set12 : Peak_A:AI
+set13 : BB:AI
+set14 : L_TN:AI
+set15 : FI:AI
