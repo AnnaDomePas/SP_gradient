@@ -688,7 +688,7 @@ r.squaredGLMM(xyl.full.2)
 qqnorm(residuals(xyl.full.2))
 scatter.smooth(residuals(xyl.full.2) ~ fitted(xyl.full.2))
 
-# Model 3 - MODEL WINNER ####
+# Model 3 - WINNER MODEL ####
 
 xyl.full.3 = lmer(xyl ~ 1 + L_TN + HIX + AI + Litter + Soil_Temp + Silt + 
                     SO42 + (1|Site), data = my_data.1)                                         
@@ -949,3 +949,711 @@ r.squaredGLMM(gla.full.3a)
 qqnorm(residuals(gla.full.3a))
 scatter.smooth(residuals(gla.full.3a) ~ fitted(gla.full.3a))
 
+# Enzyme - fos ####
+
+# Model 1 ####
+
+fos.full.I = lmer(fos ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                    TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                    Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                    BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                    Peak_T)*AI + (1|Site), data = my_data.1)                                         
+
+summary(fos.full.I)
+Anova(fos.full.I)
+cAIC(fos.full.I)
+AIC(fos.full.I)
+r.squaredGLMM(fos.full.I)
+
+qqnorm(residuals(fos.full.I))
+scatter.smooth(residuals(fos.full.I) ~ fitted(fos.full.I))
+
+# Model 1 - reduction ####
+
+fos_mod = buildmer(fos ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                     TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                     Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                     BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                     Peak_T)*AI + (1|Site), data = my_data.1,
+                   buildmerControl = buildmerControl(include = ~ (1|Site),calc.anova = TRUE,
+                                                     ddf = "Satterthwaite"))
+summary(fos_mod)
+print(fos_mod, correlation=TRUE)
+vcov(fos_mod)
+
+fos_mod.1 = buildmer(fos ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                       TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                       Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                       BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                       Peak_T)*AI + (1|Site), data = my_data.1,
+                     buildmerControl = buildmerControl(include = ~ (1|Site),
+                                                       calc.anova = TRUE,direction='forward',
+                                                       ddf = "Satterthwaite"))
+summary(fos_mod.1)
+print(fos_mod.1, correlation=TRUE)
+vcov(fos_mod.1)
+
+# Model 2 - WINNER MODEL ####
+
+fos.full.2 = lmer(fos ~ 1 + Water_content + SR + PO43 + Clay + BB + (1|Site), 
+                  data = my_data.1)                                         
+
+summary(fos.full.2)
+Anova(fos.full.2)
+cAIC(fos.full.2)
+AIC(fos.full.2)
+r.squaredGLMM(fos.full.2)
+
+qqnorm(residuals(fos.full.2))
+scatter.smooth(residuals(fos.full.2) ~ fitted(fos.full.2))
+
+# Parameter ranking plot ----
+#Change the signs of the variables
+dominance_output <- domin(fos ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("Water_content","SR","PO43","Clay","BB"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+# Model 3 ####
+
+fos.full.3 = lmer(fos ~ 1 + Water_content + SR + altitude + Clay + BB + AI + C_N +
+                    (1|Site), data = my_data.1)                                         
+
+summary(fos.full.3)
+Anova(fos.full.3)
+cAIC(fos.full.3)
+AIC(fos.full.3)
+r.squaredGLMM(fos.full.3)
+
+qqnorm(residuals(fos.full.3))
+scatter.smooth(residuals(fos.full.3) ~ fitted(fos.full.3))
+
+# Enzyme - leu ####
+
+# Model 1 ####
+
+leu.full.I = lmer(leu ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                    TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                    Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                    BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                    Peak_T)*AI + (1|Site), data = my_data.1)                                         
+
+summary(leu.full.I)
+Anova(leu.full.I)
+cAIC(leu.full.I)
+AIC(leu.full.I)
+r.squaredGLMM(leu.full.I)
+
+qqnorm(residuals(leu.full.I))
+scatter.smooth(residuals(leu.full.I) ~ fitted(leu.full.I))
+
+# Model 1 - reduction ####
+
+leu_mod = buildmer(leu ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                     TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                     Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                     BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                     Peak_T)*AI + (1|Site), data = my_data.1,
+                   buildmerControl = buildmerControl(include = ~ (1|Site),calc.anova = TRUE,
+                                                     ddf = "Satterthwaite"))
+summary(leu_mod)
+print(leu_mod, correlation=TRUE)
+vcov(leu_mod)
+
+leu_mod.1 = buildmer(leu ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                       TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                       Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                       BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                       Peak_T)*AI + (1|Site), data = my_data.1,
+                     buildmerControl = buildmerControl(include = ~ (1|Site),
+                                                       calc.anova = TRUE,direction='forward',
+                                                       ddf = "Satterthwaite"))
+summary(leu_mod.1)
+print(leu_mod.1, correlation=TRUE)
+vcov(leu_mod.1)
+
+# Model 2 ####
+
+leu.full.2 = lmer(leu ~ 1 + FB + SOM + Peak_A + (1|Site), data = my_data.1)                                         
+
+summary(leu.full.2)
+Anova(leu.full.2)
+cAIC(leu.full.2)
+AIC(leu.full.2)
+r.squaredGLMM(leu.full.2)
+
+qqnorm(residuals(leu.full.2))
+scatter.smooth(residuals(leu.full.2) ~ fitted(leu.full.2))
+
+# Model 3 ####
+
+leu.full.3 = lmer(leu ~ 1 + FB + Peak_T + SOM + L_TC + (1|Site), data = my_data.1)                                         
+
+summary(leu.full.3)
+Anova(leu.full.3)
+cAIC(leu.full.3)
+AIC(leu.full.3)
+r.squaredGLMM(leu.full.3)
+
+qqnorm(residuals(leu.full.3))
+scatter.smooth(residuals(leu.full.3) ~ fitted(leu.full.3))
+
+# Model 1 - without outliers ####
+
+plot(cooks.distance(leu.full.3))
+my_data.5 = my_data.1[-c(30,43),]
+
+leu.full.Ia = lmer(leu ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                     TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                     Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                     BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                     Peak_T)*AI + (1|Site), data = my_data.5)                                         
+
+summary(leu.full.Ia)
+Anova(leu.full.Ia)
+cAIC(leu.full.Ia)
+AIC(leu.full.Ia)
+r.squaredGLMM(leu.full.Ia)
+
+qqnorm(residuals(leu.full.Ia))
+scatter.smooth(residuals(leu.full.Ia) ~ fitted(leu.full.Ia))
+
+# Model 1 - without outliers - reduction ####
+
+leu_mod.a = buildmer(leu ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                       TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                       Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                       BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                       Peak_T)*AI + (1|Site), data = my_data.5,
+                     buildmerControl = buildmerControl(include = ~ (1|Site),calc.anova = TRUE,
+                                                       ddf = "Satterthwaite"))
+summary(leu_mod.a)
+print(leu_mod.a, correlation=TRUE)
+vcov(leu_mod.a)
+
+leu_mod.1.a = buildmer(leu ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                         TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                         Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                         BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                         Peak_T)*AI + (1|Site), data = my_data.5,
+                       buildmerControl = buildmerControl(include = ~ (1|Site),
+                                                         calc.anova = TRUE,direction='forward',
+                                                         ddf = "Satterthwaite"))
+summary(leu_mod.1.a)
+print(leu_mod.1.a, correlation=TRUE)
+vcov(leu_mod.1.a)
+
+# Model 2 - without outliers ####
+
+leu.full.2a = lmer(leu ~ 1 + Clay + E2.E3 + SOM + TN + LTC_LTN + TC + L_TC + L_TN +  
+                     TOC + AI + TC:AI + E2.E3:AI + SO42 + AI:SO42 + L_TC:AI + 
+                     LTC_LTN:AI + Clay:AI + (1|Site), data = my_data.5)                                         
+
+summary(leu.full.2a)
+Anova(leu.full.2a)
+cAIC(leu.full.2a)
+AIC(leu.full.2a)
+r.squaredGLMM(leu.full.2a)
+
+qqnorm(residuals(leu.full.2a))
+scatter.smooth(residuals(leu.full.2a) ~ fitted(leu.full.2a))
+
+# Model 3 - without outliers - WINNER MODEL ####
+
+leu.full.3a = lmer(leu ~ 1 + Clay + E2.E3 + Silt + SOM + TN + LTC_LTN + NH4 + pH +  
+                     TC + L_TC + L_TN + TOC + AI + SO42 + SO42:AI + (1|Site), data = my_data.5)                                         
+
+summary(leu.full.3a)
+Anova(leu.full.3a)
+cAIC(leu.full.3a)
+AIC(leu.full.3a)
+r.squaredGLMM(leu.full.3a)
+
+qqnorm(residuals(leu.full.3a))
+scatter.smooth(residuals(leu.full.3a) ~ fitted(leu.full.3a))
+
+# Parameter ranking plot ----
+#Change the signs of the variables
+dominance_output <- domin(leu ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("Clay","E2.E3","Silt","SOM","TN","LTC_LTN",
+                                      "NH4","pH","TC","L_TC","L_TN","TOC","AI",
+                                      "SO42","SO42:AI"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+# Enzyme - phe ####
+
+# Model 1 ####
+
+phe.full.I = lmer(phe ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                    TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                    Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                    BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                    Peak_T)*AI + (1|Site), data = my_data.1)                                         
+
+summary(phe.full.I)
+Anova(phe.full.I)
+cAIC(phe.full.I)
+AIC(phe.full.I)
+r.squaredGLMM(phe.full.I)
+
+qqnorm(residuals(phe.full.I))
+scatter.smooth(residuals(phe.full.I) ~ fitted(phe.full.I))
+
+# Model 1 - reduction ####
+
+phe_mod = buildmer(phe ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                     TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                     Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                     BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                     Peak_T)*AI + (1|Site), data = my_data.1,
+                   buildmerControl = buildmerControl(include = ~ (1|Site),calc.anova = TRUE,
+                                                     ddf = "Satterthwaite"))
+summary(phe_mod)
+print(phe_mod, correlation=TRUE)
+vcov(phe_mod)
+
+phe_mod.1 = buildmer(phe ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                       TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                       Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                       BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                       Peak_T)*AI + (1|Site), data = my_data.1,
+                     buildmerControl = buildmerControl(include = ~ (1|Site),
+                                                       calc.anova = TRUE,direction='forward',
+                                                       ddf = "Satterthwaite"))
+summary(phe_mod.1)
+print(phe_mod.1, correlation=TRUE)
+vcov(phe_mod.1)
+
+# Model 2 - WINNER MODEL ####
+
+phe.full.2 = lmer(phe ~ 1 + L_TC + TN + SOM + BB + Peak_A + Water_content + C_N + 
+                    (1|Site), data = my_data.1)                                         
+
+summary(phe.full.2)
+Anova(phe.full.2)
+cAIC(phe.full.2)
+AIC(phe.full.2)
+r.squaredGLMM(phe.full.2)
+
+qqnorm(residuals(phe.full.2))
+scatter.smooth(residuals(phe.full.2) ~ fitted(phe.full.2))
+
+# Parameter ranking plot ----
+#Change the signs of the variables
+dominance_output <- domin(phe ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("L_TC","TN","SOM","BB","Peak_A","Water_content","C_N"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+# Model 3 ####
+
+phe.full.3 = lmer(phe ~ 1 + L_TC + TN + SOM + C_N + (1|Site), data = my_data.1)                                         
+
+summary(phe.full.3)
+Anova(phe.full.3)
+cAIC(phe.full.3)
+AIC(phe.full.3)
+r.squaredGLMM(phe.full.3)
+
+qqnorm(residuals(phe.full.3))
+scatter.smooth(residuals(phe.full.3) ~ fitted(phe.full.3))
+
+# Enzyme - xylcbh ####
+
+# Model 1 ####
+
+xylcbh.full.I = lmer(xylcbh ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                    TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                    Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                    BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                    Peak_T)*AI + (1|Site), data = my_data.1)                                         
+
+summary(xylcbh.full.I)
+Anova(xylcbh.full.I)
+cAIC(xylcbh.full.I)
+AIC(xylcbh.full.I)
+r.squaredGLMM(xylcbh.full.I)
+
+qqnorm(residuals(xylcbh.full.I))
+scatter.smooth(residuals(xylcbh.full.I) ~ fitted(xylcbh.full.I))
+
+# Model 1 - reduction ####
+
+xylcbh_mod = buildmer(xylcbh ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                     TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                     Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                     BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                     Peak_T)*AI + (1|Site), data = my_data.1,
+                   buildmerControl = buildmerControl(include = ~ (1|Site),calc.anova = TRUE,
+                                                     ddf = "Satterthwaite"))
+summary(xylcbh_mod)
+print(xylcbh_mod, correlation=TRUE)
+vcov(xylcbh_mod)
+
+xylcbh_mod.1 = buildmer(xylcbh ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                       TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                       Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                       BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                       Peak_T)*AI + (1|Site), data = my_data.1,
+                     buildmerControl = buildmerControl(include = ~ (1|Site),
+                                                       calc.anova = TRUE,direction='forward',
+                                                       ddf = "Satterthwaite"))
+summary(xylcbh_mod.1)
+print(xylcbh_mod.1, correlation=TRUE)
+vcov(xylcbh_mod.1)
+
+# Model 2 - WINNER MODEL ####
+
+xylcbh.full.2 = lmer(xylcbh ~ 1 + L_TN + Peak_A + AI + L_TN:AI + Water_content + 
+                       C_N + (1|Site), data = my_data.1)                                         
+
+summary(xylcbh.full.2)
+Anova(xylcbh.full.2)
+cAIC(xylcbh.full.2)
+AIC(xylcbh.full.2)
+r.squaredGLMM(xylcbh.full.2)
+
+qqnorm(residuals(xylcbh.full.2))
+scatter.smooth(residuals(xylcbh.full.2) ~ fitted(xylcbh.full.2))
+
+# Parameter ranking plot ----
+#Change the signs of the variables
+dominance_output <- domin(xylcbh ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("L_TN","Peak_A","AI","L_TN:AI","Water_content",
+                                      "C_N"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+# Model 3 ####
+
+xylcbh.full.3 = lmer(xylcbh ~ 1 + L_TN + Peak_A + SR + AI + Water_content + Soil_Temp + (1|Site), data = my_data.1)                                         
+
+summary(xylcbh.full.3)
+Anova(xylcbh.full.3)
+cAIC(xylcbh.full.3)
+AIC(xylcbh.full.3)
+r.squaredGLMM(xylcbh.full.3)
+
+qqnorm(residuals(xylcbh.full.3))
+scatter.smooth(residuals(xylcbh.full.3) ~ fitted(xylcbh.full.3))
+
+# Enzyme - alphabeta ####
+
+# Model 1 ####
+
+alphabeta.full.I = lmer(alphabeta ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                          TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                          Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                          BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                          Peak_T)*AI + (1|Site), data = my_data.1)                                         
+
+summary(alphabeta.full.I)
+Anova(alphabeta.full.I)
+cAIC(alphabeta.full.I)
+AIC(alphabeta.full.I)
+r.squaredGLMM(alphabeta.full.I)
+
+qqnorm(residuals(alphabeta.full.I))
+scatter.smooth(residuals(alphabeta.full.I) ~ fitted(alphabeta.full.I))
+
+# Model 1 - reduction ####
+
+alphabeta_mod = buildmer(alphabeta ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                           TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                           Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                           BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                           Peak_T)*AI + (1|Site), data = my_data.1,
+                      buildmerControl = buildmerControl(include = ~ (1|Site),calc.anova = TRUE,
+                                                        ddf = "Satterthwaite"))
+summary(alphabeta_mod)
+print(alphabeta_mod, correlation=TRUE)
+vcov(alphabeta_mod)
+
+alphabeta_mod.1 = buildmer(alphabeta ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                             TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                             Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                             BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                             Peak_T)*AI + (1|Site), data = my_data.1,
+                        buildmerControl = buildmerControl(include = ~ (1|Site),
+                                                          calc.anova = TRUE,direction='forward',
+                                                          ddf = "Satterthwaite"))
+summary(alphabeta_mod.1)
+print(alphabeta_mod.1, correlation=TRUE)
+vcov(alphabeta_mod.1)
+
+# Model 2 ####
+
+alphabeta.full.2 = lmer(alphabeta ~ 1 + HIX + Soil_Temp + (1|Site), data = my_data.1)                                         
+
+summary(alphabeta.full.2)
+Anova(alphabeta.full.2)
+cAIC(alphabeta.full.2)
+AIC(alphabeta.full.2)
+r.squaredGLMM(alphabeta.full.2)
+
+qqnorm(residuals(alphabeta.full.2))
+scatter.smooth(residuals(alphabeta.full.2) ~ fitted(alphabeta.full.2))
+
+# Model 3 ####
+
+alphabeta.full.3 = lmer(alphabeta ~ 1 + Silt + HIX + Soil_Temp + FI + AI + 
+                          Clay + Litter + (1|Site), data = my_data.1)                                         
+
+summary(alphabeta.full.3)
+Anova(alphabeta.full.3)
+cAIC(alphabeta.full.3)
+AIC(alphabeta.full.3)
+r.squaredGLMM(alphabeta.full.3)
+
+qqnorm(residuals(alphabeta.full.3))
+scatter.smooth(residuals(alphabeta.full.3) ~ fitted(alphabeta.full.3))
+
+# Model 1 - without outliers ####
+
+plot(cooks.distance(alphabeta.full.I))
+my_data.6 = my_data.1[-c(59),]
+
+alphabeta.full.Ia = lmer(alphabeta ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                     TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                     Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                     BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                     Peak_T)*AI + (1|Site), data = my_data.6)                                         
+
+summary(alphabeta.full.Ia)
+Anova(alphabeta.full.Ia)
+cAIC(alphabeta.full.Ia)
+AIC(alphabeta.full.Ia)
+r.squaredGLMM(alphabeta.full.Ia)
+
+qqnorm(residuals(alphabeta.full.Ia))
+scatter.smooth(residuals(alphabeta.full.Ia) ~ fitted(alphabeta.full.Ia))
+
+# Model 1 - without outliers - reduction ####
+
+alphabeta_mod.a = buildmer(alphabeta ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                       TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                       Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                       BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                       Peak_T)*AI + (1|Site), data = my_data.6,
+                     buildmerControl = buildmerControl(include = ~ (1|Site),calc.anova = TRUE,
+                                                       ddf = "Satterthwaite"))
+summary(alphabeta_mod.a)
+print(alphabeta_mod.a, correlation=TRUE)
+vcov(alphabeta_mod.a)
+
+alphabeta_mod.1.a = buildmer(alphabeta ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                         TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                         Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                         BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                         Peak_T)*AI + (1|Site), data = my_data.6,
+                       buildmerControl = buildmerControl(include = ~ (1|Site),
+                                                         calc.anova = TRUE,direction='forward',
+                                                         ddf = "Satterthwaite"))
+summary(alphabeta_mod.1.a)
+print(alphabeta_mod.1.a, correlation=TRUE)
+vcov(alphabeta_mod.1.a)
+
+# Model 2 - without outliers - WINNER MODEL ####
+
+alphabeta.full.2a = lmer(alphabeta ~ 1 + FI + Soil_Temp + TOC + TC + Peak_A + AI + FB +  
+                           Clay + L_TN + AI:L_TN + Litter + Litter:AI + (1|Site), data = my_data.6)                                         
+
+summary(alphabeta.full.2a)
+Anova(alphabeta.full.2a)
+cAIC(alphabeta.full.2a)
+AIC(alphabeta.full.2a)
+r.squaredGLMM(alphabeta.full.2a)
+
+qqnorm(residuals(alphabeta.full.2a))
+scatter.smooth(residuals(alphabeta.full.2a) ~ fitted(alphabeta.full.2a))
+
+# Parameter ranking plot ----
+#Change the signs of the variables
+dominance_output <- domin(alphabeta ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("FI","Soil_Temp","TOC","TC","Peak_A","AI",
+                                      "FB","Clay","L_TN","AI:L_TN","Litter",
+                                      "Litter:AI"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+# Model 3 - without outliers ####
+
+alphabeta.full.3a = lmer(alphabeta ~ 1 + FI + Soil_Temp + C_N + TOC + TC + Peak_A + TN +  
+                           NH4 + AI + SOM + Water_content + Clay + L_TN + SO42 + 
+                           Litter + L_TC + LTC_LTN + (1|Site), data = my_data.6)                                         
+
+summary(alphabeta.full.3a)
+Anova(alphabeta.full.3a)
+cAIC(alphabeta.full.3a)
+AIC(alphabeta.full.3a)
+r.squaredGLMM(alphabeta.full.3a)
+
+qqnorm(residuals(alphabeta.full.3a))
+scatter.smooth(residuals(alphabeta.full.3a) ~ fitted(alphabeta.full.3a))
+
+# Enzyme - Cenz ####
+
+# Model 1 ####
+
+Cenz.full.I = lmer(Cenz ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                                TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                                Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                                BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                                Peak_T)*AI + (1|Site), data = my_data.1)                                         
+
+summary(Cenz.full.I)
+Anova(Cenz.full.I)
+cAIC(Cenz.full.I)
+AIC(Cenz.full.I)
+r.squaredGLMM(Cenz.full.I)
+
+qqnorm(residuals(Cenz.full.I))
+scatter.smooth(residuals(Cenz.full.I) ~ fitted(Cenz.full.I))
+
+# Model 1 - reduction ####
+
+Cenz_mod = buildmer(Cenz ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                                 TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                                 Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                                 BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                                 Peak_T)*AI + (1|Site), data = my_data.1,
+                         buildmerControl = buildmerControl(include = ~ (1|Site),calc.anova = TRUE,
+                                                           ddf = "Satterthwaite"))
+summary(Cenz_mod)
+print(Cenz_mod, correlation=TRUE)
+vcov(Cenz_mod)
+
+Cenz_mod.1 = buildmer(Cenz ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                                   TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                                   Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                                   BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                                   Peak_T)*AI + (1|Site), data = my_data.1,
+                           buildmerControl = buildmerControl(include = ~ (1|Site),
+                                                             calc.anova = TRUE,direction='forward',
+                                                             ddf = "Satterthwaite"))
+summary(Cenz_mod.1)
+print(Cenz_mod.1, correlation=TRUE)
+vcov(Cenz_mod.1)
+
+# Model 2 ####
+
+Cenz.full.2 = lmer(Cenz ~ 1 + HIX + Soil_Temp + TN + C_N + (1|Site), data = my_data.1)                                         
+
+summary(Cenz.full.2)
+Anova(Cenz.full.2)
+cAIC(Cenz.full.2)
+AIC(Cenz.full.2)
+r.squaredGLMM(Cenz.full.2)
+
+qqnorm(residuals(Cenz.full.2))
+scatter.smooth(residuals(Cenz.full.2) ~ fitted(Cenz.full.2))
+
+# Model 3 ####
+
+Cenz.full.3 = lmer(Cenz ~ 1 + HIX + Soil_Temp + TN + C_N + BB + FI + AI + Clay + Litter + (1|Site), data = my_data.1)                                         
+
+summary(Cenz.full.3)
+Anova(Cenz.full.3)
+cAIC(Cenz.full.3)
+AIC(Cenz.full.3)
+r.squaredGLMM(Cenz.full.3)
+
+qqnorm(residuals(Cenz.full.3))
+scatter.smooth(residuals(Cenz.full.3) ~ fitted(Cenz.full.3))
+
+# Model 1 - without outliers ####
+
+plot(cooks.distance(Cenz.full.I))
+my_data.8 = my_data.1[-c(59),]
+
+Cenz.full.Ia = lmer(Cenz ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                                 TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                                 Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                                 BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                                 Peak_T)*AI + (1|Site), data = my_data.8)                                         
+
+summary(Cenz.full.Ia)
+Anova(Cenz.full.Ia)
+cAIC(Cenz.full.Ia)
+AIC(Cenz.full.Ia)
+r.squaredGLMM(Cenz.full.Ia)
+
+qqnorm(residuals(Cenz.full.Ia))
+scatter.smooth(residuals(Cenz.full.Ia) ~ fitted(Cenz.full.Ia))
+
+# Model 1 - without outliers - reduction ####
+
+Cenz_mod.a = buildmer(Cenz ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                                   TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                                   Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                                   BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                                   Peak_T)*AI + (1|Site), data = my_data.8,
+                           buildmerControl = buildmerControl(include = ~ (1|Site),calc.anova = TRUE,
+                                                             ddf = "Satterthwaite"))
+summary(Cenz_mod.a)
+print(Cenz_mod.a, correlation=TRUE)
+vcov(Cenz_mod.a)
+
+Cenz_mod.1.a = buildmer(Cenz ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                                     TOC+TC+TN+C_N+NH4+PO43+SO42+
+                                                     Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
+                                                     BB+FB+SR+E2.E3+FI+HIX+Peak_A+
+                                                     Peak_T)*AI + (1|Site), data = my_data.8,
+                             buildmerControl = buildmerControl(include = ~ (1|Site),
+                                                               calc.anova = TRUE,direction='forward',
+                                                               ddf = "Satterthwaite"))
+summary(Cenz_mod.1.a)
+print(Cenz_mod.1.a, correlation=TRUE)
+vcov(Cenz_mod.1.a)
+
+# Model 2 - without outliers - WINNER MODEL ####
+
+Cenz.full.2a = lmer(Cenz ~ 1 + FI + L_TN + Peak_A + C_N + Soil_Temp + TOC + FB +  
+                      BB + SOM + Clay + AI + Peak_A:AI + BB:AI + L_TN:AI + 
+                      FI:AI + (1|Site), data = my_data.8)                                         
+
+summary(Cenz.full.2a)
+Anova(Cenz.full.2a)
+cAIC(Cenz.full.2a)
+AIC(Cenz.full.2a)
+r.squaredGLMM(Cenz.full.2a)
+
+qqnorm(residuals(Cenz.full.Ia))
+scatter.smooth(residuals(Cenz.full.Ia) ~ fitted(Cenz.full.Ia))
+
+# Parameter ranking plot ----
+#Change the signs of the variables
+dominance_output <- domin(Cenz ~ 1, 
+                          lmer, 
+                          list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
+                          data = my_data.1, 
+                          sets = list("FI","L_TN","Peak_A","C_N","Soil_Temp",
+                                      "TOC","FB","BB","SOM","Clay","AI","Peak_A:AI",
+                                      "BB:AI","L_TN:AI","FI:AI"), 
+                          consmodel = "(1|Site)") # Replace with your actual function
+
+# Model 3 - without outliers ####
+
+Cenz.full.3a = lmer(Cenz ~ 1 + FI + L_TN + Peak_A + C_N + Soil_Temp + TN + TC + SO42 +  
+                      BB + LTC_LTN + Clay + E2.E3 + L_TC + AI + LTC_LTN:AI + 
+                      Peak_A:AI + Litter + (1|Site), data = my_data.8)                                         
+
+summary(Cenz.full.3a)
+Anova(Cenz.full.3a)
+cAIC(Cenz.full.3a)
+AIC(Cenz.full.3a)
+r.squaredGLMM(Cenz.full.3a)
+
+qqnorm(residuals(Cenz.full.3a))
+scatter.smooth(residuals(Cenz.full.3a) ~ fitted(Cenz.full.3a))
