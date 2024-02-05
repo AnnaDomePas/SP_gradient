@@ -12,15 +12,32 @@ my_data.1 <-my_data.1 %>%
   mutate(Cenz = select(., 3:6) %>% rowSums(na.rm = TRUE)) %>% 
   mutate(MB = select(.,41:42) %>% rowSums(na.rm = TRUE))
 
+# VIF ####
+
+# A VIF greater than 10 is a signal that the model has a collinearity problem
+# calculates VIF for all variables, excludes the one with the highest VIF 
+# (if it is greater than the threshold), repeat the procedure untill no variables
+# with a VIF greater than th remains
+
+# install.packages('usdm')
+library(usdm)
+my_data_vif = as.data.frame(cbind(my_data.1[,c(2,14,16,18,19,23:29,33:36,39:56)]))
+vif(my_data_vif)
+vifcor(my_data_vif, th=0.9)
+vifstep(my_data_vif, th=10) # I am using the results from this function 
+                            # (https://www.rdocumentation.org/packages/usdm/versions/2.1-7/topics/vif)
+                            # but I am adding some variables that we know are important
+                            # like water content and aridity index and clay, FB
+
 # Respiration ####
 
 # Model 1 ####
 
 respiration.full.I = lmer(Respiration ~ altitude+(Soil_Temp+Water_content+SOM+pH+
-                                                    TOC+TC+TN+C_N+NH4+PO43+SO42+
-                                                    Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
-                                                    BB+FB+SR+E2.E3+FI+HIX+Peak_A+
-                                                    Peak_T)*AI + (1|Site), data = my_data.1)                                         
+                                                  TC+C_N+NH4+PO43+SO42+Clay+Silt+
+                                                  Litter+L_TN+BB+FB+SR+E2.E3+E4.E6+
+                                                  BIX+Peak_C+Peak_B+HIX+LTC_LTN)*AI+
+                            (1|Site), data = my_data.1)                                         
 
 summary(respiration.full.I)
 Anova(respiration.full.I)
@@ -34,34 +51,19 @@ scatter.smooth(residuals(respiration.full.I) ~ fitted(respiration.full.I))
 # Model 1 - reduction ####
 
 max_mod = buildmer(Respiration ~ altitude+(Soil_Temp+Water_content+SOM+pH+
-                                             TOC+TC+TN+C_N+NH4+PO43+SO42+
-                                             Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
-                                             BB+FB+SR+E2.E3+FI+HIX+Peak_A+
-                                             Peak_T)*AI + (1|Site), data = my_data.1,
+                                             TC+C_N+NH4+PO43+SO42+Clay+Silt+
+                                             Litter+L_TN+BB+FB+SR+E2.E3+E4.E6+
+                                             BIX+Peak_C+Peak_B+HIX+LTC_LTN)*AI + (1|Site), data = my_data.1,
                    buildmerControl = buildmerControl(include = ~ (1|Site),calc.anova = TRUE,
                                                      ddf = "Satterthwaite"))
 summary(max_mod)
 print(max_mod, correlation=TRUE)
 vcov(max_mod)
 
-max_mod.1 = buildmer(Respiration ~ altitude+(Soil_Temp+Water_content+SOM+pH+
-                                             TOC+TC+TN+C_N+NH4+PO43+SO42+
-                                             Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
-                                             BB+FB+SR+E2.E3+FI+HIX+Peak_A+
-                                             Peak_T)*AI + (1|Site), data = my_data.1,
-                   buildmerControl = buildmerControl(include = ~ (1|Site),
-                                                     calc.anova = TRUE,direction='forward',
-                                                     ddf = "Satterthwaite"))
-summary(max_mod.1)
-print(max_mod.1, correlation=TRUE)
-vcov(max_mod.1)
+# Model 2 - ####
 
-# Model 2 - WINNER MODEL ####
-
-respiration.full.2 = lmer(Respiration ~ 1 + Water_content + Clay + Silt + TC + SOM + TOC +  
-                            AI + Clay:AI + Silt:AI + altitude + SR + AI:SR + Soil_Temp +  
-                            L_TN + FI + AI:FI + C_N + AI:L_TN + Water_content:AI + SO42 +  
-                            Litter + NH4 + AI:NH4 + AI:SO42 + SOM:AI + (1 | Site),
+respiration.full.2 = lmer(Respiration ~ 1 + Water_content + Clay + BIX + AI + BIX:AI + 
+                            Clay:AI + (1 | Site),
                           data = my_data.1)                                         
 
 summary(respiration.full.2)
@@ -72,6 +74,55 @@ r.squaredGLMM(respiration.full.2)
 
 qqnorm(residuals(respiration.full.2))
 scatter.smooth(residuals(respiration.full.2) ~ fitted(respiration.full.2))
+# It seems that the assumptions are failing, so I need to reduce the statistical 
+# outliers
+
+# Model 1 - without outliers ####
+
+plot(cooks.distance(respiration.full.I))
+my_data.resp = my_data.1[-c(56,57,59),]
+
+respiration.full.Ir = lmer(Respiration ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                                    TC+C_N+NH4+PO43+SO42+Clay+Silt+
+                                                    Litter+L_TN+BB+FB+SR+E2.E3+E4.E6+
+                                                    BIX+Peak_C+Peak_B+HIX+LTC_LTN)*AI+
+                            (1|Site), data = my_data.resp)                                         
+
+summary(respiration.full.Ir)
+Anova(respiration.full.Ir)
+cAIC(respiration.full.Ir)
+AIC(respiration.full.Ir)
+r.squaredGLMM(respiration.full.Ir)
+
+qqnorm(residuals(respiration.full.Ir))
+scatter.smooth(residuals(respiration.full.Ir) ~ fitted(respiration.full.Ir))
+
+# Model 1 - reduction ####
+
+max_mod.r = buildmer(Respiration ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                             TC+C_N+NH4+PO43+SO42+Clay+Silt+
+                                             Litter+L_TN+BB+FB+SR+E2.E3+E4.E6+
+                                             BIX+Peak_C+Peak_B+HIX+LTC_LTN)*AI + (1|Site), data = my_data.resp,
+                   buildmerControl = buildmerControl(include = ~ (1|Site),calc.anova = TRUE,
+                                                     ddf = "Satterthwaite"))
+summary(max_mod.r)
+print(max_mod.r, correlation=TRUE)
+vcov(max_mod.r)
+
+# Model 2 - without outliers ####
+
+respiration.full.2r = lmer(Respiration ~ 1 + Water_content + Clay + Silt + TC + SOM + AI +  
+                             Clay:AI + Silt:AI + altitude + HIX + HIX:AI + (1 | Site),
+                          data = my_data.resp)                                         
+
+summary(respiration.full.2r)
+Anova(respiration.full.2r)
+cAIC(respiration.full.2r)
+AIC(respiration.full.2r)
+r.squaredGLMM(respiration.full.2r)
+
+qqnorm(residuals(respiration.full.2r))
+scatter.smooth(residuals(respiration.full.2r) ~ fitted(respiration.full.2r))
 
 # Parameter ranking plot ----
 #Change the signs of the variables
@@ -79,36 +130,18 @@ dominance_output <- domin(Respiration ~ 1,
                           lmer, 
                           list(\(x) list(R2m = MuMIn::r.squaredGLMM(x)[[1]]), "R2m"), 
                           data = my_data.1, 
-                          sets = list("Water_content","Clay","Silt","TC","SOM",
-                                      "TOC","AI","Clay:AI","Silt:AI","altitude",
-                                      "SR","AI:SR","Soil_Temp","L_TN","FI",
-                                      "AI:FI","C_N","AI:L_TN","Water_content:AI",
-                                      "SO42","Litter","NH4","AI:NH4","AI:SO42","SOM:AI"), 
+                          sets = list("Water_content","Clay","Silt","TC","SOM","AI",
+                                      "Clay:AI","Silt:AI","altitude","HIX","HIX:AI"), 
                           consmodel = "(1|Site)") # Replace with your actual function
-
-# Model 3 ####
-
-respiration.full.3 = lmer(Respiration ~ 1 + Water_content + Clay + Silt + TC + SOM + TOC +  
-                            AI + Clay:AI + SR + AI:SR + Soil_Temp + L_TN + E2.E3 + FI +  
-                            AI:FI + SO42 + Litter + NH4 + SOM:AI + (1 | Site),
-                          data = my_data.1)                                         
-
-summary(respiration.full.3)
-Anova(respiration.full.3)
-cAIC(respiration.full.3)
-AIC(respiration.full.3)
-r.squaredGLMM(respiration.full.3)
-
-qqnorm(residuals(respiration.full.3))
-scatter.smooth(residuals(respiration.full.3) ~ fitted(respiration.full.3))
 
 # Biomass - BB ####
 
 # Model 1 ####
 
-BB.full.I = lmer(BB ~ altitude+(Soil_Temp+Water_content+SOM+pH+TOC+TC+TN+C_N+NH4+PO43+SO42+
-                                                    Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
-                                                    FB+SR+E2.E3+FI+HIX+Peak_A+Peak_T)*AI + 
+BB.full.I = lmer(BB ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                  TC+C_N+NH4+PO43+SO42+Clay+Silt+
+                                  Litter+L_TN+SR+E2.E3+E4.E6+
+                                  BIX+Peak_C+Peak_B+HIX+LTC_LTN)*AI + 
                    (1|Site), data = my_data.1)                                         
 
 summary(BB.full.I)
@@ -122,9 +155,10 @@ scatter.smooth(residuals(BB.full.I) ~ fitted(BB.full.I))
 
 # Model 1 - reduction ####
 
-max_BB = buildmer(BB ~ altitude+(Soil_Temp+Water_content+SOM+pH+TOC+TC+TN+C_N+NH4+PO43+SO42+
-                                   Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
-                                   FB+SR+E2.E3+FI+HIX+Peak_A+Peak_T)*AI + 
+max_BB = buildmer(BB ~ altitude+(Soil_Temp+Water_content+SOM+pH+
+                                   TC+C_N+NH4+PO43+SO42+Clay+Silt+
+                                   Litter+L_TN+SR+E2.E3+E4.E6+
+                                   BIX+Peak_C+Peak_B+HIX+LTC_LTN)*AI + 
                     (1|Site), data = my_data.1,
                    buildmerControl = buildmerControl(include = ~ (1|Site),calc.anova = TRUE,
                                                      ddf = "Satterthwaite"))
@@ -132,21 +166,10 @@ summary(max_BB)
 print(max_BB, correlation=TRUE)
 vcov(max_BB)
 
-max_BB.1 = buildmer(BB ~ altitude+(Soil_Temp+Water_content+SOM+pH+TOC+TC+TN+C_N+NH4+PO43+SO42+
-                                     Silt+Clay+Litter+LTC_LTN+L_TN+L_TC+
-                                     FB+SR+E2.E3+FI+HIX+Peak_A+Peak_T)*AI + 
-                      (1|Site), data = my_data.1,
-                     buildmerControl = buildmerControl(include = ~ (1|Site),
-                                                       calc.anova = TRUE,direction='forward',
-                                                       ddf = "Satterthwaite"))
-summary(max_BB.1)
-print(max_BB.1, correlation=TRUE)
-vcov(max_BB.1)
-
 # Model 2 - WINNER MODEL ####
 
-BB.full.2 = lmer(BB ~ 1 + NH4 + SOM + pH + FB + E2.E3 + Water_content + AI + NH4:AI +  
-                   Clay + (1|Site), data = my_data.1)                                         
+BB.full.2 = lmer(BB ~ 1 + TC + NH4 + AI + TC:AI + E4.E6 + NH4:AI + SO42 + E2.E3 +  
+                   Clay + SOM + AI:Clay + SR + (1|Site), data = my_data.1)                                         
 
 summary(BB.full.2)
 Anova(BB.full.2)
@@ -166,20 +189,6 @@ dominance_output <- domin(BB ~ 1,
                           sets = list("NH4","SOM","pH","FB","E2.E3","Water_content",
                                       "AI","NH4:AI","Clay"), 
                           consmodel = "(1|Site)") # Replace with your actual function
-
-# Model 3 ####
-
-BB.full.3 = lmer(BB ~ 1 + TN + NH4 + Peak_A + Water_content + AI + NH4:AI + 
-                   (1|Site), data = my_data.1)                                         
-
-summary(BB.full.3)
-Anova(BB.full.3)
-cAIC(BB.full.3)
-AIC(BB.full.3)
-r.squaredGLMM(BB.full.3)
-
-qqnorm(residuals(BB.full.3))
-scatter.smooth(residuals(BB.full.3) ~ fitted(BB.full.3))
 
 # Biomass - FB ####
 
