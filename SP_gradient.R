@@ -28,6 +28,8 @@ library(rcompanion)
 # IMPORT DATA ----
 my_data <- read.csv("SP_metadata_2021.csv", sep=";")
 
+my_data$aridity <- (1- my_data$AI)
+
 #To replace NA values with a mean of the other values of the Site:
 for (i in which(sapply(my_data, is.numeric))) {
   for (j in which(is.na(my_data[, i]))) {
@@ -37,6 +39,7 @@ for (i in which(sapply(my_data, is.numeric))) {
 
 #Data without ratios, percentages....
 data <- my_data[,c(5:10,12:13,17:23,27:30,33:35,37:38,40:64,76,79:92)]
+
 
 #Dummies....
 dummy <- my_data[,c(5:7,76)]
@@ -2872,14 +2875,16 @@ autoplot(pc, data=pca_data,
 
 # Site order depending on OX variable ----
 #Preparing data:
-site_order <- my_data[,c(2,5:7,76)] 
+site_order <- my_data[,c(2,5:7,76,93)] 
 site_order <- site_order[!duplicated(site_order), ] #Erase duplicated lines from dataframe
 
+aridity_ord <- site_order[order(site_order$aridity, decreasing = F),]
 AI_ord <- site_order[order(site_order$AI, decreasing = T),]
 MAT_ord <- site_order[order(site_order$MAT, decreasing = F),]
 MAP_ord <- site_order[order(site_order$MAP, decreasing = T),]
 ALT_ord <- site_order[order(site_order$altitude, decreasing = F),]
 
+aridity_ord$Site <- factor(aridity_ord$Site, levels = aridity_ord$Site[order(aridity_ord$aridity)])
 AI_ord$Site <- factor(AI_ord$Site, levels = AI_ord$Site[order(AI_ord$AI)])
 MAT_ord$Site <- factor(MAT_ord$Site, levels = MAT_ord$Site[order(MAT_ord$MAT, decreasing = TRUE)])
 MAP_ord$Site <- factor(MAP_ord$Site, levels = MAP_ord$Site[order(MAP_ord$MAP)])
@@ -2949,9 +2954,8 @@ ALT_ord$Site <- factor(ALT_ord$Site, levels = ALT_ord$Site[order(ALT_ord$altitud
 # ggsave(path = "Figures/1 GRADIENT","sites_AI_bars.png", width = 6, height = 6, dpi = 300)
 
 
-Sites_by_AI3 <- ggplot(AI_ord, aes(x=Site, y=AI)) +
-  geom_bar(stat = "identity", color = "black", fill = "gold")+
-  ylab("Aridity Index") +
+Sites_by_aridity <- ggplot(aridity_ord, aes(x=Site, y=aridity)) +
+  ylab("Aridity (1-AI)") +
   theme(axis.title.x = element_blank())+
   theme(axis.title.y = element_text(size = 20, face = "bold", colour = "black")) +
   theme(strip.background =element_rect(fill="light grey")) +
@@ -2962,11 +2966,13 @@ Sites_by_AI3 <- ggplot(AI_ord, aes(x=Site, y=AI)) +
   theme(axis.text.y = element_text(size = 18, color = "black", face = "bold"))+
   theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + #top, right, bottom, left
   theme(legend.position = "none")+
-  coord_cartesian(ylim = c(0,1.4))+
+  coord_cartesian(ylim = c(-0.4,1))+
   scale_y_continuous(breaks = breaks_width(0.2))+
-  scale_x_discrete(limits = rev(levels(AI_ord$Site))) #Reverse order bars without editing ordering lines (before plot)
-
-Sites_by_AI3
+  scale_x_discrete(limits = rev(levels(AI_ord$Site)))+
+  geom_linerange(aes(ymin=min(aridity)-0.08, ymax=aridity, x=Site), size=13,
+                 position = "identity", color = "gold")
+  
+Sites_by_aridity
 
 ggsave(path = "Figures/1 GRADIENT","sites_AI_bars2.png", width = 6, height = 6, dpi = 300)
 
