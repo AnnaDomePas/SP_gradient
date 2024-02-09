@@ -2709,6 +2709,11 @@ scores = as.data.frame(scale(pc$x))
 scores$AI <- site_order$AI
 scores$Site <- site_order$Site
 
+
+library(devtools)
+install_github('sinhrks/ggfortify')
+library(ggfortify); library(ggplot2)
+
 autoplot(pc, data=pca_data, 
          loadings = TRUE, loadings.colour = 'brown',
          loadings.label.colour='brown', loadings.label = TRUE,
@@ -2969,7 +2974,7 @@ Sites_by_aridity <- ggplot(aridity_ord, aes(x=Site, y=aridity)) +
   coord_cartesian(ylim = c(-0.4,1))+
   scale_y_continuous(breaks = breaks_width(0.2))+
   scale_x_discrete(limits = rev(levels(AI_ord$Site)))+
-  geom_linerange(aes(ymin=min(aridity)-0.08, ymax=aridity, x=Site), size=13,
+  geom_linerange(aes(ymin=min(aridity)-0.08, ymax=aridity, x=Site), size=12,
                  position = "identity", color = "gold")
   
 Sites_by_aridity
