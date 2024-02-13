@@ -2714,6 +2714,17 @@ library(devtools)
 install_github('sinhrks/ggfortify')
 library(ggfortify); library(ggplot2)
 
+pca_data$Aridity <- 1 - pca_data$AI
+
+plot.theme1 <- theme_classic() +
+  theme(text=element_text(size=15),
+        axis.title.x = element_text(size = rel(1.2), angle = 00, margin = margin(t=8)),
+        axis.title.y = element_text(size = rel(1.2), angle = 90, margin = margin(t=8)),
+        plot.title = element_text(size=22),
+        axis.text.x = element_text(size=15),
+        axis.text.y = element_text(size=15))
+
+
 autoplot(pc, data=pca_data, 
          loadings = TRUE, loadings.colour = 'brown',
          loadings.label.colour='brown', loadings.label = TRUE,
@@ -2721,18 +2732,14 @@ autoplot(pc, data=pca_data,
          loadings.label.repel=TRUE,
          color = pca_data$AI)+
   plot.theme1+
-  geom_point(aes(fill=AI), colour= "black", pch=21, size = 5)+
-  scale_fill_AI(discrete = FALSE, palette = "Sites")+
-  ggtitle("Functional response variables")+
+  geom_point(aes(fill=Aridity), colour= "black", pch=21, size = 5)+
+  scale_fill_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
   geom_text(aes(label = scores$Site), size = 4, hjust = 1.5) +
-  theme(legend.title = element_blank(),
-        legend.text=element_text(size = 12),
-        title = element_text(size = 15,face="bold"),
-        axis.text=element_text(size=12),
+  theme(axis.text=element_text(size=12),
         axis.title=element_text(size=15, face="plain"))+
   scale_x_continuous(expand = c(0.1, 0.1))
 
-# ggsave(path = "Figures/1 GRADIENT","PCA_func_response_means.png", width = 10, height = 8, dpi = 300)
+ggsave(path = "Figures/1 GRADIENT","PCA_func_response_means.png", width = 10, height = 8, dpi = 300)
 
 
 
