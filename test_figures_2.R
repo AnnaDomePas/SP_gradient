@@ -1,6 +1,22 @@
 library(buildmer)
 library(lmerTest)
 
+my_data         = read.csv("SP_metadata_2021.csv", sep=";")
+
+my_data$LTC_LTN <- my_data$L_TC/my_data$L_TN
+my_data$xylcbh <- my_data$xyl + my_data$cbh
+my_data$alphabeta <- my_data$alpha + my_data$beta
+
+#To replace NA values with a mean of the other values of the Site:
+for (i in which(sapply(my_data, is.numeric))) {
+  for (j in which(is.na(my_data[, i]))) {
+    my_data[j, i] <- mean(my_data[my_data[, "Site"] == my_data[j, "Site"], i],  na.rm = TRUE)
+  }
+}
+
+
+
+
 max_values      = apply(my_data[,c(8:34,40,41,76,81:93)],2,max)
 my_data.1       = as.data.frame(cbind(my_data[,c(2,7,46:53,64,94,95)],
                                       my_data[,c(8:34,40,41,76,81:93)] / as.list(max_values)))

@@ -113,6 +113,8 @@ cor_data <- cor_data %>%
   group_by(Site) %>%
   summarise_all(mean)
 
+cor_data$aridity <- (1-cor_data$AI)
+cor_data <- cor_data[,-c(2)]
 
 
 #PEARSON:
@@ -122,12 +124,12 @@ numerical_variables_names <- names(numerical_variables)[numerical_variables]
 all_plots <- list()
 
 for (var in numerical_variables_names) {
-  if (var != "AI") {
-    plot_title <- paste("AI vs", var)
-    all_plots[[length(all_plots) + 1]] <- ggscatter(cor_data, x = "AI", y = var,
+  if (var != "aridity") {
+    plot_title <- paste("Aridity vs", var)
+    all_plots[[length(all_plots) + 1]] <- ggscatter(cor_data, x = "aridity", y = var,
                                                     add = "reg.line", conf.int = TRUE,
                                                     cor.coef = TRUE, cor.method = "pearson",
-                                                    xlab = "AI", ylab = var,
+                                                    xlab = "Aridity", ylab = var,
                                                     main = plot_title)
   }
 }
