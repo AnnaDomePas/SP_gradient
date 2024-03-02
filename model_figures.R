@@ -5,6 +5,7 @@ library(readxl)
 library(ggplot2)
 library(dplyr)
 library(patchwork)
+library(stringr)
 
 results <- read_excel("model_results.xlsx")
 
@@ -20,6 +21,7 @@ results <- subset(results, Model != "FB")
 # results <- subset(results, Model != "xylcbh")
 results <- subset(results, Model != "Cenz")
 
+results$Model <- str_replace(results$Model,'MB','Microbial Biomass')
 
 #Reorder rows for ggarrange plots in desired order:
 new_order <- c(1:10, 34:38, 29:33, 11:28)
