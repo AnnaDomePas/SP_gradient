@@ -8,8 +8,8 @@ library("gridExtra")
 
 # LOAD DATA ----
 my_data <- read_excel("SP_metadata_2021.xlsx")
-mit_16S <- read_excel("ANALISIS/amplicon_sequencing_2021_JD/16S/Alphadiv_SP_16S_mit.xlsx")
-mit_18S <- read_excel("ANALISIS/amplicon_sequencing_2021_JD/ITS2/Alphadiv_SP_ITS2_mit.xlsx")
+mit_16S <- read_excel("C:/Users/Anna/OneDrive - Universitat de Girona/GRADCATCH/ANALISIS/amplicon_sequencing_2021_JD/16S/Alphadiv_SP_16S_mit.xlsx")
+mit_18S <- read_excel("C:/Users/Anna/OneDrive - Universitat de Girona/GRADCATCH/ANALISIS/amplicon_sequencing_2021_JD/ITS2/Alphadiv_SP_ITS2_mit.xlsx")
 
 mit_16S <- rename(mit_16S,
                   Site = GxS,
