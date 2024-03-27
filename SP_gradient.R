@@ -621,6 +621,50 @@ library(mlbench)
 library(caret)
 
 # > Remove Redundant Features ----
+
+# FINAL SELECTION FOR PCA ***********
+set.seed(7)
+
+duindepe2 <- duindepe[,-c(23:36)]
+
+nearZeroVar(duindepe2, saveMetrics = TRUE)
+comboInfo <- findLinearCombos(duindepe)
+comboInfo
+
+duindepe_cor <- cor(duindepe2)
+duindepe_highlyCor <- findCorrelation(duindepe_cor, cutoff = 0.75)
+print(duindepe_highlyCor)
+
+clean_duindepe <- duindepe2[,-c(2,7,5,12,8,10,6,3,1,19,17)]
+
+clean_duindepe$Site <- my_data$Site
+clean_duindepe <- clean_duindepe[, c("Site",  
+                                     names(clean_duindepe)[names(clean_duindepe) != "Site"])] 
+
+rm(duindepe_cor, comboInfo)
+
+model <- lm(cbind(depe$CO2_dark+depe$CH4_ave+depe$N2O+depe$BB+
+                    depe$FB+depe$chla+depe$chlb+depe$carotene+depe$EPS+
+                    depe$EPS+depe$alpha+depe$beta+depe$beta+depe$xyl+depe$cbh+
+                    depe$gla+depe$fos+depe$leu+depe$phe+depe$X16S+depe$ITS2+
+                    depe$mcrA+depe$pmoA+depe$nifH+depe$nifH+depe$AOA+depe$AOB+
+                    depe$qnorB+depe$nosZ+depe$phoD+depe$Respiration)~clean_duindepe$altitude+
+              clean_duindepe$pH+clean_duindepe$C_N+ clean_duindepe$TC+
+              clean_duindepe$NH4+clean_duindepe$PO43+clean_duindepe$SO42+clean_duindepe$Silt+
+              clean_duindepe$Litter+clean_duindepe$L_TC+clean_duindepe$L_TN)
+
+car::vif(model)
+
+# VARIABLES SELECTED: Altitude, pH, C/N, TC, NH4, PO43, SO42, Silt, Litter, LTC, LTN
+
+
+
+
+
+
+
+
+
 # ONLY FOR INDEPENDENT VARIABLES, WITH DUMMIES ***********
 set.seed(7)
 nearZeroVar(duindepe, saveMetrics = TRUE)
@@ -2672,7 +2716,6 @@ pca_data$Site <- factor(pca_data$Site, levels = c("SP08","SP01","SP02","SP07", "
 
 pcr2 <- pca_data[,c(-1)]
 
-
 #Select column with levels (Site)
 site <- factor(pca_data$Site, levels = pca_data$Site)
 site
@@ -2739,6 +2782,84 @@ autoplot(pc, data=pca_data,
   scale_x_continuous(expand = c(0.1, 0.1))
 
 ggsave(path = "Figures/1 GRADIENT","PCA_func_response_means.png", width = 10, height = 8, dpi = 300)
+
+
+
+
+
+#By replicates:
+
+site_order <- my_data[,c(2,7)] 
+pca_data <- func[order(site_order$AI, decreasing = T),]
+pca_data$Site <- factor(pca_data$Site, levels = c("SP08","SP01","SP02","SP07", "SP06" ,"SP03" ,"SP12", "SP11" ,"SP04", "SP09", "SP10" ,"SP05"))
+
+pcr2 <- func[,c(-1)]
+
+#Select column with levels (Site)
+site <- factor(pca_data$Site, levels = pca_data$Site)
+site
+
+pc <- prcomp(na.omit(pcr2), center = TRUE,
+             scale. = TRUE) 
+
+# 
+# loadings <- pc$rotation
+# 
+scores = as.data.frame(pc$x)
+scores$AI <- site_order$AI
+scores$Site <- site_order$Site
+# 
+# 
+# 
+# p5 <- ggplot()+
+#   geom_point(data = scores, aes(x = PC1, y = PC2, size=4, color=AI))+
+#   geom_text(aes(scores$PC1, scores$PC2,label = scores$Site), size = 3, hjust = 1.7) +
+#   scale_color_AI(discrete = FALSE, palette = "Sites")+
+#   plot.theme1+
+#   ggtitle("PCoA") +
+#   guides(size = "none")
+# 
+# grid.arrange(p5,ncol=1)
+
+
+
+
+pca_data$AI <- site_order$AI
+
+scores = as.data.frame(scale(pc$x))
+scores$AI <- site_order$AI
+scores$Site <- site_order$Site
+
+
+library(devtools)
+install_github('sinhrks/ggfortify')
+library(ggfortify); library(ggplot2)
+
+pca_data$Aridity <- 1 - pca_data$AI
+
+plot.theme1 <- theme_classic() +
+  theme(text=element_text(size=15),
+        axis.title.x = element_text(size = rel(1.2), angle = 00, margin = margin(t=8)),
+        axis.title.y = element_text(size = rel(1.2), angle = 90, margin = margin(t=8)),
+        plot.title = element_text(size=22),
+        axis.text.x = element_text(size=15),
+        axis.text.y = element_text(size=15))
+
+
+autoplot(pc, data=pca_data, 
+         loadings = TRUE, loadings.colour = 'brown',
+         loadings.label.colour='brown', loadings.label = TRUE,
+         loadings.label.size = 7,
+         loadings.label.repel=TRUE)+
+  plot.theme1+
+  geom_point(aes(fill=Aridity), colour= "black", pch=21, size = 5)+
+  scale_fill_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
+  geom_text(aes(label = scores$Site), size = 4, hjust = 1.5) +
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=15, face="plain"))+
+  scale_x_continuous(expand = c(0.1, 0.1))
+
+# ggsave(path = "Figures/1 GRADIENT","PCA_func_response_means.png", width = 10, height = 8, dpi = 300)
 
 
 
