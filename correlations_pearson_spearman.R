@@ -39,7 +39,7 @@ rm(aridity)
 #PHYSICOCHEMICAL ----
 
 #Clean non-interesting variables:
-cor_data <- my_data[,c(2,7,13,20:23,33,34,28,76,30,86,92)]
+cor_data <- my_data[,c(2,7,10,13,20:23,33,34,28,76,30,86,92)]
 
 replace_na_with_mean <- function(data) {
   data %>%

@@ -622,7 +622,7 @@ library(caret)
 
 # > Remove Redundant Features ----
 
-# FINAL SELECTION FOR PCA ***********
+# >> FINAL SELECTION FOR PCA *********** ----
 set.seed(7)
 
 duindepe2 <- duindepe[,-c(23:36)]
