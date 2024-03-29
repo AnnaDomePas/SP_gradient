@@ -2711,10 +2711,16 @@ pca_data <- func %>%
 
 site_order <- my_data[,c(2,7)] 
 site_order <- site_order[!duplicated(site_order), ] #Erase duplicated lines from dataframe
+
+pca_data <- merge(pca_data, site_order, by = 'Site', all.x = TRUE)
+pca_data$Aridity <- (1 - pca_data$AI)
+
+# site_order <- site_order[order(site_order$AI, decreasing = T),]
 pca_data <- pca_data[order(site_order$AI, decreasing = T),]
 pca_data$Site <- factor(pca_data$Site, levels = c("SP08","SP01","SP02","SP07", "SP06" ,"SP03" ,"SP12", "SP11" ,"SP04", "SP09", "SP10" ,"SP05"))
 
-pcr2 <- pca_data[,c(-1)]
+
+pcr2 <- pca_data[,-c(1,13,14)]
 
 #Select column with levels (Site)
 site <- factor(pca_data$Site, levels = pca_data$Site)
@@ -2723,40 +2729,37 @@ site
 pc <- prcomp(na.omit(pcr2), center = TRUE,
              scale. = TRUE) 
 
-# 
-# loadings <- pc$rotation
-# 
 scores = as.data.frame(pc$x)
 scores$AI <- site_order$AI
 scores$Site <- site_order$Site
-# 
-# 
-# 
-# p5 <- ggplot()+
-#   geom_point(data = scores, aes(x = PC1, y = PC2, size=4, color=AI))+
-#   geom_text(aes(scores$PC1, scores$PC2,label = scores$Site), size = 3, hjust = 1.7) +
-#   scale_color_AI(discrete = FALSE, palette = "Sites")+
-#   plot.theme1+
-#   ggtitle("PCoA") +
-#   guides(size = "none")
-# 
-# grid.arrange(p5,ncol=1)
-
-
 
 
 pca_data$AI <- site_order$AI
 
-scores = as.data.frame(scale(pc$x))
+# scores = as.data.frame(scale(pc$x))
 scores$AI <- site_order$AI
 scores$Site <- site_order$Site
+
+# Align the order of sites in scores with pca_data
+new_order <- match(pca_data$Site, scores$Site)
+scores <- scores[new_order, ]
+
+# Align the order of sites in pca_data with scores$Site
+pca_data <- pca_data[match(scores$Site, pca_data$Site), ]
+
+# Reorder pca_data$Aridity based on the new order
+pca_data$Aridity <- pca_data$Aridity[match(scores$Site, pca_data$Site)]
+
+# Check if Aridity values match with Site values
+print("Site and Aridity after alignment:")
+print(data.frame(Site = pca_data$Site, Aridity = pca_data$Aridity))
 
 
 library(devtools)
 install_github('sinhrks/ggfortify')
 library(ggfortify); library(ggplot2)
 
-pca_data$Aridity <- 1 - pca_data$AI
+# pca_data$Aridity <- 1 - pca_data$AI
 
 plot.theme1 <- theme_classic() +
   theme(text=element_text(size=15),
@@ -2781,7 +2784,7 @@ autoplot(pc, data=pca_data,
         axis.title=element_text(size=15, face="plain"))+
   scale_x_continuous(expand = c(0.1, 0.1))
 
-ggsave(path = "Figures/1 GRADIENT","PCA_func_response_means.png", width = 10, height = 8, dpi = 300)
+# ggsave(path = "Figures/1 GRADIENT","PCA_func_response_means.png", width = 10, height = 8, dpi = 300)
 
 
 

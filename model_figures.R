@@ -22,9 +22,10 @@ results <- subset(results, Model != "FB")
 results <- subset(results, Model != "Cenz")
 
 results$Model <- str_replace(results$Model,'MB','Microbial Biomass')
+results$Model <- str_replace(results$Model,'FOS','PHOS')
 
 #Reorder rows for ggarrange plots in desired order:
-new_order <- c(1:10, 34:38, 29:33, 11:28)
+new_order <- c(1:5, 34:38, 29:33, 11:28, 6:10)
 results <- results[new_order, ]
 
 
