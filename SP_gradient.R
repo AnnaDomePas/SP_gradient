@@ -17,7 +17,8 @@ library(ggbiplot)
 library(vegan)
 library(FSA)
 library(rcompanion)
-
+library(mlbench)
+library(caret)
 
 ## Working directory
 # setwd("G:/GRADCATCH/ANALISIS/R")
@@ -616,10 +617,6 @@ png(file = "Figures/1 GRADIENT/cluster_by_16S.png", width = 700, height = 600)
 # https://machinelearningmastery.com/feature-selection-with-the-caret-r-package/
 # https://bookdown.org/rehk/stm1001_dsm_t1_introduction_to_machine_learning_in_r/machine-learning-in-r-using-the-caret-package.html
 
-# load the library
-library(mlbench)
-library(caret)
-
 # > Remove Redundant Features ----
 
 # >> FINAL SELECTION FOR PCA *********** ----
@@ -657,6 +654,9 @@ car::vif(model)
 
 # VARIABLES SELECTED: Altitude, pH, C/N, TC, NH4, PO43, SO42, Silt, Litter, LTC, LTN
 
+
+# I also add the variables selected from WEOM pca (BIX, HIX):
+fsca <- my_data[,c(2,76,13,20,18,21,22,23,28,30,33,34, 86,92)]
 
 
 
@@ -2703,7 +2703,99 @@ adonis2(per.dist ~ Site, data = perma_data2_trans, permutations = 10000, method=
 
 
 # . ----
-# PCA with FUNCTIONAL explan. vars. ----
+# !!! PCA with SELECTED PHYSICOCHEMICAL vars. ----
+
+pca_data <- fsca %>%
+  group_by(Site) %>%
+  summarise_all("mean")
+
+colnames(pca_data)[colnames(pca_data) == "altitude"] <- "Altitude"
+colnames(pca_data)[colnames(pca_data) == "C_N"] <- "C/N"
+colnames(pca_data)[colnames(pca_data) == "L_TC"] <- "LTC"
+colnames(pca_data)[colnames(pca_data) == "L_TN"] <- "LTN"
+
+
+site_order <- my_data[,c(2,7)] 
+site_order <- site_order[!duplicated(site_order), ] #Erase duplicated lines from dataframe
+
+pca_data <- merge(pca_data, site_order, by = 'Site', all.x = TRUE)
+pca_data$Aridity <- (1 - pca_data$AI)
+
+# site_order <- site_order[order(site_order$AI, decreasing = T),]
+pca_data <- pca_data[order(site_order$AI, decreasing = T),]
+pca_data$Site <- factor(pca_data$Site, levels = c("SP08","SP01","SP02","SP07", "SP06" ,"SP03" ,"SP12", "SP11" ,"SP04", "SP09", "SP10" ,"SP05"))
+
+
+pcr2 <- pca_data[,-c(1,15,16)]
+
+#Select column with levels (Site)
+site <- factor(pca_data$Site, levels = pca_data$Site)
+site
+
+pc <- prcomp(na.omit(pcr2), center = TRUE,
+             scale. = TRUE) 
+
+scores = as.data.frame(pc$x)
+scores$AI <- site_order$AI
+scores$Site <- site_order$Site
+
+
+pca_data$AI <- site_order$AI
+
+# scores = as.data.frame(scale(pc$x))
+scores$AI <- site_order$AI
+scores$Site <- site_order$Site
+
+# Align the order of sites in scores with pca_data
+new_order <- match(pca_data$Site, scores$Site)
+scores <- scores[new_order, ]
+
+# Align the order of sites in pca_data with scores$Site
+pca_data <- pca_data[match(scores$Site, pca_data$Site), ]
+
+# Reorder pca_data$Aridity based on the new order
+pca_data$Aridity <- pca_data$Aridity[match(scores$Site, pca_data$Site)]
+
+# Check if Aridity values match with Site values
+print("Site and Aridity after alignment:")
+print(data.frame(Site = pca_data$Site, Aridity = pca_data$Aridity))
+
+
+library(devtools)
+# install_github('sinhrks/ggfortify')
+library(ggfortify); library(ggplot2)
+
+# pca_data$Aridity <- 1 - pca_data$AI
+
+plot.theme1 <- theme_classic() +
+  theme(text=element_text(size=15),
+        axis.title.x = element_text(size = rel(1.2), angle = 00, margin = margin(t=8)),
+        axis.title.y = element_text(size = rel(1.2), angle = 90, margin = margin(t=8)),
+        plot.title = element_text(size=22),
+        axis.text.x = element_text(size=15),
+        axis.text.y = element_text(size=15))
+
+
+autoplot(pc, data=pca_data, 
+         loadings = TRUE, loadings.colour = 'brown',
+         loadings.label.colour='brown', loadings.label = TRUE,
+         loadings.label.size = 7,
+         loadings.label.repel=TRUE,
+         color = pca_data$AI)+
+  plot.theme1+
+  geom_point(aes(fill=Aridity), colour= "black", pch=21, size = 5)+
+  scale_fill_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
+  geom_text(aes(label = scores$Site), size = 4, hjust = 1.5) +
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=15, face="plain"))+
+  scale_x_continuous(expand = c(0.1, 0.1))
+
+
+
+
+
+
+# !!! PCA with FUNCTIONAL explan. vars. ----
 
 pca_data <- func %>%
   group_by(Site) %>%
