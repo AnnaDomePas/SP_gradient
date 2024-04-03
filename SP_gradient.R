@@ -1695,7 +1695,7 @@ p1 <- ggplot(New_data1, aes(x=AI, y=values, color = Site)) +
 
 p1
 
-ggsave(path = "Figures/1 GRADIENT","SP_fig1_1.png", width = 20, height = 5, dpi = 300)
+# ggsave(path = "Figures/1 GRADIENT","SP_fig1_1.png", width = 20, height = 5, dpi = 300)
 
 
 p2 <- ggplot(New_data2, aes(x=AI, y=values, color = Site)) +
@@ -1723,7 +1723,7 @@ p2 <- ggplot(New_data2, aes(x=AI, y=values, color = Site)) +
   scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
                      labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
 p2
-ggsave(path = "Figures/1 GRADIENT","SP_fig1_2.png", width = 20, height = 5, dpi = 300)
+# ggsave(path = "Figures/1 GRADIENT","SP_fig1_2.png", width = 20, height = 5, dpi = 300)
 
 
 p3 <- ggplot(New_data3, aes(x=AI, y=values, color = Site)) +
@@ -1747,7 +1747,7 @@ p3 <- ggplot(New_data3, aes(x=AI, y=values, color = Site)) +
   scale_x_continuous(breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4),
                      labels = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4))
 p3
-ggsave(path = "Figures/1 GRADIENT","SP_fig1_3.png", width = 20, height = 5, dpi = 300)
+# ggsave(path = "Figures/1 GRADIENT","SP_fig1_3.png", width = 20, height = 5, dpi = 300)
 
 
 
@@ -1808,8 +1808,8 @@ ggplot(granu, aes(x = granu$Site, y = granu$Percentage, fill=granu$Granulometry)
                                "Sand" = "#ec7014",
                                "Clay"="#993404"))
 
-ggsave(path = "Figures/1 GRADIENT","fig1_5.png",
-       width = 7, height = 6, dpi = 300)
+# ggsave(path = "Figures/1 GRADIENT","fig1_5.png",
+       # width = 7, height = 6, dpi = 300)
 
 
 # **************************************************************************************
@@ -1925,7 +1925,7 @@ all_plot$layers[[txt]] <- geom_label(aes(x = xvar, y = yvar, label = PCAloadings
                                      fill = '#dddddd80')
 all_plot
 
-ggsave(path = "Figures/1 GRADIENT","SP_fig2_1.png", width = 7, height = 6, dpi = 300)
+# ggsave(path = "Figures/1 GRADIENT","SP_fig2_1.png", width = 7, height = 6, dpi = 300)
 
 
 
