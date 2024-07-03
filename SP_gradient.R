@@ -2967,7 +2967,39 @@ autoplot(pc, data=pca_data,
         axis.title=element_text(size=15, face="plain"))+
   scale_x_continuous(expand = c(0.1, 0.1))
 
-ggsave(path = "Figures/1 GRADIENT","PCA_func_response_means.png", width = 10, height = 8, dpi = 300)
+
+# ggsave(path = "Figures/1 GRADIENT","PCA_func_response_means.png", width = 10, height = 8, dpi = 300)
+
+
+
+# POSTER:
+
+pca_data_poster <- pca_data
+pca_data_poster$Site <- sub("^SP", "", pca_data_poster$Site)
+scores_poster <- scores
+scores_poster$Site <- sub("^SP", "", scores_poster$Site)
+
+autoplot(pc, data=pca_data_poster, 
+         loadings = TRUE, loadings.colour = 'brown',
+         loadings.label.colour='brown', loadings.label = TRUE,
+         loadings.label.size = 7,
+         loadings.label.repel=TRUE,
+         color = pca_data$AI)+
+  plot.theme1+
+  geom_point(aes(fill=Aridity), colour= "white", pch=21, size = 5.5)+
+  scale_fill_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
+  geom_text(aes(label = scores_poster$Site), size = 4, hjust = 1.7) +
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=15, face="plain"),
+        panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5))+
+  scale_x_continuous(expand = c(0.1, 0.1))
+
+
+ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/- Congressos/4. ISME (2024)/POSTER/Figures and Images/high resolution figures",
+       "PCA_func_response_means.png", width = 10, height = 8, dpi = 1000)
+
+
+
 
 # # Perform PCA
 # pca_result <- prcomp(pca_data[, -which(names(pca_data) == "Site")], scale. = TRUE)
