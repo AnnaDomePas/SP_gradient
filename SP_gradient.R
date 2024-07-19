@@ -5031,24 +5031,27 @@ ggsave(path = "Figures/1 GRADIENT","SP_PCA_all_replicate.png", width = 7, height
 #.----
 # WEOM PCA ----
 #BY MEANS
-pca_data <- my_data[,c(2,79:92)]
+pca_data <- my_data[,c(2,7,79:92)]
 
 pca_data <- pca_data %>%
   group_by(Site) %>%
   summarise_all("mean")
 
-site_order <- my_data[,c(2,7)] 
-site_order <- site_order[!duplicated(site_order), ] #Erase duplicated lines from dataframe
-pca_data <- pca_data[order(site_order$AI, decreasing = T),]
-pca_data$Site <- factor(pca_data$Site, levels = pca_data$Site[order(site_order$AI)])
+pca_data$Aridity <- 1-pca_data$AI
+
+pca_data <- pca_data[,-2]
+
+site_order <- pca_data[,c(1,16)] 
+pca_data <- pca_data[order(site_order$Aridity, decreasing = T),]
+pca_data$Site <- factor(pca_data$Site, levels = pca_data$Site[order(site_order$Aridity)])
 
 pcr2 <- pca_data[,c(-1)]
 
 #Select column with levels (Site)
-site <- factor(pca_data$Site, levels = c("SP08","SP01","SP02",
-                                         "SP07","SP06","SP03",
-                                         "SP12","SP11","SP04",
-                                         "SP09","SP10","SP05"))
+site <- factor(pca_data$Site, levels = c("SP05", "SP10", "SP09", 
+                                         "SP04", "SP11", "SP12", 
+                                         "SP03", "SP06", "SP07", 
+                                         "SP02", "SP01", "SP08"))
 site
 
 pc <- prcomp(na.omit(pcr2), center = TRUE,
@@ -5058,24 +5061,18 @@ plot(pc, type = "l")
 plot(pc)
 summary(pc)
 
-mycolors2<-c("#427681","#3891A6","#9BBC79","#CCD263","#E5DD58",
-             "#FDE74C", "#EC9E57", "#E3655B", "#DB5461","#D84652",
-             "#7D1809", "#290500")
 
-library(ggfortify)
 autoplot(pc, data=pca_data, 
          loadings = TRUE, loadings.colour = 'brown',
          loadings.label.colour='brown', loadings.label = TRUE,
          loadings.label.size = 7,
          loadings.label.repel=TRUE)+
   theme_classic()+
-  geom_point(aes(fill=site), colour= "black", pch=21, size = 5)+
-  scale_fill_manual(values = mycolors2)+
-  ggtitle("Physicochemical variables")+
-  theme(legend.title = element_blank(),
-        legend.text=element_text(size = 12),
-        title = element_text(size = 15,face="bold"),
-        axis.text=element_text(size=12),
+  geom_point(aes(fill=Aridity), colour= "black", pch=21, size = 5)+
+  scale_fill_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
+  ggtitle("WEOM indexes")+
+  geom_text(aes(label = pca_data$Site), size = 4, hjust = -0.3, vjust= -0.4) +
+  theme(axis.text=element_text(size=12),
         axis.title=element_text(size=15, face="plain"))
 
 ggsave(path = "Figures/1 GRADIENT","PCA_weom.png", width = 10, height = 8, dpi = 300)
