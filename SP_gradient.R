@@ -19,6 +19,7 @@ library(FSA)
 library(rcompanion)
 library(mlbench)
 library(caret)
+library(ggfortify)
 
 ## Working directory
 # setwd("G:/GRADCATCH/ANALISIS/R")
@@ -5045,7 +5046,7 @@ site_order <- pca_data[,c(1,16)]
 pca_data <- pca_data[order(site_order$Aridity, decreasing = T),]
 pca_data$Site <- factor(pca_data$Site, levels = pca_data$Site[order(site_order$Aridity)])
 
-pcr2 <- pca_data[,c(-1)]
+pcr2 <- pca_data[,c(-1,-16)]
 
 #Select column with levels (Site)
 site <- factor(pca_data$Site, levels = c("SP05", "SP10", "SP09", 
@@ -5111,7 +5112,7 @@ mycolors2<-c("#10449F","#51B7DF","#00FFFF","#00A01D","#064700",
              "#7A7615", "#583200", "#C24A0A", "#F5C92D","#FA0C00",
              "#7D1809", "#290500")
 
-library(ggfortify)
+
 autoplot(pc, data=pca_data, 
          loadings = TRUE, loadings.colour = 'brown',
          loadings.label.colour='brown', loadings.label = TRUE,
