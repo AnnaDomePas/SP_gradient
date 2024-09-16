@@ -2885,26 +2885,38 @@ autoplot(pc, data=pca_data,
 
 
 
-# !!! PCA with FUNCTIONAL explan. vars. ----
+# PCA with FUNCTIONAL explan. vars. ----
 
 pca_data <- func %>%
   group_by(Site) %>%
   summarise_all("mean")
 
-colnames(pca_data)[colnames(pca_data) == "fos"] <- "phos"
+
+colnames(pca_data)[colnames(pca_data) == "alpha"] <- "ALPHA"
+colnames(pca_data)[colnames(pca_data) == "beta"] <- "BETA"
+colnames(pca_data)[colnames(pca_data) == "xyl"] <- "XYL"
+colnames(pca_data)[colnames(pca_data) == "cbh"] <- "CBH"
+colnames(pca_data)[colnames(pca_data) == "gla"] <- "NAG"
+colnames(pca_data)[colnames(pca_data) == "fos"] <- "PHOS"
+colnames(pca_data)[colnames(pca_data) == "leu"] <- "LEU"
+colnames(pca_data)[colnames(pca_data) == "phe"] <- "PHE"
+
+
 
 site_order <- my_data[,c(2,7)] 
 site_order <- site_order[!duplicated(site_order), ] #Erase duplicated lines from dataframe
 
+
 pca_data <- merge(pca_data, site_order, by = 'Site', all.x = TRUE)
 pca_data$Aridity <- (1 - pca_data$AI)
 
-# site_order <- site_order[order(site_order$AI, decreasing = T),]
+site_order <- site_order[order(site_order$AI, decreasing = T),]
 pca_data <- pca_data[order(site_order$AI, decreasing = T),]
 pca_data$Site <- factor(pca_data$Site, levels = c("SP08","SP01","SP02","SP07", "SP06" ,"SP03" ,"SP12", "SP11" ,"SP04", "SP09", "SP10" ,"SP05"))
+# pca_data$Site <- factor(pca_data$Site, levels = c("FDE", "ATK", "LHE", "ARZ", "VAL", "GAV", "ALB", "MON", "COY", "SAN", "MAL", "TAB"))
 
 
-pcr2 <- pca_data[,-c(1,13,14)]
+pcr2 <- pca_data[,-c(1,13:14)]
 
 #Select column with levels (Site)
 site <- factor(pca_data$Site, levels = pca_data$Site)
@@ -2915,7 +2927,7 @@ pc <- prcomp(na.omit(pcr2), center = TRUE,
 
 scores = as.data.frame(pc$x)
 scores$AI <- site_order$AI
-scores$Site <- site_order$Site
+scores$Site <- site_order$site
 
 
 pca_data$AI <- site_order$AI
@@ -2973,7 +2985,146 @@ autoplot(pc, data=pca_data,
 
 
 
-# POSTER:
+
+
+#### MANUSCRIPT !!!! ----
+
+pca_data <- func %>%
+  group_by(Site) %>%
+  summarise_all("mean")
+
+
+colnames(pca_data)[colnames(pca_data) == "alpha"] <- "ALPHA"
+colnames(pca_data)[colnames(pca_data) == "beta"] <- "BETA"
+colnames(pca_data)[colnames(pca_data) == "xyl"] <- "XYL"
+colnames(pca_data)[colnames(pca_data) == "cbh"] <- "CBH"
+colnames(pca_data)[colnames(pca_data) == "gla"] <- "NAG"
+colnames(pca_data)[colnames(pca_data) == "fos"] <- "PHOS"
+colnames(pca_data)[colnames(pca_data) == "leu"] <- "LEU"
+colnames(pca_data)[colnames(pca_data) == "phe"] <- "PHE"
+
+
+pca_data <- pca_data %>%
+  mutate(Site = case_when(
+    Site == "SP01" ~ "ATK",
+    Site == "SP02" ~ "LHE",
+    Site == "SP03" ~ "GAV",
+    Site == "SP04" ~ "COY",
+    Site == "SP05" ~ "TAB",
+    Site == "SP06" ~ "VAL",
+    Site == "SP07" ~ "ARZ",
+    Site == "SP08" ~ "FDE",
+    Site == "SP09" ~ "SAN",
+    Site == "SP10" ~ "MAL",
+    Site == "SP11" ~ "MON",
+    Site == "SP12" ~ "ALB",
+    TRUE ~ NA_character_  # In case there are other values not listed above
+  ))
+
+
+site_order <- my_data[,c(2,7)] 
+site_order <- site_order[!duplicated(site_order), ] #Erase duplicated lines from dataframe
+
+site_order <- site_order %>%
+  mutate(Site = case_when(
+    Site == "SP01" ~ "ATK",
+    Site == "SP02" ~ "LHE",
+    Site == "SP03" ~ "GAV",
+    Site == "SP04" ~ "COY",
+    Site == "SP05" ~ "TAB",
+    Site == "SP06" ~ "VAL",
+    Site == "SP07" ~ "ARZ",
+    Site == "SP08" ~ "FDE",
+    Site == "SP09" ~ "SAN",
+    Site == "SP10" ~ "MAL",
+    Site == "SP11" ~ "MON",
+    Site == "SP12" ~ "ALB",
+    TRUE ~ NA_character_  # In case there are other values not listed above
+  ))
+
+
+
+pca_data <- merge(pca_data, site_order, by = 'Site', all.x = TRUE)
+pca_data$Aridity <- (1 - pca_data$AI)
+
+site_order <- site_order[order(site_order$AI, decreasing = T),]
+pca_data <- pca_data[order(site_order$AI, decreasing = T),]
+# pca_data$Site <- factor(pca_data$Site, levels = c("SP08","SP01","SP02","SP07", "SP06" ,"SP03" ,"SP12", "SP11" ,"SP04", "SP09", "SP10" ,"SP05"))
+pca_data$Site <- factor(pca_data$Site, levels = c("FDE", "ATK", "LHE", "ARZ", "VAL", "GAV", "ALB", "MON", "COY", "SAN", "MAL", "TAB"))
+
+
+pcr2 <- pca_data[,-c(1,13:14)]
+
+#Select column with levels (Site)
+site <- factor(pca_data$Site, levels = pca_data$Site)
+site
+
+pc <- prcomp(na.omit(pcr2), center = TRUE,
+             scale. = TRUE) 
+
+scores = as.data.frame(pc$x)
+scores$AI <- site_order$AI
+scores$Site <- site_order$site
+
+
+pca_data$AI <- site_order$AI
+
+# scores = as.data.frame(scale(pc$x))
+scores$AI <- site_order$AI
+scores$Site <- site_order$Site
+
+# Align the order of sites in scores with pca_data
+new_order <- match(pca_data$Site, scores$Site)
+scores <- scores[new_order, ]
+
+# Align the order of sites in pca_data with scores$Site
+pca_data <- pca_data[match(scores$Site, pca_data$Site), ]
+
+# Reorder pca_data$Aridity based on the new order
+pca_data$Aridity <- pca_data$Aridity[match(scores$Site, pca_data$Site)]
+
+# Check if Aridity values match with Site values
+print("Site and Aridity after alignment:")
+print(data.frame(Site = pca_data$Site, Aridity = pca_data$Aridity))
+
+
+library(devtools)
+# install_github('sinhrks/ggfortify')
+library(ggfortify); library(ggplot2)
+
+# pca_data$Aridity <- 1 - pca_data$AI
+
+plot.theme1 <- theme_classic() +
+  theme(text=element_text(size=15),
+        axis.title.x = element_text(size = rel(1.2), angle = 00, margin = margin(t=8)),
+        axis.title.y = element_text(size = rel(1.2), angle = 90, margin = margin(t=8)),
+        plot.title = element_text(size=22),
+        axis.text.x = element_text(size=15),
+        axis.text.y = element_text(size=15))
+
+
+autoplot(pc, data=pca_data, 
+         loadings = TRUE, loadings.colour = 'brown',
+         loadings.label.colour='brown', loadings.label = TRUE,
+         loadings.label.size = 7,
+         loadings.label.repel=TRUE,
+         color = pca_data$AI)+
+  plot.theme1+
+  geom_point(aes(fill=Aridity), colour= "black", pch=21, size = 5)+
+  scale_fill_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
+  geom_text(aes(label = scores$Site), size = 4, hjust = 1.5) +
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=15, face="plain"))+
+  scale_x_continuous(expand = c(0.1, 0.1))
+
+
+ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/GRADCATCH/Manuscripts/1 GRADIENT/Figures","PCA_func_response.png", width = 10, height = 8, dpi = 300)
+
+
+
+
+
+#### POSTER ----
 
 pca_data_poster <- pca_data
 pca_data_poster$Site <- sub("^SP", "", pca_data_poster$Site)
@@ -4126,14 +4277,18 @@ ggsave(path = "Figures/1 GRADIENT", "SP_MB_AI_noSP6.png", width = 12, height = 6
 
 # >>> ARTICLE PLOT ----
 New_data <- my_data %>% gather(mb, values, c(40:41))
+New_data$values <- New_data$values * 1000
 New_data$mb <- factor(New_data$mb, levels = c("BB", "FB"))
-New_data <- data_summary(New_data, varname="values", 
+New_data <- data_summary2(New_data, varname="values", 
                          groupnames=c("Site","aridity", "mb"))
 New_data$values = as.numeric(New_data$values)
+
+
+
 biomasses <- ggplot(New_data, aes(x=aridity, y=values, color = mb, 
                                   fill = mb)) +
   geom_point(size= 3, color ="grey") +
-  geom_pointrange(data = New_data, aes(ymin=values-sd, ymax=values+sd),
+  geom_pointrange(data = New_data, aes(ymin=values-sem, ymax=values+sem),
                   color = "black", stroke = 1, size = 0.6, shape = 1) +
   xlab("Aridity (1-AI)") +
   theme(axis.title.y=element_blank()) +
@@ -4152,7 +4307,7 @@ biomasses <- ggplot(New_data, aes(x=aridity, y=values, color = mb,
                      labels = c(-0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8))
 biomasses
 
-ggsave(path = "Figures/1 GRADIENT", "SP_MB_aridity.png", width = 12, height = 6, dpi = 300)
+ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/GRADCATCH/Manuscripts/1 GRADIENT/Figures","supplementary_biomass.png", width = 12, height = 6, dpi = 300)
 
 
 
@@ -4308,6 +4463,7 @@ ggsave(path = "Figures/1 GRADIENT", "SP_respiration_AI.png", width = 6, height =
 
 # >>> ARTICLE PLOT ----
 New_data <- my_data %>% gather(respi, values, c(64))
+New_data$values <- New_data$values * 1000
 New_data$respi <- factor(New_data$respi, levels = c("Respiration"))
 New_data <- data_summary(New_data, varname="values", 
                          groupnames=c("Site","aridity", "respi"))
@@ -4320,6 +4476,7 @@ respiration <- ggplot(New_data, aes(x=aridity, y=values, color = respi,
   xlab("Aridity (1-AI)") +
   theme(axis.title.y=element_blank()) +
   theme(axis.title.x = element_text(size = 20, face = "bold", colour = "black")) +
+  theme(plot.title = element_text(face = "bold"))+
   facet_wrap( .~ respi , nrow = 1, scales = "free_y", labeller = label_parsed) +
   theme(strip.background =element_rect(fill="light grey")) +
   theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
@@ -4335,7 +4492,7 @@ respiration <- ggplot(New_data, aes(x=aridity, y=values, color = respi,
 respiration
 
 # save the plot
-ggsave(path = "Figures/1 GRADIENT", "SP_respiration_aridity.png", width = 6, height = 6, dpi = 300)
+ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/GRADCATCH/Manuscripts/1 GRADIENT/Figures", "supplementary_respiration.png", width = 6, height = 6, dpi = 300)
 
 
 
