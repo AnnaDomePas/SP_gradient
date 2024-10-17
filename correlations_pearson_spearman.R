@@ -46,6 +46,8 @@ rm(aridity)
 
 #Clean non-interesting variables:
 cor_data <- my_data[-c(61:63),c(2,7,10,13,20:23,33,34,28,76,30,86,92)]
+cor_data2 <- my_data[-c(61:63),c(2,7,10,12:13,17:23,27:30, 33,34)]
+cor_data3 <- my_data[-c(61:63),c(2,7,79:92)]
 
 replace_na_with_mean <- function(data) {
   data %>%
@@ -58,6 +60,69 @@ cor_data <- replace_na_with_mean(cor_data)
 cor_data <- cor_data %>%
   group_by(Site) %>%
   summarise_all(mean)
+
+
+cor_data2 <- replace_na_with_mean(cor_data2)
+cor_data2 <- cor_data2 %>%
+  group_by(Site) %>%
+  summarise_all(mean)
+
+cor_data3 <- replace_na_with_mean(cor_data3)
+cor_data3 <- cor_data3 %>%
+  group_by(Site) %>%
+  summarise_all(mean)
+
+
+##### With Aridity !!!! ----
+
+cor_data2$Aridity <- (1 - cor_data2$AI)
+cor_data2 <- cor_data2[,-2]
+
+cor_data3$Aridity <- (1 - cor_data3$AI)
+cor_data3 <- cor_data3[,-2]
+
+
+colnames(cor_data3)[2] <- "s275295"
+colnames(cor_data3)[3] <- "s350400"
+colnames(cor_data3)[5] <- "E2E3"
+colnames(cor_data3)[6] <- "E3E4"
+colnames(cor_data3)[7] <- "E4E6"
+
+
+
+#SPEARMAN:
+numerical_variables <- sapply(cor_data2, is.numeric)
+numerical_variables_names <- names(numerical_variables)[numerical_variables]
+all_plots <- list()
+for (var in numerical_variables_names) {
+  if (var != "Aridity") {
+    plot_title <- paste(var)
+    all_plots[[length(all_plots) + 1]] <- ggscatter(cor_data2, x = "Aridity", y = var,
+                                                    add = "reg.line", conf.int = TRUE,
+                                                    cor.coef = TRUE, cor.method = "spearman",
+                                                    xlab = "Aridity", ylab = var,
+                                                    main = plot_title)
+  }
+}
+grid.arrange(grobs = all_plots, nrow = 2)
+
+
+
+
+numerical_variables <- sapply(cor_data3, is.numeric)
+numerical_variables_names <- names(numerical_variables)[numerical_variables]
+all_plots <- list()
+for (var in numerical_variables_names) {
+  if (var != "Aridity") {
+    plot_title <- paste(var)
+    all_plots[[length(all_plots) + 1]] <- ggscatter(cor_data3, x = "Aridity", y = var,
+                                                    add = "reg.line", conf.int = TRUE,
+                                                    cor.coef = TRUE, cor.method = "spearman",
+                                                    xlab = "Aridity", ylab = var,
+                                                    main = plot_title)
+  }
+}
+grid.arrange(grobs = all_plots, nrow = 2)
 
 
 

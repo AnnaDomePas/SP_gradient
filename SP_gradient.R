@@ -3495,7 +3495,87 @@ Sites_by_aridity <- ggplot(aridity_ord, aes(x=Site, y=aridity)) +
   
 Sites_by_aridity
 
-ggsave(path = "Figures/1 GRADIENT","sites_AI_bars2.png", width = 6, height = 6, dpi = 300)
+# ggsave(path = "Figures/1 GRADIENT","sites_AI_bars2.png", width = 6, height = 6, dpi = 300)
+
+
+
+
+
+
+### AI plot !!!! ----
+
+aridity_ord <- aridity_ord %>%
+  mutate(Site = case_when(
+    Site == "SP01" ~ "ATK",
+    Site == "SP02" ~ "LHE",
+    Site == "SP03" ~ "GAV",
+    Site == "SP04" ~ "COY",
+    Site == "SP05" ~ "TAB",
+    Site == "SP06" ~ "VAL",
+    Site == "SP07" ~ "ARZ",
+    Site == "SP08" ~ "FDE",
+    Site == "SP09" ~ "SAN",
+    Site == "SP10" ~ "MAL",
+    Site == "SP11" ~ "MON",
+    Site == "SP12" ~ "ALB",
+    TRUE ~ NA_character_  # In case there are other values not listed above
+  ))
+
+
+AI_ord <- AI_ord %>%
+  mutate(Site = case_when(
+    Site == "SP01" ~ "ATK",
+    Site == "SP02" ~ "LHE",
+    Site == "SP03" ~ "GAV",
+    Site == "SP04" ~ "COY",
+    Site == "SP05" ~ "TAB",
+    Site == "SP06" ~ "VAL",
+    Site == "SP07" ~ "ARZ",
+    Site == "SP08" ~ "FDE",
+    Site == "SP09" ~ "SAN",
+    Site == "SP10" ~ "MAL",
+    Site == "SP11" ~ "MON",
+    Site == "SP12" ~ "ALB",
+    TRUE ~ NA_character_  # In case there are other values not listed above
+  ))
+
+aridity_ord$Site <- factor(aridity_ord$Site, levels = aridity_ord$Site[order(aridity_ord$aridity)])
+AI_ord$Site <- factor(AI_ord$Site, levels = AI_ord$Site[order(AI_ord$AI)])
+
+site_colors <- c(rep("#3A899B", 5), "#9EBD77", rep("#F7CD4F", 3), rep("#DD5A5E", 3))
+
+
+
+Sites_by_aridity <- ggplot(aridity_ord, aes(x=Site, y=aridity)) +
+  ylab("Aridity (1-AI)") +
+  theme_bw() +
+  theme(axis.title.x = element_blank()) +
+  theme(axis.title.y = element_text(size = 20, face = "bold", colour = "black")) +
+  theme(strip.background = element_rect(fill="light grey")) +
+  theme(strip.text.x = element_text(size = 20, colour = "black", angle = 0, face = "bold")) +
+  theme(panel.border = element_rect(color = "black", fill = NA, linewidth = 1)) +
+  theme(axis.text.x = element_text(size = 18, angle = 45, hjust = 1, color = "black", face = "bold")) +
+  theme(axis.text.y = element_text(size = 18, color = "black", face = "bold")) +
+  theme(plot.margin = unit(c(0.5, 0.5, 0.3, 0.5), "cm")) + # top, right, bottom, left
+  theme(legend.position = "none") +
+  coord_cartesian(ylim = c(-0.4, 1)) +
+  scale_y_continuous(breaks = breaks_width(0.2)) +
+  scale_x_discrete(limits = rev(levels(AI_ord$Site))) +
+  geom_linerange(aes(ymin=min(aridity)-0.08, ymax=aridity, x=Site), size=12,
+                 position = "identity", color = site_colors)
+
+Sites_by_aridity
+
+
+
+ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/GRADCATCH/Manuscripts/1 GRADIENT/Figures",
+       "AI_barplot.png", width = 6, height = 6, dpi = 300)
+
+
+
+
+
+
 
 
 
@@ -5378,6 +5458,59 @@ ggsave(path = "Figures/1 GRADIENT", "ALL_enzymes_loess.png", width = 16, height 
  
 #__________________ -----
 # SHIT .-----
+
+prova <- my_data[,c(2,78,93)]
+
+prova <- prova %>%
+  mutate(Site = case_when(
+    Site == "SP01" ~ "ATK",
+    Site == "SP02" ~ "LHE",
+    Site == "SP03" ~ "GAV",
+    Site == "SP04" ~ "COY",
+    Site == "SP05" ~ "TAB",
+    Site == "SP06" ~ "VAL",
+    Site == "SP07" ~ "ARZ",
+    Site == "SP08" ~ "FDE",
+    Site == "SP09" ~ "SAN",
+    Site == "SP10" ~ "MAL",
+    Site == "SP11" ~ "MON",
+    Site == "SP12" ~ "ALB",
+    TRUE ~ NA_character_  # In case there are other values not listed above
+  ))
+
+
+
+ggplot(prova, aes(x = landcover, y = aridity)) +
+  geom_boxplot() +
+  theme_minimal() +
+  xlab("Land Cover Class") +
+  ylab("Aridity")
+
+ggplot(prova, aes(x = landcover, y = aridity)) +
+  geom_violin(trim = FALSE) +
+  theme_minimal() +
+  xlab("Land Cover Class") +
+  ylab("Aridity")
+
+ggplot(prova, aes(x = landcover, y = aridity)) +
+  geom_jitter(width = 0.2, color = "blue", alpha = 0.7) +
+  theme_minimal() +
+  xlab("Land Cover Class") +
+  ylab("Aridity")
+
+ggplot(prova, aes(x = landcover, y = aridity)) +
+  stat_summary(fun.data = "mean_se", geom = "bar", fill = "skyblue") +
+  stat_summary(fun.data = "mean_se", geom = "errorbar", width = 0.2) +
+  theme_minimal() +
+  xlab("Land Cover Class") +
+  ylab("Mean Aridity")
+
+
+
+
+
+
+
 
 # New_data <- my_data[,c(2,7,8,10,12:13,17:23,27:30)]
 # 
