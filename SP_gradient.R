@@ -3104,8 +3104,8 @@ plot.theme1 <- theme_classic() +
 
 
 autoplot(pc, data=pca_data, 
-         loadings = TRUE, loadings.colour = 'brown',
-         loadings.label.colour='brown', loadings.label = TRUE,
+         loadings = TRUE, loadings.colour = 'darkred',
+         loadings.label.colour='darkred', loadings.label = TRUE,
          loadings.label.size = 7,
          loadings.label.repel=TRUE,
          color = pca_data$AI)+
@@ -3118,8 +3118,9 @@ autoplot(pc, data=pca_data,
   scale_x_continuous(expand = c(0.1, 0.1))
 
 
-ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/GRADCATCH/Manuscripts/1 GRADIENT/Figures","PCA_func_response.png", width = 10, height = 8, dpi = 300)
-
+# ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/GRADCATCH/Manuscripts/1 GRADIENT/Figures","PCA_func_response.png", width = 10, height = 8, dpi = 300)
+ggsave(path = "Figures",
+       "PCA_func_response.png", width = 10, height = 8, dpi = 300)
 
 
 

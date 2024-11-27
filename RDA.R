@@ -20,6 +20,18 @@ library(adespatial)
 
 # IMPORT DATA ----
 
+plot.theme2 <- theme_classic() +
+  theme(text=element_text(size=15),
+        panel.background = element_rect(fill = "white",
+                                        colour = "black",
+                                        size = 0.5, linetype = "solid"),
+        axis.title.x = element_text(size = rel(1.2), angle = 00, margin = margin(t=8)),
+        axis.title.y = element_text(size = rel(1.2), angle = 90, margin = margin(t=8)),
+        plot.title = element_text(size=22),
+        axis.text.x = element_text(size=15),
+        axis.text.y = element_text(size=15))
+
+
 my_data <- read.csv("SP_metadata_2021.csv", sep=";")
 my_data$aridity <- (1- my_data$AI)
 #To replace NA values with a mean of the other values of the Site:
@@ -132,13 +144,10 @@ env <- env[order(env$Aridity), ]
 
 
 
-
-env <- env %>%
-  rename("Soil Temperature" = Soil_Temp,
-         "Water activity" = Water_activity,
-         "Water content" = Water_content,
-         "C/N" = C_N)
-
+colnames(env)[colnames(env) == "Soil_Temp"] <- "Soil Temperature"
+colnames(env)[colnames(env) == "Water_activity"] <- "Water activity"
+colnames(env)[colnames(env) == "Water_content"] <- "Water content"
+colnames(env)[colnames(env) == "C_N"] <- "C/N"
 
 
 
@@ -361,9 +370,7 @@ ASV_ITS2_grouped_clean <- ASV_ITS2_grouped_clean %>%
 #Without landcover
 env1 <- env[,-c(5)]
 
-
-landc_matrix <- landc_matrix %>%
-  rename("Sample.name" = Name)
+colnames(landc_matrix)[colnames(landc_matrix) == "Name"] <- "Sample.name"
 
 Aridity <- my_data[,c(3,7)]
 
@@ -500,6 +507,15 @@ species_scores_df <- as.data.frame(species_scores)
 species_scores_df$var <- rownames(species_scores_df)
 rm(species_scores)
 
+
+# Calculate axis % values:
+# percentage of variance explained by each axis relative to the total variance (both constrained and unconstrained).
+# This is generally preferred because it takes into account all the components, including the total variance,
+# in calculating the proportions.
+perc <- round(100*(summary(rda13)$cont$importance[2, 1:2]), 2)
+perc
+
+
 ggplot() +
   geom_point(data = site_scores_df, 
              aes(x = RDA1, y = RDA2, color = Aridity),
@@ -522,8 +538,10 @@ ggplot() +
                   size = 4, color = "darkred", vjust = -1,
                   fontface = "bold") +
   scale_color_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
-  xlab("RDA1") + ylab("RDA2") +
+  xlab(paste0("RDA1 (", perc[1], "%)")) + 
+  ylab(paste0("RDA2 (", perc[2], "%)")) +
   theme_minimal()
+
 
 
 # ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/GRADCATCH/Manuscripts/1 GRADIENT/Figures",
@@ -549,6 +567,29 @@ func2_s_scores_df_sig <- func2_s_scores_df[c(3,7,9,12:13),]
 prok_h1 <- prok_h[,c(3,7,9,12:13)]
 
 
+
+rda131 <- rda(func2_s ~ ., data=data.frame(prok_h1))
+summary(rda131)
+
+R2 <- RsquareAdj(rda131)$r.squared # Aquest és el valor que ja havíem vist abans al summary
+R2
+R2adj <- RsquareAdj(rda131)$adj.r.squared # Aquests él el valor ajustat que ens interessa
+R2adj
+
+
+anova.cca(rda131, permutations = how(nperm = 10000))
+
+
+# Calculate axis % values:
+# percentage of variance explained by each axis relative to the total variance (both constrained and unconstrained).
+# This is generally preferred because it takes into account all the components, including the total variance,
+# in calculating the proportions.
+perc <- round(100*(summary(rda131)$cont$importance[2, 1:2]), 2)
+perc
+
+
+
+
 ggplot() +
   geom_point(data = site_scores_df, 
              aes(x = RDA1, y = RDA2, color = Aridity),
@@ -571,22 +612,14 @@ ggplot() +
                   size = 4, color = "darkred", vjust = -1,
                   fontface = "bold") +
   scale_color_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
-  xlab("RDA1") + ylab("RDA2") +
+  xlab(paste0("RDA1 (", perc[1], "%)")) + 
+  ylab(paste0("RDA2 (", perc[2], "%)")) +
   theme_minimal()
 
 # ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/GRADCATCH/Manuscripts/1 GRADIENT/Figures",
 #        "RDA_FUNC_16S_sel_NOBIOMASS.png", width = 10, height = 8, dpi = 300)
 
-rda131 <- rda(func2_s ~ ., data=data.frame(prok_h1))
-summary(rda131)
 
-R2 <- RsquareAdj(rda131)$r.squared # Aquest és el valor que ja havíem vist abans al summary
-R2
-R2adj <- RsquareAdj(rda131)$adj.r.squared # Aquests él el valor ajustat que ens interessa
-R2adj
-
-
-anova.cca(rda131, permutations = how(nperm = 10000))
 
 
 
@@ -631,7 +664,8 @@ ggplot() +
                   size = 4, color = "darkred", vjust = -1,
                   fontface = "bold") +
   scale_color_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
-  xlab("RDA1") + ylab("RDA2") +
+  xlab(paste0("RDA1 (", perc[1], "%)")) + 
+  ylab(paste0("RDA2 (", perc[2], "%)")) +
   theme_minimal()
 
 # ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/GRADCATCH/Manuscripts/1 GRADIENT/Figures",
@@ -715,6 +749,16 @@ species_scores_df <- as.data.frame(species_scores)
 species_scores_df$var <- rownames(species_scores_df)
 rm(species_scores)
 
+
+# Calculate axis % values:
+# percentage of variance explained by each axis relative to the total variance (both constrained and unconstrained).
+# This is generally preferred because it takes into account all the components, including the total variance,
+# in calculating the proportions.
+perc <- round(100*(summary(rda222)$cont$importance[2, 1:2]), 2)
+perc
+
+
+
 ggplot() +
   geom_point(data = site_scores_df, 
              aes(x = RDA1, y = RDA2, color = Aridity),
@@ -737,7 +781,8 @@ ggplot() +
             size = 4, color = "darkred", vjust = -1,
             fontface = "bold") +
   scale_color_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
-  xlab("RDA1") + ylab("RDA2") +
+  xlab(paste0("RDA1 (", perc[1], "%)")) + 
+  ylab(paste0("RDA2 (", perc[2], "%)")) +
   theme_minimal()
 
 
@@ -763,6 +808,24 @@ func2_s_scores_df_sig <- func2_s_scores_df[c(1:2,7,11,17,20),]
 ITS2_hs <- ITS2_h[,c(1:2,7,11,17,20)]
 
 
+
+rda2221 <- rda(func2_s ~ ., data=data.frame(ITS2_hs))
+summary(rda2221)
+
+R2 <- RsquareAdj(rda2221)$r.squared # Aquest és el valor que ja havíem vist abans al summary
+R2
+R2adj <- RsquareAdj(rda2221)$adj.r.squared # Aquests él el valor ajustat que ens interessa
+R2adj
+
+
+anova.cca(rda2221, permutations = how(nperm = 10000))
+
+
+perc <- round(100*(summary(rda2221)$cont$importance[2, 1:2]), 2)
+perc
+
+
+
 ggplot() +
   geom_point(data = site_scores_df, 
              aes(x = RDA1, y = RDA2, color = Aridity),
@@ -785,23 +848,12 @@ ggplot() +
                   size = 4, color = "darkred", vjust = -1,
                   fontface = "bold") +
   scale_color_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
-  xlab("RDA1") + ylab("RDA2") +
+  xlab(paste0("RDA1 (", perc[1], "%)")) + 
+  ylab(paste0("RDA2 (", perc[2], "%)")) +
   theme_minimal()
  
 # ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/GRADCATCH/Manuscripts/1 GRADIENT/Figures",
 #        "RDA_FUNC_ITS2_sel_NOBIOMASS.png", width = 10, height = 8, dpi = 300)
-
-rda2221 <- rda(func2_s ~ ., data=data.frame(ITS2_hs))
-summary(rda2221)
-
-R2 <- RsquareAdj(rda2221)$r.squared # Aquest és el valor que ja havíem vist abans al summary
-R2
-R2adj <- RsquareAdj(rda2221)$adj.r.squared # Aquests él el valor ajustat que ens interessa
-R2adj
-
-
-anova.cca(rda2221, permutations = how(nperm = 10000))
-
 
 
 
@@ -1105,6 +1157,16 @@ species_scores_df <- as.data.frame(species_scores)
 species_scores_df$var <- rownames(species_scores_df)
 rm(species_scores)
 
+
+# Calculate axis % values:
+# percentage of variance explained by each axis relative to the total variance (both constrained and unconstrained).
+# This is generally preferred because it takes into account all the components, including the total variance,
+# in calculating the proportions.
+perc <- round(100*(summary(rda10)$cont$importance[2, 1:2]), 2)
+perc
+
+
+
 ggplot() +
   geom_point(data = site_scores_df, 
              aes(x = RDA1, y = RDA2, color = Aridity),
@@ -1127,7 +1189,8 @@ ggplot() +
                   size = 4, color = "darkred", vjust = -1,
                   fontface = "bold") +
   scale_color_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
-  xlab("RDA1") + ylab("RDA2") +
+  xlab(paste0("RDA1 (", perc[1], "%)")) + 
+  ylab(paste0("RDA2 (", perc[2], "%)")) +
   theme_minimal()
 
 
@@ -1157,6 +1220,29 @@ rownames(func_s_scores_df_sig)[9] <- "s350-400"
 rownames(func_s_scores_df_sig)[10] <- "Altitude"
 
 
+rda101 <- rda(prok_h ~ ., data=data.frame(env1_s1))
+summary(rda101)
+
+R2 <- RsquareAdj(rda101)$r.squared # Aquest és el valor que ja havíem vist abans al summary
+R2
+R2adj <- RsquareAdj(rda101)$adj.r.squared # Aquests él el valor ajustat que ens interessa
+R2adj
+
+
+anova.cca(rda101, permutations = how(nperm = 10000))
+
+
+
+# Calculate axis % values:
+# percentage of variance explained by each axis relative to the total variance (both constrained and unconstrained).
+# This is generally preferred because it takes into account all the components, including the total variance,
+# in calculating the proportions.
+perc <- round(100*(summary(rda101)$cont$importance[2, 1:2]), 2)
+perc
+
+
+
+
 ggplot() +
   geom_point(data = site_scores_df, 
              aes(x = RDA1, y = RDA2, color = Aridity),
@@ -1179,30 +1265,19 @@ ggplot() +
                   size = 4, color = "darkred", vjust = -1,
                   fontface = "bold") +
   scale_color_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
-  xlab("RDA1") + ylab("RDA2") +
+  xlab(paste0("RDA1 (", perc[1], "%)")) + 
+  ylab(paste0("RDA2 (", perc[2], "%)")) +
   theme_minimal()
 
 # ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/GRADCATCH/Manuscripts/1 GRADIENT/Figures",
 #        "RDA_16S_ENV_NOLANDC_sel.png", width = 10, height = 8, dpi = 300)
 
-rda101 <- rda(prok_h ~ ., data=data.frame(env1_s1))
-summary(rda101)
-
-R2 <- RsquareAdj(rda101)$r.squared # Aquest és el valor que ja havíem vist abans al summary
-R2
-R2adj <- RsquareAdj(rda101)$adj.r.squared # Aquests él el valor ajustat que ens interessa
-R2adj
 
 
-anova.cca(rda101, permutations = how(nperm = 10000))
 
 
 rm(func_s_scores, func_s_scores_df, func2_s_scores_df_sig, func_s_scores_df_sig,
    site_scores_df, species_scores_df, rda10, rda101)
-
-
-
-
 
 
 
@@ -1471,6 +1546,17 @@ species_scores_df <- as.data.frame(species_scores)
 species_scores_df$var <- rownames(species_scores_df)
 rm(species_scores)
 
+
+# Calculate axis % values:
+# percentage of variance explained by each axis relative to the total variance (both constrained and unconstrained).
+# This is generally preferred because it takes into account all the components, including the total variance,
+# in calculating the proportions.
+perc <- round(100*(summary(rda40)$cont$importance[2, 1:2]), 2)
+perc
+
+
+
+
 ggplot() +
   geom_point(data = site_scores_df, 
              aes(x = RDA1, y = RDA2, color = Aridity),
@@ -1493,7 +1579,8 @@ ggplot() +
                   size = 4, color = "darkred", vjust = -1,
                   fontface = "bold") +
   scale_color_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
-  xlab("RDA1") + ylab("RDA2") +
+  xlab(paste0("RDA1 (", perc[1], "%)")) + 
+  ylab(paste0("RDA2 (", perc[2], "%)")) +
   theme_minimal()
 
 
@@ -1523,6 +1610,28 @@ rownames(func_s_scores_df_sig)[8] <- "Peak B"
 rownames(func_s_scores_df_sig)[9] <- "C/N"
 
 
+rda401 <- rda(ITS2_h ~ ., data=data.frame(env1_s1))
+summary(rda401)
+
+R2 <- RsquareAdj(rda401)$r.squared # Aquest és el valor que ja havíem vist abans al summary
+R2
+R2adj <- RsquareAdj(rda401)$adj.r.squared # Aquests él el valor ajustat que ens interessa
+R2adj
+
+
+anova.cca(rda401, permutations = how(nperm = 10000))
+
+
+
+# Calculate axis % values:
+# percentage of variance explained by each axis relative to the total variance (both constrained and unconstrained).
+# This is generally preferred because it takes into account all the components, including the total variance,
+# in calculating the proportions.
+perc <- round(100*(summary(rda401)$cont$importance[2, 1:2]), 2)
+perc
+
+
+
 ggplot() +
   geom_point(data = site_scores_df, 
              aes(x = RDA1, y = RDA2, color = Aridity),
@@ -1545,22 +1654,14 @@ ggplot() +
                   size = 4, color = "blue",
                   fontface = "bold") +
   scale_color_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
-  xlab("RDA1") + ylab("RDA2") +
+  xlab(paste0("RDA1 (", perc[1], "%)")) + 
+  ylab(paste0("RDA2 (", perc[2], "%)")) +
   theme_minimal()
 
 # ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/GRADCATCH/Manuscripts/1 GRADIENT/Figures",
 #        "RDA_ITS2_ENV_NOLANDC_sel.png", width = 10, height = 8, dpi = 300)
 
-rda401 <- rda(ITS2_h ~ ., data=data.frame(env1_s1))
-summary(rda401)
 
-R2 <- RsquareAdj(rda401)$r.squared # Aquest és el valor que ja havíem vist abans al summary
-R2
-R2adj <- RsquareAdj(rda401)$adj.r.squared # Aquests él el valor ajustat que ens interessa
-R2adj
-
-
-anova.cca(rda401, permutations = how(nperm = 10000))
 
 
 
@@ -1843,6 +1944,17 @@ species_scores_df <- as.data.frame(species_scores)
 species_scores_df$var <- rownames(species_scores_df)
 rm(species_scores)
 
+
+
+# Calculate axis % values:
+# percentage of variance explained by each axis relative to the total variance (both constrained and unconstrained).
+# This is generally preferred because it takes into account all the components, including the total variance,
+# in calculating the proportions.
+perc <- round(100*(summary(rda9)$cont$importance[2, 1:2]), 2)
+perc
+
+
+
 ggplot() +
   geom_point(data = site_scores_df, 
              aes(x = RDA1, y = RDA2, color = Aridity),
@@ -1865,7 +1977,8 @@ ggplot() +
                   size = 4, color = "darkred", vjust = -1,
                   fontface = "bold") +
   scale_color_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
-  xlab("RDA1") + ylab("RDA2") +
+  xlab(paste0("RDA1 (", perc[1], "%)")) + 
+  ylab(paste0("RDA2 (", perc[2], "%)")) +
   theme_minimal()
 
 
@@ -1895,6 +2008,29 @@ rownames(func2_s_scores_df_sig)[7] <- "LTN"
 rownames(func2_s_scores_df_sig)[8] <- "WC"
 rownames(func2_s_scores_df_sig)[9] <- "LTC"
 
+
+
+rda91 <- rda(func2_s ~ ., data=data.frame(env1_hs))
+summary(rda91)
+
+R2 <- RsquareAdj(rda91)$r.squared # Aquest és el valor que ja havíem vist abans al summary
+R2
+R2adj <- RsquareAdj(rda61)$adj.r.squared # Aquests él el valor ajustat que ens interessa
+R2adj
+
+
+anova.cca(rda91, permutations = how(nperm = 10000))
+
+
+# Calculate axis % values:
+# percentage of variance explained by each axis relative to the total variance (both constrained and unconstrained).
+# This is generally preferred because it takes into account all the components, including the total variance,
+# in calculating the proportions.
+perc <- round(100*(summary(rda91)$cont$importance[2, 1:2]), 2)
+perc
+
+
+
 ggplot() +
   geom_point(data = site_scores_df, 
              aes(x = RDA1, y = RDA2, color = Aridity),
@@ -1917,22 +2053,12 @@ ggplot() +
                   size = 4, color = "darkred", vjust = -1,
                   fontface = "bold") +
   scale_color_AI(discrete = FALSE, palette = "Sites", reverse = FALSE, name = "Aridity")+
-  xlab("RDA1") + ylab("RDA2") +
-  theme_minimal()
+  xlab(paste0("RDA1 (", perc[1], "%)")) + 
+  ylab(paste0("RDA2 (", perc[2], "%)")) +
+  plot.theme2
 
-# ggsave(path = "C:/Users/ecologia.PCECO002/OneDrive - Universitat de Girona/GRADCATCH/Manuscripts/1 GRADIENT/Figures",
-#        "RDA_FUNC_ENV_sel_NOBIOMASS_NOLANDC.png", width = 10, height = 8, dpi = 300)
+ggsave(path = "Figures", "RDA_FUNC_ENV_sel_NOBIOMASS_NOLANDC.png", width = 10, height = 8, dpi = 300)
 
-rda91 <- rda(func2_s ~ ., data=data.frame(env1_hs))
-summary(rda91)
-
-R2 <- RsquareAdj(rda91)$r.squared # Aquest és el valor que ja havíem vist abans al summary
-R2
-R2adj <- RsquareAdj(rda61)$adj.r.squared # Aquests él el valor ajustat que ens interessa
-R2adj
-
-
-anova.cca(rda91, permutations = how(nperm = 10000))
 
 
 
@@ -2953,5 +3079,11 @@ R2adj
 
 
 anova.cca(rda71, permutations = how(nperm = 10000))
+
+
+
+# ________________________________________________________________________----
+
+
 
 
