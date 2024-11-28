@@ -1,0 +1,49 @@
+﻿Abbreviation;Variable;Units
+MAP;Mean annual precipitation;mm
+MAT;Mean annual temperature;ºC
+AI;Aridity Index;
+Altitude;Altitude;m.a.s.l.
+Land cover;Land cover type;
+Stemp;Soil Temperature;ºC
+WA;Water activity;
+WC;Water content;%
+SOM;Soil organic matter;%
+pH;pH;
+TOC;Total organic carbon;%
+TC;Total carbon;%
+TN;Total nitrogen;%
+C/N;C/N mass-based ratio;
+NH4+;Ammonium content;mg/kg of dry soil
+PO43-;Phosphate content;mg/kg of dry soil
+SO42-;Sulfate content;mg/kg of dry soil
+Sand;Sand content;%
+Silt;Silt content;%
+Clay;Clay content;%
+Litter;Litter;dry g/m2
+LTC;Total carbon in litter;%
+LTN;Total nitrogen in litter;%
+S275:295;Absorbant slope at 275-295 wavelenght interval;
+S350:400;Absorbant slope at 350-400 wavelenght interval;
+SR;Slope ratio;
+E2/E3;Ratio of absorbances 250/365;
+E3/E4;Ratio of absorbances 300/400;
+E4/E6;Ratio of absorbances 465/665;
+FI;Flourescence Index;
+BIX;Biological Index;
+Peak A;Peak of dissolved organic matter characterization;
+Peak B;Peak of dissolved organic matter characterization;
+Peak C;Peak of dissolved organic matter characterization;
+Peak M;Peak of dissolved organic matter characterization;
+Peak T;Peak of dissolved organic matter characterization;
+HIX;Humification index;
+;;
+;;
+;;
+;;
+;;
+;;
+;;
+;;
+;;
+;;
+;;
