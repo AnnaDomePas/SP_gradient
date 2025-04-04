@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use info, data or code from this repository, please cite it as below."
+authors:
+- family-names: "Doménech-Pascual"
+  given-names: "Anna"
+  orcid: "https://orcid.org/0000-0002-1459-6736"
+- family-names: "Chavez Rodriguez"
+  given-names: "Luciana"
+  orcid: "https://orcid.org/0000-0003-1510-6695"
+title: "SP_gradient"
+version: 1.0.0
+date-released: 2023-09-29
+url: "https://github.com/AnnaDomePas/SP_gradient"
