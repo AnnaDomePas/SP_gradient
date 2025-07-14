@@ -10,7 +10,7 @@ This repository contains the following files:
 This repository is related to the publication (Doménech-Pascual et al., 2025), where soil samples from a natural humid to arid climate gradient across the Iberian Peninsula were sampled in order to identify the main drivers of soil function variability along that gradient.
 
 Here the list of the name of each site sampled with their respective coordinates:
-  > Artikutza (SP01), 43.19830N, 1.80540W; Las Herrerías (SP02), 42.66882N, 6.98307W; Gavarres (SP03), 41.89968N, 2.91217E; Coy (SP04), 37.94358N, 1.77985W; Tabernas (SP05), 37.00954N, 2.44254W; Vallcebre (SP06), 42.20294N, 1.82094E; Arantzazu (SP07), 42.96013N, 2.37830W; Fragas do Eume (SP08), 43.36926N, 7.98579W; Santomera (SP09), 38.09860N, 1.03135W; Malcamino (SP10), 37.58771N, 1.44243W; Montgrí (SP11), 42.06125N, 3.12231E; Albera (SP12), 42.39600N, 2.98230E.
+  > Artikutza (ATK), 43.19830N, 1.80540W; Las Herrerías (LHE), 42.66882N, 6.98307W; Gavarres (GAV), 41.89968N, 2.91217E; Coy (COY), 37.94358N, 1.77985W; Tabernas (TAB), 37.00954N, 2.44254W; Vallcebre (VAL), 42.20294N, 1.82094E; Arantzazu (ARZ), 42.96013N, 2.37830W; Fragas do Eume (FDE), 43.36926N, 7.98579W; Santomera (SAN), 38.09860N, 1.03135W; Malcamino (MAL), 37.58771N, 1.44243W; Montgrí (MON), 42.06125N, 3.12231E; Albera (ALB), 42.39600N, 2.98230E.
 
 
 ### Methods and materials:
