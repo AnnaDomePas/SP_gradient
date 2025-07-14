@@ -14,8 +14,7 @@ Here the list of the name of each site sampled with their respective coordinates
 
 
 ### Methods and materials:
-For a complete description of the methods used to collect and generate the data and the R script we refer to the publication:
-(Doménech-Pascual et al., 2025)
+For a complete description of the methods used to collect and generate the data and the R script we refer to the publication: Doménech-Pascual et al. (2025).
 
 ### Autorship of this repository:
 - A. Doménech-Pascual, GRECO, Institute of Aquatic Ecology, University of Girona (Girona, Spain)
