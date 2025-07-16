@@ -25,5 +25,5 @@ This dataset is published under the CC-BY license.
 This license allows reusers to distribute, remix, adapt, and build upon the material in any medium or format, so long as attribution is given to the creators
 
 
-### Reference of the manuscript:
-Doménech-Pascual, A., Chavez Rodriguez, L., Han, X., Casas-Ruiz, J. P., Ferriol-Ciurana, J., Donhauser, J., Jordaan, K., Allison, S. D., Frossard, A., Ramond, J.-B., Priemé, A., Romaní, A. M. (2025). Soil functions are shaped by aridity through soil properties and the microbial community structure. Applied Soil Ecology. https://doi.org/10.1016/j.apsoil.2025.106313
+### Reference:
+Doménech-Pascual, A., Rodriguez, L. C., Han, X., Casas-Ruiz, J. P., Ferriol-Ciurana, J., Donhauser, J., Jordaan, K., Allison, S. D., Frossard, A., Priemé, A., Ramond, J.-B., & Romaní, A. M. (2025). Soil functions are shaped by aridity through soil properties and the microbial community structure. Applied Soil Ecology, 213, 106313. https://doi.org/10.1016/j.apsoil.2025.106313
